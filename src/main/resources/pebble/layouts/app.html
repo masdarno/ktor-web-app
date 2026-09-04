@@ -1,0 +1,28 @@
+{% extends "layouts/base.html" %}
+
+{% block body %}
+
+{# Include Sidebar Partial #}
+{% include "layouts/partials/sidebar.html" %}
+
+<div class="wrapper d-flex flex-column min-vh-100">
+
+    {# Include Header Partial #}
+    {% include "layouts/partials/header.html" %}
+
+    <div class="body flex-grow-1">
+        <div class="container-lg px-4">
+
+            {# AREA KONTEN DINAMIS #}
+            {% block content %}
+            {% endblock %}
+
+        </div>
+    </div>
+
+    {# Include Footer Partial #}
+    {% include "layouts/partials/footer.html" %}
+
+</div>
+
+{% endblock %}

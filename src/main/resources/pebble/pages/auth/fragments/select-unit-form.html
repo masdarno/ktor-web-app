@@ -1,0 +1,37 @@
+
+{% if units is not empty %}
+<p class="text-body-secondary">Pilih Unit Login</p>
+<form
+        hx-post="/select-unit"
+        hx-target="#form-container"
+        hx-swap="innerHTML">
+
+    <div class="d-grid gap-2 col-6 mx-auto">
+
+        {% for unit in units %}
+        <button type="submit"
+                name="unitId"
+                value="{{ unit.id }}"
+                class="btn btn-primary btn-lg shadow btn-block"
+                hx-indicator="#loading">
+            <i class="cil-building mr-2"></i>
+            {{ unit.name }}
+        </button>
+        {% if errors.unit %}
+        <div class="invalid-feedback">
+            {{ errors.unit }}
+        </div>
+        {% endif %}
+        {% endfor %}
+
+    </div>
+
+    <div class="text-center mt-3" id="loading" style="display: none;">
+        <div class="spinner-border text-primary" role="status"></div>
+    </div>
+</form>
+{% else %}
+<div class="alert alert-warning">
+    Anda belum terdaftar di Unit manapun.
+</div>
+{% endif %}

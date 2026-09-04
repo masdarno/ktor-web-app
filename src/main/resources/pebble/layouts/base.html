@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{# Include Head Partial #}
+{% include "layouts/partials/head.html" %}
+
+<body hx-headers='{"X-CSRF-Token": "{{csrfToken}}"}'>
+{# AREA BODY DINAMIS #}
+{% block body %}
+{% endblock %}
+
+{# Include Scripts Partial #}
+{% include "layouts/partials/scripts.html" %}
+
+{# Block tambahan untuk script khusus per halaman jika perlu #}
+{% block scripts %}
+{% endblock %}
+<div class="toast-container position-fixed top-0 start-50 p-3">
+    <div id="toast-coreui" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                Hello, world! This is a toast message.
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-coreui-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+<script>
+    // Ekstrak menjadi fungsi
+    function showToast(message, type = 'primary') {
+        const toastElement = document.getElementById('toast-coreui');
+        const toastBody = toastElement.querySelector('.toast-body');
+        toastBody.textContent = message ?? '-';
+
+        // reset class text-bg-*
+        toastElement.className = 'toast align-items-center border-0';
+        // tambahkan class baru
+        toastElement.classList.add(`text-bg-${type}`);
+
+        const toast = new coreui.Toast(toastElement);
+        toast.show();
+    }
+
+    // Tetap bisa dipanggil via event jika diperlukan
+    document.body.addEventListener('showToast', function(e) {
+        showToast(e.detail.message, e.detail.type);
+    });
+</script>
+</body>
+</html>

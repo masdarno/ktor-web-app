@@ -1,0 +1,99 @@
+<form hx-post="/register"
+      hx-target="#form-container"
+      hx-swap="innerHTML">
+    <!-- dummy field untuk menipu autofill -->
+    <input type="text" style="display:none">
+    <input type="password" style="display:none">
+
+    <div class="input-group mb-3">
+            <span class="input-group-text">
+                <svg class="icon">
+                    <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-user"></use>
+                </svg>
+            </span>
+        <input class="form-control {% if errors.name %}is-invalid{% endif %}"
+               type="text"
+               name="name"
+               placeholder="Nama"
+               value="{{ formData.name | default('') }}">
+        {% if errors.name %}
+        <div class="invalid-feedback">
+            {{ errors.name }}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="input-group mb-3">
+            <span class="input-group-text">
+                <svg class="icon">
+                    <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-user"></use>
+                </svg>
+            </span>
+        <input class="form-control {% if errors.username %}is-invalid{% endif %}"
+               type="text"
+               name="username"
+               placeholder="Username"
+               value="{{ formData.username | default('') }}">
+        {% if errors.username %}
+        <div class="invalid-feedback">
+            {{ errors.username }}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="input-group mb-3">
+            <span class="input-group-text">
+                <svg class="icon">
+                    <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-envelope-open"></use>
+                </svg>
+            </span>
+        <input class="form-control {% if errors.email %}is-invalid{% endif %}"
+               type="text"
+               name="email"
+               placeholder="Email"
+               value="{{ formData.email | default('') }}">
+        {% if errors.email %}
+        <div class="invalid-feedback">
+            {{ errors.email }}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="input-group mb-3">
+            <span class="input-group-text">
+                <svg class="icon">
+                    <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-lock-locked"></use>
+                </svg>
+            </span>
+        <input class="form-control {% if errors.password %}is-invalid{% endif %}"
+               type="password"
+               name="password"
+               placeholder="Password">
+        {% if errors.password %}
+        <div class="invalid-feedback">
+            {{ errors.password }}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="input-group mb-4">
+            <span class="input-group-text">
+                <svg class="icon">
+                    <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-lock-locked"></use>
+                </svg>
+            </span>
+        <input class="form-control {% if errors.passwordConfirmation %}is-invalid{% endif %}"
+               type="password"
+               name="passwordConfirmation"
+               placeholder="Repeat password">
+        {% if errors.passwordConfirmation %}
+        <div class="invalid-feedback">
+            {{ errors.passwordConfirmation }}
+        </div>
+        {% endif %}
+    </div>
+
+    <button class="btn btn-block btn-success" type="submit">
+        Create Account
+    </button>
+</form>

@@ -1,0 +1,37 @@
+{% extends "layouts/auth.html" %}
+
+{% block content %}
+<div class="card col-md-6 p-0 text-center">
+    <div class="card-header">Email Verivication</div>
+    <div class="card-body">
+        <div class="alert alert-warning" role="alert">
+            <h4 class="alert-heading">Email belum diverifikasi! </h4>
+            <p>Kami telah mengirimkan email verifikasi ke
+                <strong>{{ user.email }}</strong>.</p>
+        </div>
+
+        <form
+                hx-post="/resend-verification"
+                hx-target="#result"
+                hx-swap="innerHTML">
+            <button class="btn btn-primary">
+                Kirim ulang email verifikasi
+            </button>
+        </form>
+
+        <div id="result" class="mt-3"></div>
+    </div>
+    <div class="card-footer">
+        <button
+                type="button"
+                class="btn btn-link"
+                hx-post="/logout"
+                hx-target="body"
+                hx-swap="none"
+        >Logout</button>
+    </div>
+</div>
+{% endblock %}
+
+
+

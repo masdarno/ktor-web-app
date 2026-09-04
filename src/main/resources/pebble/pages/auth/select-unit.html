@@ -1,0 +1,22 @@
+{% extends "layouts/auth.html" %}
+
+{% block content %}
+<div class="card col-md-6 p-0 text-center">
+    <div class="card-header">Select Unit</div>
+    <div class="card-body">
+        <p>Halo, {{ tempUserSession.name | default('') }}!</p>
+        <div id="form-container">
+            {% include "pages/auth/fragments/select-unit-form.html" %}
+        </div>
+    </div>
+    <div class="card-footer">
+        <button
+                type="button"
+                class="btn btn-link"
+                hx-post="/logout"
+                hx-target="body"
+                hx-swap="none"
+        >Logout</button>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,98 @@
+<form hx-put="/user-profile/{{formData.id}}"
+      hx-target="#form-container"
+      hx-swap="innerHTML"
+      id="my-form"
+      class="row g-3 needs-validation"
+      novalidate=""
+      autocomplete="off"
+      enctype="multipart/form-data">
+
+    <!-- Foto Profil -->
+    <div class="mb-3 col-md-12">
+        <label for="photoFile" class="form-label">Foto Profil</label>
+
+        <!-- Preview -->
+        <div class="mb-2">
+            <img id="preview" src="{{ formData.photoUrl }}" class="img-thumbnail rounded" style="width: 150px; height: 150px; object-fit: cover;">
+        </div>
+
+        <!-- File Input -->
+        <input
+            type="file"
+            id="photoFile"
+            name="photoFile"
+            class="form-control {% if errors.photoFile %}is-invalid{% endif %}"
+            accept="image/*"
+            onchange="previewImage(event)"
+            placeholder="Photo"
+        >
+
+        {% if errors.photoFile %}
+        <div class="invalid-feedback">
+            {{ errors.photoFile }}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Nama -->
+    <div class="row mb-3">
+        <label for="my-name" class="col-sm-4 col-form-label">Nama</label>
+        <div class="col-sm-8">
+            <input
+                type="text"
+                id="my-name"
+                name="name"
+                class="form-control {% if errors.name %}is-invalid{% endif %}"
+                value="{{ formData.name | default('') }}"
+                placeholder="Nama"
+            >
+                {% if errors.name %}
+                <div class="invalid-feedback">
+                    {{ errors.name }}
+                </div>
+                {% endif %}
+        </div>
+    </div>
+
+    <!-- Alias-->
+    <div class="row mb-3">
+        <label for="my-alias" class="col-sm-4 col-form-label">Alias</label>
+        <div class="col-sm-8">
+            <input
+                    type="text"
+                    id="my-alias"
+                    name="alias"
+                    class="form-control {% if errors.alias %}is-invalid{% endif %}"
+                    value="{{ formData.alias | default('') }}"
+                    placeholder="Alias"
+            >
+            {% if errors.alias %}
+            <div class="invalid-feedback">
+                {{ errors.alias }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Email -->
+    <div class="row mb-3">
+        <label for="email" class="col-sm-4 col-form-label">Email</label>
+        <div class="col-sm-8">
+            <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    class="form-control {% if errors.email %}is-invalid{% endif %}"
+                    value="{{ formData.email | default('') }}"
+                    placeholder="Email"
+            >
+            {% if errors.email %}
+            <div class="invalid-feedback">
+                {{ errors.email }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+</form>
+

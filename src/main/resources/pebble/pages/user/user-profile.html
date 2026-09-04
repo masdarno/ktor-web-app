@@ -1,0 +1,35 @@
+{% extends "layouts/app.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-4">
+            <div class="card-header">Profile Information</div>
+            <div class="card-body position-relative p-4">
+                <div id="form-container">
+                {% include "pages/user/fragments/user-profile-form.html" %}
+                </div>
+                <script>
+                    function previewImage(event) {
+                      const file = event.target.files[0];
+                      const preview = document.getElementById('preview');
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                          preview.src = e.target.result;
+                          preview.style.display = 'block';
+                        }
+                        reader.readAsDataURL(file);
+                      }
+                    }
+                </script>
+            </div>
+            <div class="card-footer">
+                <button class="btn btn-block btn-success" type="submit" form="my-form">
+                    Simpan
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

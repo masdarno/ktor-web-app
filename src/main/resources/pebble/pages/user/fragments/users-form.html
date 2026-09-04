@@ -1,0 +1,115 @@
+{# ===============================
+PREPARE VARIABLES (NO HTML)
+=============================== #}
+
+{% set isView = (mode == 'view') %}
+
+{% set readonlyAttr = isView ? 'readonly="readonly"' : '' %}
+{% set disabledAttr = isView ? 'disabled="disabled"' : '' %}
+
+{% set hxMethod = '' %}
+{% set hxUrl = '' %}
+
+{% if mode == 'add' %}
+{% set hxMethod = 'hx-post' %}
+{% set hxUrl = '/users' %}
+{% elseif mode == 'edit' %}
+{% set hxMethod = 'hx-put' %}
+{% set hxUrl = '/users/' ~ formData.id %}
+{% endif %}
+
+{# ===============================
+PURE HTML BELOW
+=============================== #}
+
+<form
+        {{ hxMethod }}="{{ hxUrl }}"
+        hx-target="#form-container"
+        hx-swap="innerHTML"
+        hx-include="[name]"
+>
+
+    <div class="mb-3">
+        <label class="form-label">Nama</label>
+        <input
+                name="name"
+                class="form-control {% if errors.name %}is-invalid{% endif %}"
+                value="{{ formData.name | default('') }}"
+                {{ readonlyAttr }}>
+        {% if errors.name %}
+        <div class="invalid-feedback">
+            {{ errors.name }}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Alias</label>
+        <input
+                name="alias"
+                class="form-control {% if errors.alias %}is-invalid{% endif %}"
+                value="{{ formData.alias | default('') }}"
+                {{ readonlyAttr }}>
+        {% if errors.alias %}
+        <div class="invalid-feedback">
+            {{ errors.alias }}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Username</label>
+        <input
+                name="username"
+                class="form-control {% if errors.username %}is-invalid{% endif %}"
+                value="{{ formData.username | default('') }}"
+                {{ readonlyAttr }}>
+        {% if errors.username %}
+        <div class="invalid-feedback">
+            {{ errors.username }}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input
+                name="email"
+                class="form-control {% if errors.email %}is-invalid{% endif %}"
+                value="{{ formData.email | default('') }}"
+                {{ readonlyAttr }}>
+        {% if errors.email %}
+        <div class="invalid-feedback">
+            {{ errors.email }}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Role</label>
+        <select name="roleId" class="form-select {% if errors.roleId %}is-invalid{% endif %}" {{ disabledAttr }}>
+
+            {% for role in formElement.roles %}
+
+            {% set selectedAttr = (formData is not null and formData.roleId == role.id ) ? 'selected="selected"' : '' %}
+            <option value="{{ role.id }}" {{ selectedAttr }}>
+                {{ role.name }}
+            </option>
+
+            {% endfor %}
+
+        </select>
+        {% if errors.roleId %}
+        <div class="invalid-feedback">
+            {{ errors.roleId }}
+        </div>
+        {% endif %}
+    </div>
+
+    {% if not isView %}
+    <div class="text-end">
+        <button class="btn btn-primary" type="submit">Simpan</button>
+    </div>
+    {% endif %}
+
+</form>

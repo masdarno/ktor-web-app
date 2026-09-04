@@ -1,0 +1,70 @@
+{# resources/pebble/layouts/partials/sidebar-nav.html #}
+
+{% macro render_menu(menu_items, is_compact=false) %}
+{# 1. Tentukan class UL berdasarkan level #}
+{% set ul_class = 'nav-group-items' %}
+{% if not is_compact %}
+{# Level Root: Sidebar utama #}
+{% set ul_class = 'sidebar-nav' %}
+{% else %}
+{# Level Compact/Children: Sub-menu #}
+{% set ul_class = 'nav-group-items compact' %}
+{% endif %}
+{# 2. Mulai tag UL dan tambahkan atribut CoreUI hanya di root #}
+<ul class="{{ ul_class }}"
+    {% if not is_compact %} data-coreui="navigation" data-simplebar=""{% endif %}
+>
+    {% for menu in menu_items %}
+    {% if menu.type == 'ITEM' %}
+    <li class="nav-item">
+        {# A. Tag Anchor #}
+        <a class="nav-link" href="{{ menu.url | default('#') }}"
+           {% if menu.isExternalLink %} target="_blank"{% endif %}
+        >
+            {# B. Ikon / Bullet #}
+            {% if not is_compact and menu.icon %}
+            <svg class="nav-icon"><use xlink:href="vendors/@coreui/icons/svg/free.svg#{{ menu.icon }}"></use></svg>
+            {% elseif is_compact %}
+            {# Menampilkan bullet untuk sub-menu (item level 2+) #}
+            <span class="nav-icon"><span class="nav-icon-bullet"></span></span>
+            {% endif %}
+
+            {# C. Nama Menu #}
+            {{ menu.name | default('Unnamed Item') }}
+
+            {# D. Badge #}
+            {% if menu.badgeText %}
+            <span class="badge badge-sm {{ menu.badgeColor | default('bg-info') }} ms-auto">{{ menu.badgeText }}</span>
+            {% endif %}
+
+            {# E. Ikon Eksternal #}
+            {% if menu.isExternalLink %}
+            <svg class="icon icon-sm ms-2"><use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-external-link"></use></svg>
+            {% endif %}
+        </a>
+    </li>
+
+    {% elseif menu.type == 'GROUP' %}
+    <li class="nav-group">
+        <a class="nav-link nav-group-toggle" href="#">
+            {% if menu.icon %}
+            <svg class="nav-icon"><use xlink:href="vendors/@coreui/icons/svg/free.svg#{{ menu.icon }}"></use></svg>
+            {% endif %}
+            {{ menu.name | default('Unnamed Group') }}
+        </a>
+        {# Panggil rekursif macro untuk menu children #}
+        {{ render_menu(menu.children, true) }}
+    </li>
+
+    {% elseif menu.type == 'TITLE' %}
+    <li class="nav-title">{{ menu.name | default('SECTION TITLE') }}</li>
+
+    {% elseif menu.type == 'DIVIDER' %}
+    <li class="nav-divider"></li>
+    {% endif %}
+    {% endfor %}
+</ul>
+{% endmacro %}
+
+{# Panggil macro untuk menu root (parent_id = null) #}
+{{ render_menu(menuData, false) }}

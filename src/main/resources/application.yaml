@@ -1,0 +1,56 @@
+ktor:
+  application:
+    modules:
+      - id.darno.ApplicationKt.module
+
+  deployment:
+    port: ${KTOR_PORT}
+    development: ${KTOR_DEVELOPMENT}
+
+app:
+  baseUrl: ${APP_BASE_URL}
+db:
+  host: ${DB_HOST}
+  port: ${DB_PORT}
+  name: ${DB_NAME}
+  user: ${DB_USER}
+  password: ${DB_PASSWORD}
+  type: ${DB_TYPE}
+storage:
+  type: ${STORAGE_TYPE}
+  base-path: ${STORAGE_BASE_PATH}
+
+mail:
+  from: ${MAIL_FROM}
+  smtp:
+    host: ${MAIL_SMTP_HOST}
+    port: ${MAIL_SMTP_PORT}
+    username: ${MAIL_SMTP_USERNAME}
+    password: ${MAIL_SMTP_PASSWORD}
+    starttls: ${MAIL_SMTP_STARTTLS}
+    auth: ${MAIL_SMTP_AUTH}
+
+security:
+  session:
+    encryptKey: ${SESSION_ENCRYPT_KEY}
+    signKey: ${SESSION_SIGN_KEY}
+
+  cookie:
+    secure: ${COOKIE_SECURE}
+
+  csrf:
+    allowOrigin: ${CSRF_ALLOW_ORIGIN}
+
+  rememberMePepper: ${REMEMBER_ME_PEPPER}
+
+modules:
+  user:
+    upload:
+      profile-dir: ${USER_PROFILE_DIR}
+
+    photo:
+      max-size-mb: ${USER_PHOTO_MAX_SIZE_MB}
+
+    photo-url:
+      upload-dir: ${USER_PHOTO_UPLOAD_DIR}
+      default-dir: ${USER_PHOTO_DEFAULT_DIR}

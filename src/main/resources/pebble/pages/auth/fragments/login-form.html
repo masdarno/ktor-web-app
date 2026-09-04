@@ -1,0 +1,46 @@
+<form id="login-form"
+      hx-post="/login"
+      hx-target="#form-container"
+      hx-swap="innerHTML">
+    <!-- dummy field untuk menipu autofill -->
+    <input type="text" style="display:none">
+    <input type="password" style="display:none">
+
+    <div class="input-group mb-3">
+            <span class="input-group-text">
+                <svg class="icon">
+                    <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-user"></use>
+                </svg>
+            </span>
+        <input class="form-control {% if errors.username %}is-invalid{% endif %}"
+               type="text"
+               name="username"
+               placeholder="Username"
+               value="{{ formData.username | default('') }}">
+        {% if errors.username %}
+        <div class="invalid-feedback">
+            {{ errors.username }}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="input-group mb-4">
+        <span class="input-group-text">
+            <svg class="icon">
+                <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-lock-locked"></use>
+            </svg>
+        </span>
+        <input class="form-control {% if errors.password %}is-invalid{% endif %}"
+               type="password"
+               name="password"
+               placeholder="Password">
+        {% if errors.password %}
+        <div class="invalid-feedback">
+            {{ errors.password }}
+        </div>
+        {% endif %}
+    </div>
+
+    <input type="checkbox" name="remember_me" value="1"> Remember Me
+
+</form>

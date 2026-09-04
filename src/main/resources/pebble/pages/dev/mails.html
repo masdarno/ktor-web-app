@@ -1,0 +1,14 @@
+<div class="container mt-4">
+    <h3>Mock Emails</h3>
+
+    {% for mail in mails %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <strong>To:</strong> {{ mail.to }}<br>
+            <strong>Subject:</strong> {{ mail.subject }}<br>
+            <hr>
+            {{ mail.body | raw }}
+        </div>
+    </div>
+    {% endfor %}
+</div>
