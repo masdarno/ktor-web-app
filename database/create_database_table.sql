@@ -57,7 +57,7 @@ create table `users` (
   `username` varchar(10) not null unique,
   `password` char(60) not null,
   `gender_id` tinyint unsigned not null default 2,
-  `photo` varchar(20) not null default 'face.jpg',
+  `photo` varchar(100) not null default 'male.jpg',
   `role_id` tinyint unsigned not null,
   `email` varchar(50),
   `email_verified_at` timestamp,

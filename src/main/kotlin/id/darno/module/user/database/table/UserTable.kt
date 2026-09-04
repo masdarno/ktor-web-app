@@ -16,7 +16,7 @@ object UserTable : IdTable<Short>("users") {
     val email = varchar("email", 50).uniqueIndex()
     val emailVerifiedAt = datetime("email_verified_at").nullable()
     val genderId = short("gender_id").references(GenderTable.id).default(2)
-    val photo = varchar("photo", 100).default("face.jpg")
+    val photo = varchar("photo", 100).default("male.jpg")
     val roleId = reference("role_id", RoleTable)
     val isActive = bool("is_active").default(true)
     val createdAt = datetime("created_at")
