@@ -8,31 +8,31 @@ import id.darno.module.user.domain.UserDomain
 fun UserDomain.combineWith(unit: UnitDomain): UserSession {
     return UserSession(
         userId = id,
-        name = name,
+        nama = nama,
         photoUrl = photoUrl,
         roleId = roleId,
         role = role,
         unitId = unit.id,
-        unit = unit.name
+        unit = unit.nama
     )
 }
 
 fun TempUserSession.combineWith(unit: UnitDomain): UserSession {
     return UserSession(
         userId = userId,
-        name = name,
+        nama = nama,
         photoUrl = photoUrl,
         roleId = roleId,
         role = role,
         unitId = unit.id,
-        unit = unit.name
+        unit = unit.nama
     )
 }
 
 fun TempUserSession.toUserSession(): UserSession {
     return UserSession(
         userId = userId,
-        name = name,
+        nama = nama,
         photoUrl = photoUrl,
         roleId = roleId,
         role = role,

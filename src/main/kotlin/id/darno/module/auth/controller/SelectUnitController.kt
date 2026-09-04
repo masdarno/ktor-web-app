@@ -34,7 +34,7 @@ class SelectUnitController(
     suspend fun index(call: ApplicationCall){
         val session = call.sessions.get<TempUserSession>()!!
 
-        logger.info("Select unit user with username: {}", session.name)
+        logger.info("Select unit user with username: {}", session.nama)
 
         val units = userLookupService.getUnitsForUser(session.userId)
         val csrfToken = call.ensureCsrfToken()

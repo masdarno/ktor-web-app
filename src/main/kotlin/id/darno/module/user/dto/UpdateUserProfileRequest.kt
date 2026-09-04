@@ -5,13 +5,13 @@ import org.valiktor.functions.isNotEmpty
 import org.valiktor.validate
 
 data class UpdateUserProfileRequest(
-    val name: String,
+    val nama: String,
     val alias: String,
     val email: String
 ) {
     init {
         validate(this) {
-            validate(UpdateUserProfileRequest::name).isNotEmpty()
+            validate(UpdateUserProfileRequest::nama).isNotEmpty()
             validate(UpdateUserProfileRequest::alias).isNotEmpty()
             validate(UpdateUserProfileRequest::email).isNotEmpty().isEmail()
         }
@@ -19,7 +19,7 @@ data class UpdateUserProfileRequest(
 }
 
 fun UpdateUserProfileRequest.toFormData() = mapOf(
-    "name" to name,
+    "nama" to nama,
     "alias" to alias,
     "email" to email
 )

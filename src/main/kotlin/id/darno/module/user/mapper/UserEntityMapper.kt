@@ -17,7 +17,7 @@ fun UserEntity.toUserDomain(config: PhotoUrlConfig): UserDomain {
     }
     return UserDomain(
         id = this.id.value,
-        name = this.name,
+        nama = this.nama,
         alias = this.alias,
         username = this.username,
         genderId = this.genderId,
@@ -26,7 +26,7 @@ fun UserEntity.toUserDomain(config: PhotoUrlConfig): UserDomain {
         photo = this.photo,
         photoUrl = photoUrl,
         roleId = this.role.id.value,
-        role = this.role.name,
+        role = this.role.nama,
         isActive = this.isActive
     )
 }

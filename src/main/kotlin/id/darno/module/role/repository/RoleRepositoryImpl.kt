@@ -24,15 +24,15 @@ class RoleRepositoryImpl : RoleRepository {
         RoleEntity.find { RoleTable.id eq id }.any()
     }
 
-    override suspend fun existsByName(name: String): Boolean = dbQuery {
-        RoleEntity.find { RoleTable.name eq name }
+    override suspend fun existsByName(nama: String): Boolean = dbQuery {
+        RoleEntity.find { RoleTable.nama eq nama }
             .any()
     }
 
     override suspend fun create(params: RoleCreateParams): RoleDomain = dbQuery {
         try {
             RoleEntity.new {
-                name = params.name
+                nama = params.nama
                 isActive = params.isActive
             }.toRoleDomain()
         } catch (e: ExposedSQLException) {
@@ -44,7 +44,7 @@ class RoleRepositoryImpl : RoleRepository {
         try {
             val entity = RoleEntity[id]
             entity.apply {
-                name = params.name ?: name
+                nama = params.nama ?: nama
                 isActive = params.isActive ?: isActive
             }.toRoleDomain()
         } catch (e: ExposedSQLException) {

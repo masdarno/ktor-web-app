@@ -7,7 +7,7 @@ import org.jetbrains.exposed.v1.core.dao.id.EntityID
 
 class RoleEntity(id: EntityID<Short>) : Entity<Short>(id) {
     companion object : EntityClass<Short, RoleEntity>(RoleTable)
-    var name by RoleTable.name
+    var nama by RoleTable.nama
     var isActive by RoleTable.isActive
     var createdAt by RoleTable.createdAt
     var updatedAt by RoleTable.updatedAt

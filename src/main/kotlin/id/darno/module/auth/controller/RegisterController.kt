@@ -45,7 +45,7 @@ class RegisterController(
         val parameters = call.receiveParameters()
         try {
             val request = RegisterRequest(
-                name = parameters["name"].orEmpty(),
+                nama = parameters["nama"].orEmpty(),
                 username = parameters["username"].orEmpty(),
                 password = parameters["password"].orEmpty(),
                 passwordConfirmation = parameters["passwordConfirmation"].orEmpty(),
@@ -61,7 +61,7 @@ class RegisterController(
             )
 
             call.hxTriggerWithToast(
-                "Alhamdulillah, ${user.name}",
+                "Alhamdulillah, ${user.nama}",
                 ToastType.SUCCESS
             )
             call.respond(
@@ -82,12 +82,12 @@ class RegisterController(
             )
         } catch (ex: ApplicationException) {
             // ERROR SERVICE/REPOSITORY
-            logger.error("Failed to register user: {}", parameters["name"], ex)
+            logger.error("Failed to register user: {}", parameters["nama"], ex)
 
             val key = when {
                 ex.message?.contains("username", ignoreCase = true) == true -> "username"
                 ex.message?.contains("email", ignoreCase = true) == true -> "email"
-                else -> "name"
+                else -> "nama"
             }
 
             throw HtmxFormException(

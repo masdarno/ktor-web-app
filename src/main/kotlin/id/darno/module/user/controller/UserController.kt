@@ -89,10 +89,10 @@ class UserController(private val userService: UserService, private val roleServi
 
             val user = userService.create(request.toCreateUserParams())
 
-            logger.info("User created successfully: {}", user.name)
+            logger.info("User created successfully: {}", user.nama)
 
             call.hxTriggerWithToast(
-                "User ${user.name} BERHASIL disimpan.",
+                "User ${user.nama} BERHASIL disimpan.",
                 ToastType.SUCCESS,
                 "user-saved")
             call.respond(HttpStatusCode.Created)
@@ -110,7 +110,7 @@ class UserController(private val userService: UserService, private val roleServi
             )
         } catch (ex: ApplicationException) {
             // ERROR SERVICE/REPOSITORY
-            logger.error("Failed to create user: {}", parameters["name"], ex)
+            logger.error("Failed to create user: {}", parameters["nama"], ex)
 
             throw HtmxFormException(
                 templatePath = TEMPLATE_FORM,
@@ -131,10 +131,10 @@ class UserController(private val userService: UserService, private val roleServi
 
             val user = userService.update(userId, request.toUpdateUserParams())
 
-            logger.info("User updated successfully: {} (id: {})", user.name, userId)
+            logger.info("User updated successfully: {} (id: {})", user.nama, userId)
 
             call.hxTriggerWithToast(
-                "User ${user.name} BERHASIL disimpan.",
+                "User ${user.nama} BERHASIL disimpan.",
                 ToastType.SUCCESS,
                 "user-saved")
             call.respond(HttpStatusCode.OK)
@@ -152,7 +152,7 @@ class UserController(private val userService: UserService, private val roleServi
             )
         } catch (ex: ApplicationException) {
             // ERROR SERVICE/REPOSITORY
-            logger.error("Failed to update user (id: $userId): ${parameters["name"]}", ex)
+            logger.error("Failed to update user (id: $userId): ${parameters["nama"]}", ex)
 
             throw HtmxFormException(
                 templatePath = TEMPLATE_FORM,
@@ -191,7 +191,7 @@ class UserController(private val userService: UserService, private val roleServi
         return when {
             "username" in msg -> "username"
             "email" in msg -> "email"
-            else -> "name"
+            else -> "nama"
         }
     }
 
@@ -200,7 +200,7 @@ class UserController(private val userService: UserService, private val roleServi
 
         return mapOf(
             "id" to user.id,
-            "name" to user.name,
+            "nama" to user.nama,
             "alias" to user.alias,
             "username" to user.username,
             "email" to user.email,

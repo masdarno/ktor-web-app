@@ -11,14 +11,14 @@
                     <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-user"></use>
                 </svg>
             </span>
-        <input class="form-control {% if errors.name %}is-invalid{% endif %}"
+        <input class="form-control {% if errors.nama %}is-invalid{% endif %}"
                type="text"
-               name="name"
+               name="nama"
                placeholder="Nama"
-               value="{{ formData.name | default('') }}">
-        {% if errors.name %}
+               value="{{ formData.nama | default('') }}">
+        {% if errors.nama %}
         <div class="invalid-feedback">
-            {{ errors.name }}
+            {{ errors.nama }}
         </div>
         {% endif %}
     </div>

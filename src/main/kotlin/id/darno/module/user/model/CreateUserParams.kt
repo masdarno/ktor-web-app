@@ -1,7 +1,7 @@
 package id.darno.module.user.model
 
 data class CreateUserParams(
-    val name: String,
+    val nama: String,
     val alias: String,
     val username: String,
     val password: String,

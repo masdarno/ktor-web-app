@@ -4,7 +4,7 @@ import id.darno.module.user.dto.UpdateUserRequest
 import id.darno.module.user.model.UpdateUserParams
 
 fun UpdateUserRequest.toFormData() = mapOf(
-    "name" to name,
+    "nama" to nama,
     "alias" to alias,
     "username" to username,
     "email" to email,
@@ -12,7 +12,7 @@ fun UpdateUserRequest.toFormData() = mapOf(
 )
 
 fun UpdateUserRequest.toUpdateUserParams() = UpdateUserParams(
-    name = name,
+    nama = nama,
     alias = alias,
     username = username,
     email = email,

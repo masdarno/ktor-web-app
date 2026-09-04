@@ -41,13 +41,13 @@ class UserProfileController(
 
         val session = call.sessions.get<UserSession>()!!
 
-        logger.info("Get User Profile for user: {}", session.name)
+        logger.info("Get User Profile for user: {}", session.nama)
 
         val user = userService.getById(session.userId)
 
         val formData = mapOf(
             "id" to user.id,
-            "name" to user.name,
+            "nama" to user.nama,
             "alias" to user.alias,
             "email" to user.email,
             "photoUrl" to user.photoUrl
@@ -106,12 +106,12 @@ class UserProfileController(
         try {
             // Build request object
             val request = UpdateUserProfileRequest(
-                name = parameters["name"].orEmpty(),
+                nama = parameters["nama"].orEmpty(),
                 alias = parameters["alias"].orEmpty(),
                 email = parameters["email"].orEmpty(),
             )
 
-            logger.info("Processing update request for user: {}", request.name)
+            logger.info("Processing update request for user: {}", request.nama)
 
             // Ambil user SEKALI di awal
             val existingUser = userService.getById(userId)
@@ -125,7 +125,7 @@ class UserProfileController(
 
             // Build update params
             val params = UpdateUserParams(
-                name = request.name,
+                nama = request.nama,
                 alias = request.alias,
                 email = request.email,
                 photo = uploadedPhotoName
@@ -133,7 +133,7 @@ class UserProfileController(
 
             // Update user
             val updatedUser = userService.update(userId, params)
-            logger.info("User profile updated successfully for user: {}", updatedUser.name)
+            logger.info("User profile updated successfully for user: {}", updatedUser.nama)
 
             // 4. HAPUS FISIK SETELAH SUKSES UPDATE DB
             // Hanya hapus jika ada file baru yang diupload DAN user punya foto lama yang bukan default
@@ -153,7 +153,7 @@ class UserProfileController(
             val formData = formData + ("photoUrl" to updatedUser.photoUrl)
 
             call.hxTriggerWithToast(
-                "Update User Profile Berhasil, ${updatedUser.name}",
+                "Update User Profile Berhasil, ${updatedUser.nama}",
                 ToastType.SUCCESS
             )
             call.respond(
@@ -198,7 +198,7 @@ class UserProfileController(
             val key = when {
                 ex.message?.contains("username", ignoreCase = true) == true -> "username"
                 ex.message?.contains("email", ignoreCase = true) == true -> "email"
-                else -> "name"
+                else -> "nama"
             }
 
             throw HtmxFormException(

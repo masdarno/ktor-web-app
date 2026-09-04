@@ -9,7 +9,7 @@ import org.jetbrains.exposed.v1.datetime.datetime
 
 object UserTable : IdTable<Short>("users") {
     override val id: Column<EntityID<Short>> = short("id").autoIncrement().entityId()
-    val name = varchar("name", 60)
+    val nama = varchar("nama", 60)
     val alias = varchar("alias", 50).default("")
     val username = varchar("username", 10).uniqueIndex()
     val password = varchar("password", 100)

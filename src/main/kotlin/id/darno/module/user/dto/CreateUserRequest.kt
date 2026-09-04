@@ -7,7 +7,7 @@ import org.valiktor.functions.isNotEmpty
 import org.valiktor.validate
 
 data class CreateUserRequest(
-    val name: String,
+    val nama: String,
     val alias: String,
     val username: String,
     val email: String,
@@ -15,7 +15,7 @@ data class CreateUserRequest(
 ) {
     init {
         validate(this) {
-            validate(CreateUserRequest::name).isNotEmpty()
+            validate(CreateUserRequest::nama).isNotEmpty()
             validate(CreateUserRequest::alias).isNotEmpty()
             validate(CreateUserRequest::username).isNotEmpty().hasSize(min = 3, max = 10)
             validate(CreateUserRequest::email).isNotEmpty().isEmail()

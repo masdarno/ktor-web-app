@@ -19,8 +19,8 @@ class RoleServiceImpl(
             ?: throw NotFoundException("Role tidak ditemukan")
 
     override suspend fun create(params: RoleCreateParams): RoleDomain {
-        if(roleRepository.existsByName(params.name))
-            throw ConflictException("Role '${params.name}' sudah ada")
+        if(roleRepository.existsByName(params.nama))
+            throw ConflictException("Role '${params.nama}' sudah ada")
 
         return roleRepository.create(params)
     }
@@ -29,7 +29,7 @@ class RoleServiceImpl(
         val role = roleRepository.findById(id)
             ?: throw NotFoundException("Role tidak ditemukan")
 
-        params.name?.let { newName ->
+        params.nama?.let { newName ->
             if (newName != role.name) {
                 if(roleRepository.existsByName(newName))
                     throw ConflictException("Role '$newName' sudah ada")

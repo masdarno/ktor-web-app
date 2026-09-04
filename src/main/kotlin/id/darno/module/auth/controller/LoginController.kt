@@ -79,10 +79,10 @@ class LoginController(
                         call.hxRedirectTo("/dashboard")
                     } else {
                         val unitId = if (units.size == 1) units.first().id else null
-                        val unit = if(units.size == 1) units.first().name else null
+                        val unit = if(units.size == 1) units.first().nama else null
                         val session = TempUserSession(
                             userId = user.id,
-                            name = user.name,
+                            nama = user.nama,
                             photoUrl = user.photoUrl,
                             roleId = user.roleId,
                             role = user.role,

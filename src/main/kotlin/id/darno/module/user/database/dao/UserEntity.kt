@@ -16,7 +16,7 @@ class UserEntity(id: EntityID<Short>) : Entity<Short>(id) {
     companion object : EntityClass<Short, UserEntity>(UserTable)
 
     // Mapping properti ke kolom-kolom di UserTable
-    var name by UserTable.name
+    var nama by UserTable.nama
     var alias by UserTable.alias
     var username by UserTable.username
     var password by UserTable.password

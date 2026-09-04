@@ -5,7 +5,7 @@ import id.darno.module.user.dto.CreateUserRequest
 import id.darno.module.user.model.CreateUserParams
 
 fun CreateUserRequest.toFormData() = mapOf(
-    "name" to name,
+    "nama" to nama,
     "alias" to alias,
     "username" to username,
     "email" to email,
@@ -13,7 +13,7 @@ fun CreateUserRequest.toFormData() = mapOf(
 )
 
 fun CreateUserRequest.toCreateUserParams() = CreateUserParams(
-    name = name,
+    nama = nama,
     alias = alias,
     username = username,
     password = username, // Default password = username

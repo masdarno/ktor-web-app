@@ -22,7 +22,7 @@ class UserServiceImpl(
 
     // --- CREATE ---
     override suspend fun create(params: CreateUserParams): UserDomain {
-        logger.info("Create user with name: {}", params.name)
+        logger.info("Create user with name: {}", params.nama)
 
         if (userRepository.existsByUsername(params.username))
             throw ConflictException("Username ${params.username} sudah ada")

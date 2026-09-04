@@ -35,11 +35,11 @@ class UserRepositoryImpl(private val config: PhotoUrlConfig) : UserRepository {
 
     // --- C: CREATE (Membuat User Baru) ---
     override suspend fun create(params: CreateUserParams): UserDomain = dbQuery {
-        logger.info("Create user with name: {}", params.name)
+        logger.info("Create user with name: {}", params.nama)
         try {
             UserEntity.new {
-                name = params.name
-                alias = params.name
+                nama = params.nama
+                alias = params.nama
                 username = params.username
                 password = params.password
                 email = params.email
@@ -100,7 +100,7 @@ class UserRepositoryImpl(private val config: PhotoUrlConfig) : UserRepository {
             val entity = UserEntity[id] // PRECONDITION: user exists
 
             entity.apply {
-                name = params.name ?: name
+                nama = params.nama ?: nama
                 alias = params.alias ?: alias
                 username = params.username ?: username
                 password = params.password ?: password
@@ -164,10 +164,10 @@ class UserRepositoryImpl(private val config: PhotoUrlConfig) : UserRepository {
 
         // --- 1. Tentukan sort column ---
         val sortColumn = when (sortBy) {
-            "name" -> UserTable.name
+            "name" -> UserTable.nama
             "username" -> UserTable.username
             "email" -> UserTable.email
-            "role" -> RoleTable.name
+            "role" -> RoleTable.nama
             else -> UserTable.id
         }
 
@@ -178,7 +178,7 @@ class UserRepositoryImpl(private val config: PhotoUrlConfig) : UserRepository {
 
         // --- 2. Filtering ---
         val filter = search?.let {
-            (UserTable.name like "%$it%") or
+            (UserTable.nama like "%$it%") or
                     (UserTable.username like "%$it%") or
                     (UserTable.email like "%$it%")
         }
@@ -199,10 +199,10 @@ class UserRepositoryImpl(private val config: PhotoUrlConfig) : UserRepository {
             .leftJoin(RoleTable)
             .select(
                 UserTable.id,
-                UserTable.name,
+                UserTable.nama,
                 UserTable.username,
                 UserTable.email,
-                RoleTable.name
+                RoleTable.nama
             )
             .let { if (filter != null) it.where { filter } else it }
             .orderBy(sortColumn to order)
@@ -211,10 +211,10 @@ class UserRepositoryImpl(private val config: PhotoUrlConfig) : UserRepository {
             .map {
                 UserListItem(
                     id = it[UserTable.id].value,
-                    name = it[UserTable.name],
+                    nama = it[UserTable.nama],
                     username = it[UserTable.username],
                     email = it[UserTable.email],
-                    roleName = it[RoleTable.name]
+                    roleName = it[RoleTable.nama]
                 )
             }
 

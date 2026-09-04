@@ -2,7 +2,7 @@ package id.darno.module.user.domain
 
 data class UserDomain(
     val id: Short,
-    val name: String,
+    val nama: String,
     val alias: String = "",
     val username: String,
     val genderId: Short = 2,

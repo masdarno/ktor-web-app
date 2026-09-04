@@ -10,7 +10,7 @@ import org.jetbrains.exposed.v1.core.dao.id.EntityID
 
 class UnitEntity(id: EntityID<Short>) : Entity<Short>(id) {
     companion object : EntityClass<Short, UnitEntity>(UnitTable)
-    var name by UnitTable.name
+    var nama by UnitTable.nama
     var isActive by UnitTable.isActive
     var createdAt by UnitTable.createdAt
     var updatedAt by UnitTable.updatedAt
@@ -22,6 +22,6 @@ class UnitEntity(id: EntityID<Short>) : Entity<Short>(id) {
 fun UnitEntity.toUnitDomain(): UnitDomain {
     return UnitDomain(
         id = id.value,
-        name = name
+        nama = nama
     )
 }

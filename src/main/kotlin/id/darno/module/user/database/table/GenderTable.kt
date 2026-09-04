@@ -7,7 +7,7 @@ import org.jetbrains.exposed.v1.datetime.timestamp
 
 object GenderTable : Table("genders") {
     val id = short("id").autoIncrement()
-    val name = varchar("name", 50).uniqueIndex()
+    val nama = varchar("nama", 50).uniqueIndex()
     val isActive = bool("is_active").default(true)
     val createdAt = datetime("created_at")
         .defaultExpression(TimeExpressions.CurrentKotlinDateTime)

@@ -7,7 +7,7 @@ import org.valiktor.functions.isNotEmpty
 import org.valiktor.validate
 
 data class RegisterRequest(
-    val name: String,
+    val nama: String,
     val username: String,
     val password: String,
     val passwordConfirmation: String,
@@ -15,7 +15,7 @@ data class RegisterRequest(
 ) {
     init {
         validate(this) {
-            validate(RegisterRequest::name).isNotEmpty()
+            validate(RegisterRequest::nama).isNotEmpty()
             validate(RegisterRequest::username).isNotEmpty().hasSize(min = 3, max = 10)
             validate(RegisterRequest::password).isNotEmpty().hasSize(min = 6)
             validate(RegisterRequest::passwordConfirmation).isNotEmpty().isEqualToPassword(password)

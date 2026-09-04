@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class TempUserSession(
     val userId: Short,
-    val name: String,
+    val nama: String,
     val photoUrl: String,
     val roleId: Short,
     val role: String,

@@ -3,7 +3,7 @@ package id.darno.module.user.model
 import kotlinx.datetime.LocalDateTime
 
 data class UpdateUserParams(
-    val name: String? = null,
+    val nama: String? = null,
     val alias: String? = null,
     val username: String? = null,
     val password: String? = null,

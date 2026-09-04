@@ -63,12 +63,12 @@ class RememberMeServiceImpl(
         return Result.success(
             UserSession(
                 user.id,
-                user.name,
+                user.nama,
                 user.photoUrl,
                 user.roleId,
                 user.role,
                 unit.id,
-                unit.name
+                unit.nama
             )
         )
     }
