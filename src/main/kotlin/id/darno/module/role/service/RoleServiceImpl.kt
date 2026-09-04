@@ -30,7 +30,7 @@ class RoleServiceImpl(
             ?: throw NotFoundException("Role tidak ditemukan")
 
         params.nama?.let { newName ->
-            if (newName != role.name) {
+            if (newName != role.nama) {
                 if(roleRepository.existsByName(newName))
                     throw ConflictException("Role '$newName' sudah ada")
             }

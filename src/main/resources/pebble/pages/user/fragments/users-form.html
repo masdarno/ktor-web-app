@@ -32,13 +32,13 @@ PURE HTML BELOW
     <div class="mb-3">
         <label class="form-label">Nama</label>
         <input
-                name="name"
-                class="form-control {% if errors.name %}is-invalid{% endif %}"
-                value="{{ formData.name | default('') }}"
+                name="nama"
+                class="form-control {% if errors.nama %}is-invalid{% endif %}"
+                value="{{ formData.nama | default('') }}"
                 {{ readonlyAttr }}>
-        {% if errors.name %}
+        {% if errors.nama %}
         <div class="invalid-feedback">
-            {{ errors.name }}
+            {{ errors.nama }}
         </div>
         {% endif %}
     </div>
@@ -93,7 +93,7 @@ PURE HTML BELOW
 
             {% set selectedAttr = (formData is not null and formData.roleId == role.id ) ? 'selected="selected"' : '' %}
             <option value="{{ role.id }}" {{ selectedAttr }}>
-                {{ role.name }}
+                {{ role.nama }}
             </option>
 
             {% endfor %}

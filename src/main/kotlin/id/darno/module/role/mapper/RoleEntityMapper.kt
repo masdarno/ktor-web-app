@@ -6,6 +6,6 @@ import id.darno.module.role.domain.RoleDomain
 fun RoleEntity.toRoleDomain(): RoleDomain{
     return RoleDomain(
         id = this.id.value,
-        name = this.nama
+        nama = this.nama
     )
 }
