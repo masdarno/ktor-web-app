@@ -11,7 +11,7 @@ object MenuTable: IdTable<Short>("menus") {
 
     val parentId = reference("parent_id", MenuTable, onDelete = ReferenceOption.SET_NULL, onUpdate = ReferenceOption.CASCADE).nullable()
     val type = varchar("type", 10).clientDefault { "item" } // 'item', 'title', 'group', 'divider'
-    val name = varchar("name", 255).nullable()
+    val nama = varchar("nama", 255).nullable()
     val url = varchar("url", 255).nullable()
     val icon = varchar("icon", 255).nullable()
     val badgeText = varchar("badge_text", 255).nullable()

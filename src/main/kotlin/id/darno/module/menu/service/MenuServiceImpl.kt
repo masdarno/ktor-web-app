@@ -38,7 +38,7 @@ class MenuServiceImpl(
                 MenuNode(
                     id = menu.id,
                     type = menu.type,
-                    name = menu.name,
+                    nama = menu.nama,
                     url = menu.url,
                     icon = menu.icon,
                     badgeText = menu.badgeText,

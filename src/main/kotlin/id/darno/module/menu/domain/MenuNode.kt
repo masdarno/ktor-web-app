@@ -4,7 +4,7 @@ package id.darno.module.menu.domain
 data class MenuNode(
     val id: Short,
     val type: MenuType,
-    val name: String?,
+    val nama: String?,
     val url: String?,
     val icon: String?,
     val badgeText: String?,

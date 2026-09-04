@@ -22,7 +22,7 @@ create table `menus` (
   `id` smallint unsigned auto_increment,
   `parent_id` smallint unsigned comment 'ID menu induk',
   `type` enum('item','title','group','divider') not null default 'item' comment 'Tipe menu: item, title, group, atau divider',
-  `name` varchar(255) comment 'Nama menu',
+  `nama` varchar(255) comment 'Nama menu',
   `url` varchar(255) comment 'URL untuk tautan',
   `icon` varchar(255) comment 'Nama ikon (misal: cil-speedometer)',
   `badge_text` varchar(255) comment 'Teks badge (misal: PRO, New)',

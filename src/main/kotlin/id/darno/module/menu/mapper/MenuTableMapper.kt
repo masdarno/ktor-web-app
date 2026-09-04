@@ -11,7 +11,7 @@ object MenuMapper {
             id = row[MenuTable.id].value,
             parentId = row[MenuTable.parentId]?.value,
             type = MenuType.valueOf(row[MenuTable.type].uppercase()),
-            name = row[MenuTable.name],
+            nama = row[MenuTable.nama],
             url = row[MenuTable.url],
             icon = row[MenuTable.icon],
             badgeText = row[MenuTable.badgeText],

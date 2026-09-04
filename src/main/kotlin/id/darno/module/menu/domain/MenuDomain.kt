@@ -4,7 +4,7 @@ data class MenuDomain(
     val id: Short,
     val parentId: Short?,
     val type: MenuType,
-    val name: String?,
+    val nama: String?,
     val url: String?,
     val icon: String?,
     val badgeText: String?,

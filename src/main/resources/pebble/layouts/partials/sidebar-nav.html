@@ -30,7 +30,7 @@
             {% endif %}
 
             {# C. Nama Menu #}
-            {{ menu.name | default('Unnamed Item') }}
+            {{ menu.nama | default('Unnamed Item') }}
 
             {# D. Badge #}
             {% if menu.badgeText %}
@@ -50,14 +50,14 @@
             {% if menu.icon %}
             <svg class="nav-icon"><use xlink:href="vendors/@coreui/icons/svg/free.svg#{{ menu.icon }}"></use></svg>
             {% endif %}
-            {{ menu.name | default('Unnamed Group') }}
+            {{ menu.nama | default('Unnamed Group') }}
         </a>
         {# Panggil rekursif macro untuk menu children #}
         {{ render_menu(menu.children, true) }}
     </li>
 
     {% elseif menu.type == 'TITLE' %}
-    <li class="nav-title">{{ menu.name | default('SECTION TITLE') }}</li>
+    <li class="nav-title">{{ menu.nama | default('SECTION TITLE') }}</li>
 
     {% elseif menu.type == 'DIVIDER' %}
     <li class="nav-divider"></li>
