@@ -41,14 +41,14 @@
             <input
                 type="text"
                 id="my-name"
-                name="name"
-                class="form-control {% if errors.name %}is-invalid{% endif %}"
-                value="{{ formData.name | default('') }}"
+                name="nama"
+                class="form-control {% if errors.nama %}is-invalid{% endif %}"
+                value="{{ formData.nama | default('') }}"
                 placeholder="Nama"
             >
-                {% if errors.name %}
+                {% if errors.nama %}
                 <div class="invalid-feedback">
-                    {{ errors.name }}
+                    {{ errors.nama }}
                 </div>
                 {% endif %}
         </div>
