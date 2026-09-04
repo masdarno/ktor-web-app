@@ -9,7 +9,7 @@ object UserFormBuilder {
 
     fun create(params: Parameters): CreateUserRequest {
         return CreateUserRequest(
-            nama = params["name"].sanitize(),
+            nama = params["nama"].sanitize(),
             alias = params["alias"].sanitize(),
             username = params["username"].sanitizeLower(),
             email = params["email"].sanitizeLower(),
@@ -21,7 +21,7 @@ object UserFormBuilder {
 
     fun update(params: Parameters): UpdateUserRequest {
         return UpdateUserRequest(
-            nama = params["name"].sanitize(),
+            nama = params["nama"].sanitize(),
             alias = params["alias"].sanitize(),
             username = params["username"].sanitizeLower(),
             email = params["email"].sanitizeLower(),
