@@ -6,3 +6,13 @@ insert into genders (nama) values
 
 insert into units (nama) values
 ('Unit Induk'), ('Unit Cabang');
+
+insert into menus (type, name) values ('title', 'Master');
+insert into menus (type, name, url, icon) values ('group', 'Pengguna', '#', 'cil-star');
+set @grup_pengguna = LAST_INSERT_ID();
+insert into menus (parent_id, type, name, url, icon) values (@grup_pengguna, 'item', 'Daftar Pengguna', 'users', 'cil-user');
+insert into menus (parent_id, type, name, url, icon) values (@grup_pengguna, 'item', 'Ubah Password', 'change-password', 'cil-user');
+
+insert into role_menus (role_id, menu_id)
+select a.id, b.id
+from roles a, menus b;
