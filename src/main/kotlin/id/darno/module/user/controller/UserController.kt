@@ -4,9 +4,11 @@ import id.darno.core.exceptions.ApplicationException
 import id.darno.core.htmx.exception.HtmxFormException
 import id.darno.core.htmx.model.ToastType
 import id.darno.core.htmx.utility.hxTriggerWithToast
+import id.darno.core.htmx.utility.respondUniversalRedirect
 import id.darno.core.http.mapper.toFormData
 import id.darno.core.pageddata.helper.pagedQueryParameters
 import id.darno.core.pebble.helper.respondPebblePage
+import id.darno.core.session.model.UserSession
 import id.darno.core.validation.valiktor.helper.errors
 import id.darno.module.role.service.RoleService
 import id.darno.module.user.helper.UserFormBuilder
@@ -18,6 +20,9 @@ import io.ktor.server.application.*
 import io.ktor.server.pebble.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
+import io.ktor.server.sessions.get
+import io.ktor.server.sessions.sessions
+import io.ktor.server.sessions.set
 import org.slf4j.LoggerFactory
 import org.valiktor.ConstraintViolationException
 
@@ -123,6 +128,8 @@ class UserController(private val userService: UserService, private val roleServi
     }
 
     suspend fun update(call: ApplicationCall, userId: Short) {
+        val session = call.sessions.get<UserSession>()
+            ?: return call.respondUniversalRedirect("/login")
 
         val parameters = call.receiveParameters()
 
@@ -130,6 +137,15 @@ class UserController(private val userService: UserService, private val roleServi
             val request = UserFormBuilder.update(parameters)
 
             val user = userService.update(userId, request.toUpdateUserParams())
+
+            if(userId == session.userId && session.roleId != user.roleId){
+                call.sessions.set(
+                    session.copy(
+                        roleId = user.roleId,
+                        role = user.role
+                    )
+                )
+            }
 
             logger.info("User updated successfully: {} (id: {})", user.nama, userId)
 
