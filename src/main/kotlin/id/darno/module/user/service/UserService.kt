@@ -17,4 +17,8 @@ interface UserService {
     suspend fun getUnitsForUser(userId: Short): List<UnitDomain>
     suspend fun userHasUnit(userId: Short, unitId: Short): Boolean
     suspend fun getUserTable(query: PagedQuery): PagedResult<UserListItem>
+    suspend fun getUserUnitTable(
+        query: PagedQuery,
+        unitId: Short
+    ): PagedResult<UserListItem>
 }

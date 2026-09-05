@@ -37,4 +37,12 @@ interface UserRepository {
         sortDir: String
     ): PagedResult<UserListItem>
 
+    suspend fun findAllByUnit(
+        search: String?,
+        page: Int,
+        pageSize: Int,
+        sortBy: String,
+        sortDir: String,
+        unitId: Short
+    ): PagedResult<UserListItem>
 }

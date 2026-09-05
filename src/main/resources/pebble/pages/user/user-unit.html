@@ -1,0 +1,224 @@
+{% extends "layouts/app.html" %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+
+        <div class="card mb-4">
+
+            <div class="card-header">
+                Daftar Pengguna Unit
+            </div>
+
+            <div class="card-body position-relative p-4">
+
+                <!-- =====================================================
+                     TOOLBAR
+                     ===================================================== -->
+
+                <div class="row align-items-center mb-3">
+
+                    <!-- Search -->
+                    <div class="col-md-4 mb-2 mb-md-0">
+
+                        <div class="input-group">
+
+                            <span class="input-group-text">
+                                <svg class="icon">
+                                    <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-search"></use>
+                                </svg>
+                            </span>
+
+                            <input
+                                    class="form-control table-params"
+                                    type="text"
+                                    name="search"
+                                    placeholder="Search"
+                                    value="{{ params.search | default('') }}"
+
+                                    hx-get="/user-unit/table"
+                                    hx-target="#table-container"
+                                    hx-trigger="keyup changed delay:400ms"
+                                    hx-push-url="false"
+                                    hx-include=".table-params, .table-sort"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Unit -->
+                    <div class="col-md-4 mb-2 mb-md-0">
+
+                        <select
+                                class="form-select table-params"
+                                name="unitId"
+
+                                hx-get="/user-unit/table"
+                                hx-target="#table-container"
+                                hx-trigger="change"
+                                hx-push-url="false"
+                                hx-include=".table-params, .table-sort"
+                        >
+
+                            {% for unit in units %}
+
+                            <option
+                                    value="{{ unit.id }}"
+                                    {% if selectedUnitId == unit.id %}
+                                    selected
+                                    {% endif %}
+                            >
+                                {{ unit.nama }}
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Tambah -->
+                    <div class="col-md-4 text-md-end">
+
+                        <button
+                                type="button"
+                                class="btn btn-primary"
+
+                                hx-get="/users/form?mode=add"
+                                hx-target="#form-container"
+                                hx-trigger="click"
+
+                                data-coreui-toggle="modal"
+                                data-coreui-target="#userModal"
+                        >
+
+                            <svg class="icon me-2">
+                                <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-plus"></use>
+                            </svg>
+
+                            Tambah
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =====================================================
+                     TABLE
+                     ===================================================== -->
+
+                <div
+                        id="table-container"
+
+                        hx-get="/user-unit/table"
+
+                        hx-trigger="user-saved from:body, user-deleted from:body"
+
+                        hx-swap="innerHTML"
+
+                        hx-include=".table-params, .table-sort"
+                >
+
+                    {% include "pages/user/fragments/user-unit-table.html" %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+
+<!-- =========================================================
+     MODAL
+     ========================================================= -->
+
+<div
+        class="modal fade"
+        id="userModal"
+        tabindex="-1"
+>
+
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+                    Form User
+                </h5>
+
+                <button
+                        class="btn-close"
+                        type="button"
+                        data-coreui-dismiss="modal"
+                ></button>
+
+            </div>
+
+            <div
+                    class="modal-body"
+                    id="form-container"
+            >
+                <!-- HTMX load form here -->
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    document.body.addEventListener("user-saved", (e) => {
+
+        coreui.Modal
+            .getInstance(
+                document.getElementById("userModal")
+            )
+            .hide();
+
+        showToast(
+            e.detail.message,
+            e.detail.type
+        );
+    });
+
+
+    document
+        .getElementById("userModal")
+        .addEventListener(
+            "hidden.coreui.modal",
+            () => {
+
+                document
+                    .getElementById("form-container")
+                    .innerHTML = "";
+
+            }
+        );
+
+
+    document.body.addEventListener("user-deleted", (e) => {
+
+        showToast(
+            e.detail.message,
+            e.detail.type
+        );
+
+    });
+
+</script>
+
+{% endblock %}

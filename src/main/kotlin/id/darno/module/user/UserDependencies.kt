@@ -3,9 +3,11 @@ package id.darno.module.user
 import id.darno.core.security.crypto.Hasher
 import id.darno.core.storage.FileStorageService
 import id.darno.module.role.service.RoleService
+import id.darno.module.unit.service.UnitService
 import id.darno.module.user.config.userModuleConfig
 import id.darno.module.user.controller.UserController
 import id.darno.module.user.controller.UserProfileController
+import id.darno.module.user.controller.UserUnitController
 import id.darno.module.user.repository.UserRepository
 import id.darno.module.user.repository.UserRepositoryImpl
 import id.darno.module.user.service.*
@@ -54,6 +56,12 @@ fun Application.configureUserDependencies(){
             UserProfileController(
                 resolve<UserService>(),
                 resolve<UserFileService>()
+            )
+        }
+        provide< UserUnitController> {
+            UserUnitController(
+                resolve<UserService>(),
+                resolve<UnitService>()
             )
         }
     }

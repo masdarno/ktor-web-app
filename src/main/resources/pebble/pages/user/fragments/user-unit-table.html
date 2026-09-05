@@ -1,0 +1,232 @@
+<input
+        type="hidden"
+        class="table-sort"
+        name="sortBy"
+        value="{{ params.sortBy }}"
+>
+
+<input
+        type="hidden"
+        class="table-sort"
+        name="sortDir"
+        value="{{ params.sortDir }}"
+>
+
+
+<table class="table">
+
+    <thead class="table-dark">
+
+    <tr>
+
+        <th style="width:50px">
+            No
+        </th>
+
+        <th style="width:30%">
+
+            <a
+                    href="#"
+
+                    hx-get="/user-unit/table?sortBy=name&sortDir={{ params.sortDir == 'asc' ? 'desc' : 'asc' }}"
+
+                    hx-target="#table-container"
+
+                    hx-push-url="false"
+
+                    hx-include=".table-params"
+            >
+                Nama
+            </a>
+
+        </th>
+
+        <th style="width:20%">
+            Username
+        </th>
+
+        <th style="width:20%">
+            Email
+        </th>
+
+        <th>
+
+            <a
+                    href="#"
+
+                    hx-get="/user-unit/table?sortBy=role&sortDir={{ params.sortDir == 'asc' ? 'desc' : 'asc' }}"
+
+                    hx-target="#table-container"
+
+                    hx-push-url="false"
+
+                    hx-include=".table-params"
+            >
+                Role
+            </a>
+
+        </th>
+
+        <th style="width:125px">
+            Actions
+        </th>
+
+    </tr>
+
+    </thead>
+
+
+    <tbody>
+
+    {% for row in result.data %}
+
+    <tr>
+
+        <td>
+            {{ (loop.index + (result.page - 1) * result.pageSize) + 1 }}
+        </td>
+
+        <td>
+            {{ row.nama }}
+        </td>
+
+        <td>
+            {{ row.username }}
+        </td>
+
+        <td>
+            {{ row.email }}
+        </td>
+
+        <td>
+            {{ row.roleName }}
+        </td>
+
+        <td>
+
+            <button
+                    class="btn btn-sm btn-danger"
+
+                    hx-delete="/user-unit/{{ row.id }}"
+
+                    hx-confirm="Yakin hapus?"
+
+                    hx-target="#table-container"
+
+                    hx-include=".table-params, .table-sort"
+
+                    hx-swap="outerHTML"
+            >
+
+                <svg class="icon">
+                    <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-trash"></use>
+                </svg>
+
+            </button>
+
+        </td>
+
+    </tr>
+
+    {% endfor %}
+
+    </tbody>
+
+</table>
+
+
+<!-- =========================================================
+     PAGINATION
+     ========================================================= -->
+
+<nav aria-label="Page navigation">
+
+    <ul class="pagination justify-content-end">
+
+        <!-- Previous -->
+
+        <li
+                class="page-item
+                {% if result.page == 1 %}
+                    disabled
+                {% endif %}"
+        >
+
+            <a
+                    class="page-link"
+                    href="#"
+
+                    hx-get="/user-unit/table?page={{ result.page - 1 }}"
+
+                    hx-target="#table-container"
+
+                    hx-push-url="false"
+
+                    hx-include=".table-params, .table-sort"
+            >
+                &laquo;
+            </a>
+
+        </li>
+
+
+        <!-- Page numbers -->
+
+        {% for p in 1..result.totalPages %}
+
+        <li
+                class="page-item
+                    {% if p == result.page %}
+                        active
+                    {% endif %}"
+        >
+
+            <a
+                    class="page-link"
+                    href="#"
+
+                    hx-get="/user-unit/table?page={{ p }}"
+
+                    hx-target="#table-container"
+
+                    hx-push-url="false"
+
+                    hx-include=".table-params, .table-sort"
+            >
+                {{ p }}
+            </a>
+
+        </li>
+
+        {% endfor %}
+
+
+        <!-- Next -->
+
+        <li
+                class="page-item
+                {% if result.page == result.totalPages %}
+                    disabled
+                {% endif %}"
+        >
+
+            <a
+                    class="page-link"
+                    href="#"
+
+                    hx-get="/user-unit/table?page={{ result.page + 1 }}"
+
+                    hx-target="#table-container"
+
+                    hx-push-url="false"
+
+                    hx-include=".table-params, .table-sort"
+            >
+                &raquo;
+            </a>
+
+        </li>
+
+    </ul>
+
+</nav>

@@ -23,6 +23,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.jdbc.*
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -228,4 +229,118 @@ class UserRepositoryImpl(private val config: PhotoUrlConfig) : UserRepository {
         )
     }
 
+    override suspend fun findAllByUnit(
+        search: String?,
+        page: Int,
+        pageSize: Int,
+        sortBy: String,
+        sortDir: String,
+        unitId: Short
+    ): PagedResult<UserListItem> = dbQuery {
+
+        // --- 1. Tentukan sort column ---
+        val sortColumn = when (sortBy) {
+            "name" -> UserTable.nama
+            "username" -> UserTable.username
+            "email" -> UserTable.email
+            "role" -> RoleTable.nama
+            else -> UserTable.id
+        }
+
+        val order = when (sortDir.lowercase()) {
+            "asc" -> SortOrder.ASC
+            else -> SortOrder.DESC
+        }
+
+        // --- 2. Buat kondisi filter ---
+        val searchFilter = search
+            ?.takeIf { it.isNotBlank() }
+            ?.let {
+                (UserTable.nama like "%$it%") or
+                        (UserTable.username like "%$it%") or
+                        (UserTable.email like "%$it%")
+            }
+
+        val unitFilter = unitId?.let {
+            UserUnitTable.unitId eq it
+        }
+
+        // Gabungkan filter
+        val filter = listOfNotNull(
+            searchFilter,
+            unitFilter
+        ).reduceOrNull { acc, condition ->
+            acc and condition
+        }
+
+        // --- 3. FROM / JOIN ---
+        val baseQuery =
+            if (unitId != null) {
+                UserTable
+                    .innerJoin(UserUnitTable)
+                    .leftJoin(RoleTable)
+            } else {
+                UserTable
+                    .leftJoin(RoleTable)
+            }
+
+        // --- 4. Hitung total ---
+        val total = baseQuery
+            .selectAll()
+            .let {
+                if (filter != null) {
+                    it.where { filter }
+                } else {
+                    it
+                }
+            }
+            .count()
+
+        val totalPages =
+            if (total == 0L) {
+                1
+            } else {
+                ((total + pageSize - 1) / pageSize).toInt()
+            }
+
+        val offset = (page - 1) * pageSize
+
+        // --- 5. Query data ---
+        val data = baseQuery
+            .select(
+                UserTable.id,
+                UserTable.nama,
+                UserTable.username,
+                UserTable.email,
+                RoleTable.nama
+            )
+            .let {
+                if (filter != null) {
+                    it.where { filter }
+                } else {
+                    it
+                }
+            }
+            .orderBy(sortColumn to order)
+            .limit(pageSize)
+            .offset(offset.toLong())
+            .map {
+                UserListItem(
+                    id = it[UserTable.id].value,
+                    nama = it[UserTable.nama],
+                    username = it[UserTable.username],
+                    email = it[UserTable.email],
+                    roleName = it[RoleTable.nama]
+                )
+            }
+
+        // --- 6. Result ---
+        PagedResult(
+            data = data,
+            page = page,
+            pageSize = pageSize,
+            total = total,
+            totalPages = totalPages
+        )
+    }
 }

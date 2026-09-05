@@ -120,4 +120,17 @@ class UserServiceImpl(
             sortDir = query.sortDir
         )
 
+    override suspend fun getUserUnitTable(
+        query: PagedQuery,
+        unitId: Short
+    ) =
+        userRepository.findAllByUnit(
+            search = query.search,
+            page = query.page,
+            pageSize = query.pageSize,
+            sortBy = query.sortBy,
+            sortDir = query.sortDir,
+            unitId = unitId
+        )
+
 }
