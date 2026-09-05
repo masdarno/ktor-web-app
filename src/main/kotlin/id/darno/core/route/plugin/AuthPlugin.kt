@@ -1,9 +1,14 @@
 package id.darno.core.route.plugin
 
+import id.darno.core.exceptions.ForbiddenAccessException
 import id.darno.core.htmx.utility.respondUniversalRedirect
 import id.darno.core.session.model.TempUserSession
 import id.darno.core.session.model.UserSession
+import id.darno.module.menu.service.MenuAccessService
 import io.ktor.server.application.*
+import io.ktor.server.plugins.di.dependencies
+import io.ktor.server.request.httpMethod
+import io.ktor.server.request.path
 import io.ktor.server.sessions.*
 import org.slf4j.LoggerFactory
 
@@ -75,5 +80,23 @@ val ResetPassword = createRouteScopedPlugin(
             return@onCall
         }
 
+    }
+}
+
+val UrlMenu = createRouteScopedPlugin("UrlMenu") {
+    onCall { call ->
+        val session = call.sessions.get<UserSession>() ?: return@onCall
+        val path = call.request.path()
+
+        val menuAccessService: MenuAccessService by call.application.dependencies
+        val allowed = menuAccessService.hasAccess(session.roleId, path)
+
+        if (!allowed) {
+            logger.warn(
+                "Access DENIED: method={}, path={}, roleId={}",
+                call.request.httpMethod.value, path, session.roleId
+            )
+            throw ForbiddenAccessException()
+        }
     }
 }

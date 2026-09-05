@@ -3,6 +3,7 @@ package id.darno.core.route.guard
 import id.darno.core.route.plugin.Guest
 import id.darno.core.route.plugin.ResetPassword
 import id.darno.core.route.plugin.TempLogin
+import id.darno.core.route.plugin.UrlMenu
 import io.ktor.server.auth.*
 import io.ktor.server.routing.*
 
@@ -63,6 +64,7 @@ fun Route.emailVerificationGuard(build: Route.() -> Unit) {
  */
 fun Route.authenticatedGuard(build: Route.() -> Unit) {
     authenticate("auth-user-session") {
+        install(UrlMenu)
         build()
     }
 }
