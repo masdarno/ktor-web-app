@@ -27,7 +27,7 @@ fun Route.configureDevelopmentRoute() {
         get{
             val csrfToken = call.ensureCsrfToken()
             call.respond(PebbleContent(
-                "/pages/dev/update-password.html",
+                "pages/dev/update-password.html",
                 mapOf(
                     "title" to "Update Password",
                     "csrfToken" to csrfToken
