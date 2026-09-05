@@ -1,0 +1,54 @@
+<!-- =========================================================
+     GLOBAL CONFIRM MODAL (pengganti browser confirm() untuk htmx)
+     ========================================================= -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Konfirmasi</h5>
+        <button type="button" class="btn-close" data-coreui-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body" id="confirmModalBody">
+        Apakah anda yakin?
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-coreui-dismiss="modal">
+          Batal
+        </button>
+        <button type="button" class="btn btn-danger" id="confirmModalOkBtn">
+          Ya, Hapus
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  document.body.addEventListener("htmx:confirm", function (e) {
+    if (!e.target.hasAttribute("hx-confirm")) return;
+
+    e.preventDefault();
+
+    const message = e.target.getAttribute("hx-confirm") || "Apakah anda yakin?";
+
+    const modalEl = document.getElementById("confirmModal");
+    const modal = coreui.Modal.getOrCreateInstance(modalEl);
+
+    document.getElementById("confirmModalBody").textContent = message;
+
+    const okBtn = document.getElementById("confirmModalOkBtn");
+    const freshOkBtn = okBtn.cloneNode(true);
+    okBtn.parentNode.replaceChild(freshOkBtn, okBtn);
+
+    freshOkBtn.addEventListener("click", function () {
+      modal.hide();
+      e.detail.issueRequest(true);
+    }, { once: true });
+
+    modal.show();
+  });
+</script>
