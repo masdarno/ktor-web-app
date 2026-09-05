@@ -57,12 +57,14 @@
             </button>
 
             <!-- Delete -->
-            <button class="btn btn-sm btn-danger"
+            <button
+                    class="btn btn-sm btn-danger"
                     hx-delete="/users/{{ row.id }}"
-                    hx-confirm="Yakin hapus?"
+                    hx-confirm="Yakin ingin menghapus {{ row.nama }}?"
                     hx-target="#table-container"
                     hx-include=".table-params, .table-sort"
-                    hx-swap="outerHTML">
+                    hx-swap="outerHTML"
+            >
                 <svg class="icon"><use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-trash"></use></svg>
             </button>
         </td>
