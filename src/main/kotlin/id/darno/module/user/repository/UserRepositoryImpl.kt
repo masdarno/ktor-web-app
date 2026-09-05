@@ -18,6 +18,7 @@ import id.darno.module.user.mapper.toUserDomain
 import id.darno.module.user.model.CreateUserParams
 import id.darno.module.user.model.UpdateUserParams
 import id.darno.module.user.model.UserListItem
+import id.darno.module.user.model.UserOptionItem
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -342,6 +343,65 @@ class UserRepositoryImpl(private val config: PhotoUrlConfig) : UserRepository {
             total = total,
             totalPages = totalPages
         )
+    }
+
+    // Cari user yang BELUM terdaftar pada unit tertentu (anti-join via notInSubQuery)
+    override suspend fun findAvailableForUnit(
+        unitId: Short,
+        search: String?
+    ): List<UserOptionItem> = dbQuery {
+
+        val assignedUserIds = UserUnitTable
+            .select(UserUnitTable.userId)
+            .where { UserUnitTable.unitId eq unitId }
+
+        val notAssignedCondition = UserTable.id notInSubQuery assignedUserIds
+
+        val searchFilter = search
+            ?.takeIf { it.isNotBlank() }
+            ?.let {
+                (UserTable.nama like "%$it%") or
+                        (UserTable.username like "%$it%")
+            }
+
+        val condition = searchFilter
+            ?.let { notAssignedCondition and it }
+            ?: notAssignedCondition
+
+        UserTable
+            .select(UserTable.id, UserTable.nama, UserTable.username)
+            .where { condition }
+            .orderBy(UserTable.nama to SortOrder.ASC)
+            .map {
+                UserOptionItem(
+                    id = it[UserTable.id].value,
+                    nama = it[UserTable.nama],
+                    username = it[UserTable.username]
+                )
+            }
+    }
+
+    // Insert banyak user ke user_units sekaligus.
+    // ignore = true -> aman kalau ada baris yang ternyata sudah pernah ditambahkan
+    // (primary key composite userId+unitId akan diabaikan alih-alih error).
+    override suspend fun addUserUnits(
+        unitId: Short,
+        userIds: List<Short>
+    ): Int = dbQuery {
+        if (userIds.isEmpty()) return@dbQuery 0
+
+        try {
+            UserUnitTable.batchInsert(
+                data = userIds.distinct(),
+                ignore = true,
+                shouldReturnGeneratedValues = false
+            ) { userId ->
+                this[UserUnitTable.userId] = userId
+                this[UserUnitTable.unitId] = unitId
+            }.size
+        } catch (e: ExposedSQLException) {
+            throw DbExceptionMapper.map(e)
+        }
     }
 
     override suspend fun deleteUserUnit(

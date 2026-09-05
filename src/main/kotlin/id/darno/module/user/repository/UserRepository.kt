@@ -7,6 +7,7 @@ import id.darno.module.user.domain.UserDomain
 import id.darno.module.user.model.CreateUserParams
 import id.darno.module.user.model.UpdateUserParams
 import id.darno.module.user.model.UserListItem
+import id.darno.module.user.model.UserOptionItem
 
 interface UserRepository {
     suspend fun create(params: CreateUserParams): UserDomain
@@ -45,6 +46,16 @@ interface UserRepository {
         sortDir: String,
         unitId: Short
     ): PagedResult<UserListItem>
+
+    suspend fun findAvailableForUnit(
+        unitId: Short,
+        search: String? = null
+    ): List<UserOptionItem>
+
+    suspend fun addUserUnits(
+        unitId: Short,
+        userIds: List<Short>
+    ): Int
 
     suspend fun deleteUserUnit(
         userId: Short,

@@ -1,10 +1,7 @@
 package id.darno.module.user.route
 
-import id.darno.module.user.controller.UserController
 import id.darno.module.user.controller.UserUnitController
-import io.ktor.http.*
 import io.ktor.server.plugins.BadRequestException
-import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.slf4j.LoggerFactory
 
@@ -21,6 +18,15 @@ fun Route.configureUserUnitRoute(userUnitController: UserUnitController){
         userUnitController.table(call)
     }
 
+    // load form modal (checkbox user yang belum terdaftar di unit)
+    get("/user-unit/form"){
+        userUnitController.form(call)
+    }
+
+    // submit checkbox -> insert ke user_units
+    post("/user-unit"){
+        userUnitController.store(call)
+    }
 
     delete("/user-unit/{userId}") {
 

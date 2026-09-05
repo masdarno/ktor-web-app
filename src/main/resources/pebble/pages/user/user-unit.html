@@ -83,27 +83,21 @@
 
                     <!-- Tambah -->
                     <div class="col-md-4 text-md-end">
-
                         <button
                                 type="button"
                                 class="btn btn-primary"
-
-                                hx-get="/users/form?mode=add"
+                                hx-get="/user-unit/form"
+                                hx-include=".table-params"
                                 hx-target="#form-container"
                                 hx-trigger="click"
-
                                 data-coreui-toggle="modal"
                                 data-coreui-target="#userModal"
                         >
-
                             <svg class="icon me-2">
                                 <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-plus"></use>
                             </svg>
-
                             Tambah
-
                         </button>
-
                     </div>
 
                 </div>

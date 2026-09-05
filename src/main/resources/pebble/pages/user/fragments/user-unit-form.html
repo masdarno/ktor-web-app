@@ -1,115 +1,91 @@
 {# ===============================
-PREPARE VARIABLES (NO HTML)
-=============================== #}
-
-{% set isView = (mode == 'view') %}
-
-{% set readonlyAttr = isView ? 'readonly="readonly"' : '' %}
-{% set disabledAttr = isView ? 'disabled="disabled"' : '' %}
-
-{% set hxMethod = '' %}
-{% set hxUrl = '' %}
-
-{% if mode == 'add' %}
-{% set hxMethod = 'hx-post' %}
-{% set hxUrl = '/users' %}
-{% elseif mode == 'edit' %}
-{% set hxMethod = 'hx-put' %}
-{% set hxUrl = '/users/' ~ formData.id %}
-{% endif %}
-
-{# ===============================
-PURE HTML BELOW
+FORM: Tambah User ke Unit
 =============================== #}
 
 <form
-        {{ hxMethod }}="{{ hxUrl }}"
+        hx-post="/user-unit"
         hx-target="#form-container"
         hx-swap="innerHTML"
         hx-include="[name]"
 >
 
-    <div class="mb-3">
-        <label class="form-label">Nama</label>
-        <input
-                name="nama"
-                class="form-control {% if errors.nama %}is-invalid{% endif %}"
-                value="{{ formData.nama | default('') }}"
-                {{ readonlyAttr }}>
-        {% if errors.nama %}
-        <div class="invalid-feedback">
-            {{ errors.nama }}
-        </div>
-        {% endif %}
-    </div>
+    <input type="hidden" name="unitId" value="{{ unit.id }}">
 
-    <div class="mb-3">
-        <label class="form-label">Alias</label>
-        <input
-                name="alias"
-                class="form-control {% if errors.alias %}is-invalid{% endif %}"
-                value="{{ formData.alias | default('') }}"
-                {{ readonlyAttr }}>
-        {% if errors.alias %}
-        <div class="invalid-feedback">
-            {{ errors.alias }}
-        </div>
-        {% endif %}
-    </div>
+    <p class="mb-3">
+        Pilih user yang akan ditambahkan ke unit
+        <strong>{{ unit.nama }}</strong>:
+    </p>
 
-    <div class="mb-3">
-        <label class="form-label">Username</label>
-        <input
-                name="username"
-                class="form-control {% if errors.username %}is-invalid{% endif %}"
-                value="{{ formData.username | default('') }}"
-                {{ readonlyAttr }}>
-        {% if errors.username %}
-        <div class="invalid-feedback">
-            {{ errors.username }}
-        </div>
-        {% endif %}
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Email</label>
-        <input
-                name="email"
-                class="form-control {% if errors.email %}is-invalid{% endif %}"
-                value="{{ formData.email | default('') }}"
-                {{ readonlyAttr }}>
-        {% if errors.email %}
-        <div class="invalid-feedback">
-            {{ errors.email }}
-        </div>
-        {% endif %}
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Role</label>
-        <select name="roleId" class="form-select {% if errors.roleId %}is-invalid{% endif %}" {{ disabledAttr }}>
-
-            {% for role in formElement.roles %}
-
-            {% set selectedAttr = (formData is not null and formData.roleId == role.id ) ? 'selected="selected"' : '' %}
-            <option value="{{ role.id }}" {{ selectedAttr }}>
-                {{ role.nama }}
-            </option>
-
-            {% endfor %}
-
-        </select>
-        {% if errors.roleId %}
-        <div class="invalid-feedback">
-            {{ errors.roleId }}
-        </div>
-        {% endif %}
-    </div>
-
-    {% if not isView %}
-    <div class="text-end">
-        <button class="btn btn-primary" type="submit">Simpan</button>
+    {% if errors.userIds %}
+    <div class="alert alert-danger py-2">
+        {{ errors.userIds }}
     </div>
     {% endif %}
 
+    <div class="mb-2">
+        <input
+                type="text"
+                class="form-control"
+                placeholder="Cari nama / username..."
+                oninput="filterUserOptions(this.value)"
+        >
+    </div>
+
+    {% if users is empty %}
+
+    <div class="text-muted mb-3">
+        Semua user sudah terdaftar pada unit ini.
+    </div>
+
+    {% else %}
+
+    <div class="mb-2">
+        <div class="form-check">
+            <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="checkAll"
+                    onclick="document.querySelectorAll('.user-checkbox').forEach(cb => cb.checked = this.checked)"
+            >
+            <label class="form-check-label fw-bold" for="checkAll">
+                Pilih Semua
+            </label>
+        </div>
+    </div>
+
+    <div id="userOptionList" style="max-height: 320px; overflow-y: auto;" class="border rounded p-2 mb-3">
+
+        {% for user in users %}
+        <div class="form-check">
+            <input
+                    class="form-check-input user-checkbox"
+                    type="checkbox"
+                    name="userIds"
+                    id="user-{{ user.id }}"
+                    value="{{ user.id }}"
+            >
+            <label class="form-check-label" for="user-{{ user.id }}">
+                {{ user.nama }} <span class="text-muted">({{ user.username }})</span>
+            </label>
+        </div>
+        {% endfor %}
+
+    </div>
+
+    <div class="text-end">
+        <button class="btn btn-primary" type="submit">Simpan</button>
+    </div>
+
+    {% endif %}
+
 </form>
+
+<script>
+    function filterUserOptions(keyword) {
+        const kw = keyword.toLowerCase();
+        document.querySelectorAll('#userOptionList .form-check').forEach(function (el) {
+            const text = el.textContent.toLowerCase();
+            el.style.display = text.includes(kw) ? '' : 'none';
+        });
+    }
+</script>

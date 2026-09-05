@@ -1,6 +1,7 @@
 package id.darno.module.user.controller
 
 import id.darno.core.exceptions.ApplicationException
+import id.darno.core.htmx.exception.HtmxFormException
 import id.darno.core.htmx.model.ToastType
 import id.darno.core.htmx.utility.hxTriggerWithToast
 import id.darno.core.pageddata.helper.pagedQueryParameters
@@ -11,6 +12,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
 import io.ktor.server.pebble.*
 import io.ktor.server.plugins.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import org.slf4j.LoggerFactory
 
@@ -31,11 +33,6 @@ class UserUnitController(private val userService: UserService, private val unitS
 
         val units = unitService.getAll()
 
-        /*
-         * Unit default:
-         * gunakan unit pertama jika belum ada unitId
-         * dari URL.
-         */
         val requestedUnitId =
             call.request.queryParameters["unitId"]
                 ?.toShortOrNull()
@@ -86,6 +83,78 @@ class UserUnitController(private val userService: UserService, private val unitS
         )
     }
 
+    // Menampilkan form berisi checkbox user yang BELUM terdaftar di unit terpilih
+    suspend fun form(call: ApplicationCall) {
+
+        val unitId = call.request.queryParameters["unitId"]
+            ?.toShortOrNull()
+            ?: throw BadRequestException("unitId wajib diisi")
+
+        val search = call.request.queryParameters["search"]
+
+        val unit = unitService.getById(unitId) // validasi unit ada, throw NotFound kalau tidak
+
+        call.respond(
+            PebbleContent(
+                TEMPLATE_FORM,
+                mapOf(
+                    "unit" to unit,
+                    "users" to userService.getAvailableUsersForUnit(unitId, search)
+                )
+            )
+        )
+    }
+
+    // Submit form -> tambahkan user-user terpilih ke user_units
+    suspend fun store(call: ApplicationCall) {
+
+        val parameters = call.receiveParameters()
+
+        val unitId = parameters["unitId"]?.toShortOrNull()
+            ?: throw BadRequestException("unitId wajib diisi")
+
+        val userIds = parameters.getAll("userIds")
+            ?.mapNotNull { it.toShortOrNull() }
+            ?.distinct()
+            ?: emptyList()
+
+        if (userIds.isEmpty()) {
+            throw HtmxFormException(
+                templatePath = TEMPLATE_FORM,
+                errors = mapOf("userIds" to "Pilih minimal satu user"),
+                formData = mapOf("unitId" to unitId.toString()),
+                formElement = formContext(unitId),
+                mode = "add"
+            )
+        }
+
+        try {
+            val unit = unitService.getById(unitId)
+
+            val added = userService.addUsersToUnit(unitId, userIds)
+
+            logger.info("Added {} user(s) to unit {} (id: {})", added, unit.nama, unitId)
+
+            call.hxTriggerWithToast(
+                "$added user BERHASIL ditambahkan ke unit ${unit.nama}.",
+                ToastType.SUCCESS,
+                "user-saved"
+            )
+            call.respond(HttpStatusCode.Created)
+
+        } catch (ex: ApplicationException) {
+            logger.error("Failed to add users to unit (unitId: {})", unitId, ex)
+
+            throw HtmxFormException(
+                templatePath = TEMPLATE_FORM,
+                errors = mapOf("userIds" to (ex.message ?: "Ada kesalahan")),
+                formData = mapOf("unitId" to unitId.toString()),
+                formElement = formContext(unitId),
+                mode = "add"
+            )
+        }
+    }
+
     suspend fun delete(call: ApplicationCall, userId: Short, unitId: Short) {
         try {
             userService.deleteUserUnit(userId, unitId)
@@ -103,4 +172,10 @@ class UserUnitController(private val userService: UserService, private val unitS
             call.respond(HttpStatusCode.NoContent)
         }
     }
+
+    // HELPER: reload data untuk re-render form saat validasi gagal
+    private suspend fun formContext(unitId: Short): Map<String, Any> = mapOf(
+        "unit" to unitService.getById(unitId),
+        "users" to userService.getAvailableUsersForUnit(unitId)
+    )
 }

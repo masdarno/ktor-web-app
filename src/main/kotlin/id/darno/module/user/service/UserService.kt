@@ -7,6 +7,7 @@ import id.darno.module.user.domain.UserDomain
 import id.darno.module.user.model.CreateUserParams
 import id.darno.module.user.model.UpdateUserParams
 import id.darno.module.user.model.UserListItem
+import id.darno.module.user.model.UserOptionItem
 
 interface UserService {
     suspend fun create(params: CreateUserParams): UserDomain
@@ -17,6 +18,14 @@ interface UserService {
     suspend fun getUnitsForUser(userId: Short): List<UnitDomain>
     suspend fun userHasUnit(userId: Short, unitId: Short): Boolean
     suspend fun getUserTable(query: PagedQuery): PagedResult<UserListItem>
+    suspend fun getAvailableUsersForUnit(
+        unitId: Short,
+        search: String? = null
+    ): List<UserOptionItem>
+    suspend fun addUsersToUnit(
+        unitId: Short,
+        userIds: List<Short>
+    ): Int
     suspend fun getUserUnitTable(
         query: PagedQuery,
         unitId: Short

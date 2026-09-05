@@ -9,6 +9,7 @@ import id.darno.module.unit.domain.UnitDomain
 import id.darno.module.user.domain.UserDomain
 import id.darno.module.user.model.CreateUserParams
 import id.darno.module.user.model.UpdateUserParams
+import id.darno.module.user.model.UserOptionItem
 import id.darno.module.user.repository.UserRepository
 import org.slf4j.LoggerFactory
 
@@ -132,6 +133,18 @@ class UserServiceImpl(
             sortDir = query.sortDir,
             unitId = unitId
         )
+
+    override suspend fun getAvailableUsersForUnit(
+        unitId: Short,
+        search: String?
+    ): List<UserOptionItem> =
+        userRepository.findAvailableForUnit(unitId, search)
+
+    override suspend fun addUsersToUnit(
+        unitId: Short,
+        userIds: List<Short>
+    ): Int =
+        userRepository.addUserUnits(unitId, userIds)
 
     override suspend fun deleteUserUnit(
         userId: Short,
