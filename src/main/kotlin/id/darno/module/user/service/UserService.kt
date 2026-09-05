@@ -21,4 +21,8 @@ interface UserService {
         query: PagedQuery,
         unitId: Short
     ): PagedResult<UserListItem>
+    suspend fun deleteUserUnit(
+        userId: Short,
+        unitId: Short
+    ): Boolean
 }

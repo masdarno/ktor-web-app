@@ -118,7 +118,7 @@
 
                         hx-get="/user-unit/table"
 
-                        hx-trigger="user-saved from:body, user-deleted from:body"
+                        hx-trigger="user-saved from:body, user-unit-deleted from:body"
 
                         hx-swap="innerHTML"
 
@@ -210,7 +210,7 @@
         );
 
 
-    document.body.addEventListener("user-deleted", (e) => {
+    document.body.addEventListener("user-unit-deleted", (e) => {
 
         showToast(
             e.detail.message,

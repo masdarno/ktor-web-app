@@ -343,4 +343,20 @@ class UserRepositoryImpl(private val config: PhotoUrlConfig) : UserRepository {
             totalPages = totalPages
         )
     }
+
+    override suspend fun deleteUserUnit(
+        userId: Short,
+        unitId: Short
+    ): Boolean = dbQuery {
+        try {
+            UserUnitTable
+                .deleteWhere {
+                    (UserUnitTable.userId eq userId) and
+                            (UserUnitTable.unitId eq unitId)
+                } > 0
+            true
+        } catch (e: ExposedSQLException) {
+            throw DbExceptionMapper.map(e)
+        }
+    }
 }

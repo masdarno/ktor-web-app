@@ -20,4 +20,20 @@ fun Route.configureUserUnitRoute(userUnitController: UserUnitController){
     get("/user-unit/table"){
         userUnitController.table(call)
     }
+
+
+    delete("/user-unit/{userId}") {
+
+        val userId =
+            call.parameters["userId"]
+                ?.toShortOrNull()
+                ?: throw BadRequestException("userId tidak valid")
+
+        val unitId =
+            call.request.queryParameters["unitId"]
+                ?.toShortOrNull()
+                ?: throw BadRequestException("unitId tidak valid")
+
+        userUnitController.delete(call, userId, unitId)
+    }
 }

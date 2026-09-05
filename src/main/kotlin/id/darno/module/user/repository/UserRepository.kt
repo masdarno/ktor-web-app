@@ -45,4 +45,9 @@ interface UserRepository {
         sortDir: String,
         unitId: Short
     ): PagedResult<UserListItem>
+
+    suspend fun deleteUserUnit(
+        userId: Short,
+        unitId: Short
+    ): Boolean
 }

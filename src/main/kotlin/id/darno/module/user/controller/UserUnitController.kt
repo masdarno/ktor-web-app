@@ -1,9 +1,13 @@
 package id.darno.module.user.controller
 
+import id.darno.core.exceptions.ApplicationException
+import id.darno.core.htmx.model.ToastType
+import id.darno.core.htmx.utility.hxTriggerWithToast
 import id.darno.core.pageddata.helper.pagedQueryParameters
 import id.darno.core.pebble.helper.respondPebblePage
 import id.darno.module.unit.service.UnitService
 import id.darno.module.user.service.UserService
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
 import io.ktor.server.pebble.*
 import io.ktor.server.plugins.*
@@ -80,5 +84,23 @@ class UserUnitController(private val userService: UserService, private val unitS
                 )
             )
         )
+    }
+
+    suspend fun delete(call: ApplicationCall, userId: Short, unitId: Short) {
+        try {
+            userService.deleteUserUnit(userId, unitId)
+            call.hxTriggerWithToast(
+                "User Unit BERHASIL dihapus.",
+                ToastType.SUCCESS,
+                "user-unit-deleted")
+            call.respond(HttpStatusCode.NoContent)
+        } catch (e: ApplicationException) {
+            logger.error("Failed to delete user (id: {})", userId, e)
+
+            call.hxTriggerWithToast(
+                "User Unit GAGAL dihapus.",
+                ToastType.ERROR)
+            call.respond(HttpStatusCode.NoContent)
+        }
     }
 }

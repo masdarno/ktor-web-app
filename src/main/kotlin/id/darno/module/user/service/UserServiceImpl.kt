@@ -133,4 +133,12 @@ class UserServiceImpl(
             unitId = unitId
         )
 
+    override suspend fun deleteUserUnit(
+        userId: Short,
+        unitId: Short
+    ) =
+        userRepository.deleteUserUnit(
+            userId = userId,
+            unitId = unitId
+        )
 }
