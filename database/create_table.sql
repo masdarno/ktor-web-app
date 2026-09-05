@@ -85,7 +85,7 @@ create table `email_verification_tokens` (
   `user_id` tinyint(3) unsigned not null,
   `expires_at` datetime not null,
   primary key (`token`),
-  foreign key (`user_id`) references `users` (`id`)
+  foreign key (`user_id`) references `users` (`id`) on delete cascade
 );
 
 create table `password_reset_tokens` (
@@ -94,7 +94,7 @@ create table `password_reset_tokens` (
   `expires_at` datetime not null,
   `used_at` datetime,
   primary key (`token`),
-  foreign key (`user_id`) references `users` (`id`)
+  foreign key (`user_id`) references `users` (`id`) on delete cascade
 );
 
 create table `remember_me_tokens` (
@@ -104,6 +104,6 @@ create table `remember_me_tokens` (
   `validator_hash` varchar(255) NOT NULL,
   `expires_at` datetime NOT NULL,
   primary key (`selector`),
-  foreign key (`user_id`) references `users` (`id`),
-  foreign key (`unit_id`) references `units` (`id`)
+  foreign key (`user_id`) references `users` (`id`) on delete cascade,
+  foreign key (`unit_id`) references `units` (`id`) on delete cascade
 );
