@@ -1,11 +1,13 @@
 package id.darno.module.user.config
 
 import io.ktor.server.application.*
+import io.ktor.server.config.*
 
 data class UserUploadConfig(
     val profileDir: String,
     val maxPhotoSizeBytes: Long
 )
+
 data class PhotoUrlConfig(
     val upload: String,
     val default: String
@@ -16,38 +18,59 @@ data class UserModuleConfig(
     val photoUrl: PhotoUrlConfig
 )
 
-fun Application.userModuleConfig(): UserModuleConfig {
-    val config = environment.config.config("modules.user")
+/**
+ * Extension pada ApplicationConfig (bukan Application), supaya bisa dipakai
+ * baik dari server (lewat environment.config) maupun dari CLI
+ * (lewat ApplicationConfig("application.yaml") langsung).
+ */
+fun ApplicationConfig.userPhotoUrlConfig(): PhotoUrlConfig {
+    val photoUrlConfig = this
+        .config("modules.user")
+        .config("photo-url")
 
-    val profileDir = config
+    val uploadUrl = photoUrlConfig
+        .property("upload-dir")
+        .getString()
+
+    val defaultUrl = photoUrlConfig
+        .property("default-dir")
+        .getString()
+
+    return PhotoUrlConfig(
+        upload = uploadUrl,
+        default = defaultUrl
+    )
+}
+
+fun ApplicationConfig.userUploadConfig(): UserUploadConfig {
+    val userConfig = this.config("modules.user")
+
+    val profileDir = userConfig
         .config("upload")
         .property("profile-dir")
         .getString()
 
-    val maxSizeMb = config
+    val maxSizeMb = userConfig
         .config("photo")
         .property("max-size-mb")
         .getString()
         .toLong()
 
-    val uploadUrl = config
-        .config("photo-url")
-        .property("upload-dir")
-        .getString()
-
-    val defaultUrl = config
-        .config("photo-url")
-        .property("default-dir")
-        .getString()
-
-    return UserModuleConfig(
-        upload = UserUploadConfig(
-            profileDir = profileDir,
-            maxPhotoSizeBytes = maxSizeMb * 1024 * 1024
-        ),
-        photoUrl = PhotoUrlConfig(
-            upload = uploadUrl,
-            default = defaultUrl
-        )
+    return UserUploadConfig(
+        profileDir = profileDir,
+        maxPhotoSizeBytes = maxSizeMb * 1024 * 1024
     )
 }
+
+fun ApplicationConfig.userModuleConfig(): UserModuleConfig =
+    UserModuleConfig(
+        upload = userUploadConfig(),
+        photoUrl = userPhotoUrlConfig()
+    )
+
+/**
+ * Tetap dipertahankan untuk kompatibilitas kode Application yang sudah ada
+ * (mis. UserDependencies.kt), tinggal delegasi ke environment.config.
+ */
+fun Application.userModuleConfig(): UserModuleConfig =
+    environment.config.userModuleConfig()

@@ -27,24 +27,32 @@ data class DatabaseConfig(
     }
 }
 
-fun Application.databaseConfig(): DatabaseConfig {
-    val dbConfig: ApplicationConfig = try {
-        environment.config.config("db")
-    } catch (e: ApplicationConfigurationException) {  // atau ConfigException di beberapa versi
-        throw IllegalStateException("Missing 'db' configuration section in application.conf", e)
+fun Application.databaseConfig(): DatabaseConfig =
+    environment.config.databaseConfig()
+
+fun ApplicationConfig.databaseConfig(): DatabaseConfig {
+    val dbConfig = try {
+        config("db")
+    } catch (e: ApplicationConfigurationException) {
+        throw IllegalStateException(
+            "Missing 'db' configuration section in application.yaml",
+            e
+        )
     }
 
-    // Extension functions pada ApplicationConfig
     fun ApplicationConfig.requiredString(path: String): String =
         propertyOrNull(path)?.getString()?.trim()
-            ?: throw IllegalArgumentException("Required configuration 'db.$path' is missing")
+            ?: throw IllegalArgumentException(
+                "Required configuration 'db.$path' is missing"
+            )
 
     fun ApplicationConfig.optionalInt(path: String): Int? =
         propertyOrNull(path)?.getString()?.trim()?.toIntOrNull()
             ?: run {
-                // Jika property ada tapi value bukan integer, throw error
                 propertyOrNull(path)?.let {
-                    throw IllegalArgumentException("Invalid integer value for 'db.$path'")
+                    throw IllegalArgumentException(
+                        "Invalid integer value for 'db.$path'"
+                    )
                 }
                 null
             }
@@ -54,9 +62,8 @@ fun Application.databaseConfig(): DatabaseConfig {
     val port = dbConfig.optionalInt("port")
     val name = dbConfig.requiredString("name")
     val user = dbConfig.requiredString("user")
-
-    // Password optional (bisa kosong atau tidak ada)
-    val password = dbConfig.propertyOrNull("password")?.getString()?.trim() ?: ""
+    val password =
+        dbConfig.propertyOrNull("password")?.getString()?.trim() ?: ""
 
     return DatabaseConfig(
         type = type,
