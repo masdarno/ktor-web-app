@@ -7,7 +7,7 @@ import id.darno.core.htmx.utility.hxTriggerWithToast
 import id.darno.core.pageddata.helper.pagedQueryParameters
 import id.darno.core.pebble.helper.respondPebblePage
 import id.darno.module.unit.service.UnitService
-import id.darno.module.user.service.UserService
+import id.darno.module.user.service.UserUnitService
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
 import io.ktor.server.pebble.*
@@ -16,7 +16,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import org.slf4j.LoggerFactory
 
-class UserUnitController(private val userService: UserService, private val unitService: UnitService) {
+class UserUnitController(private val userUnitService: UserUnitService, private val unitService: UnitService) {
 
     private val logger = LoggerFactory.getLogger(UserUnitController::class.java)
 
@@ -42,7 +42,7 @@ class UserUnitController(private val userService: UserService, private val unitS
                 ?.takeIf { id -> units.any { it.id == id } }
                 ?: units.first().id
 
-        val result = userService.getUserUnitTable(
+        val result = userUnitService.getUserUnitTable(
             query = query,
             unitId = selectedUnitId
         )
@@ -67,7 +67,7 @@ class UserUnitController(private val userService: UserService, private val unitS
             ?.toShortOrNull()
             ?: throw BadRequestException("unitId wajib diisi")
 
-        val result = userService.getUserUnitTable(
+        val result = userUnitService.getUserUnitTable(
             query = query,
             unitId = unitId
         )
@@ -99,7 +99,7 @@ class UserUnitController(private val userService: UserService, private val unitS
                 TEMPLATE_FORM,
                 mapOf(
                     "unit" to unit,
-                    "users" to userService.getAvailableUsersForUnit(unitId, search)
+                    "users" to userUnitService.getAvailableUsersForUnit(unitId, search)
                 )
             )
         )
@@ -131,7 +131,7 @@ class UserUnitController(private val userService: UserService, private val unitS
         try {
             val unit = unitService.getById(unitId)
 
-            val added = userService.addUsersToUnit(unitId, userIds)
+            val added = userUnitService.addUsersToUnit(unitId, userIds)
 
             logger.info("Added {} user(s) to unit {} (id: {})", added, unit.nama, unitId)
 
@@ -157,7 +157,7 @@ class UserUnitController(private val userService: UserService, private val unitS
 
     suspend fun delete(call: ApplicationCall, userId: Short, unitId: Short) {
         try {
-            userService.deleteUserUnit(userId, unitId)
+            userUnitService.deleteUserUnit(userId, unitId)
             call.hxTriggerWithToast(
                 "User Unit BERHASIL dihapus.",
                 ToastType.SUCCESS,
@@ -176,6 +176,6 @@ class UserUnitController(private val userService: UserService, private val unitS
     // HELPER: reload data untuk re-render form saat validasi gagal
     private suspend fun formContext(unitId: Short): Map<String, Any> = mapOf(
         "unit" to unitService.getById(unitId),
-        "users" to userService.getAvailableUsersForUnit(unitId)
+        "users" to userUnitService.getAvailableUsersForUnit(unitId)
     )
 }

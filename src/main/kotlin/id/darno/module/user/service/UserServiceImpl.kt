@@ -120,38 +120,4 @@ class UserServiceImpl(
             sortBy = query.sortBy,
             sortDir = query.sortDir
         )
-
-    override suspend fun getUserUnitTable(
-        query: PagedQuery,
-        unitId: Short
-    ) =
-        userRepository.findAllByUnit(
-            search = query.search,
-            page = query.page,
-            pageSize = query.pageSize,
-            sortBy = query.sortBy,
-            sortDir = query.sortDir,
-            unitId = unitId
-        )
-
-    override suspend fun getAvailableUsersForUnit(
-        unitId: Short,
-        search: String?
-    ): List<UserOptionItem> =
-        userRepository.findAvailableForUnit(unitId, search)
-
-    override suspend fun addUsersToUnit(
-        unitId: Short,
-        userIds: List<Short>
-    ): Int =
-        userRepository.addUserUnits(unitId, userIds)
-
-    override suspend fun deleteUserUnit(
-        userId: Short,
-        unitId: Short
-    ) =
-        userRepository.deleteUserUnit(
-            userId = userId,
-            unitId = unitId
-        )
 }

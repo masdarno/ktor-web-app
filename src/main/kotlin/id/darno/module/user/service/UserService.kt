@@ -18,20 +18,5 @@ interface UserService {
     suspend fun getUnitsForUser(userId: Short): List<UnitDomain>
     suspend fun userHasUnit(userId: Short, unitId: Short): Boolean
     suspend fun getUserTable(query: PagedQuery): PagedResult<UserListItem>
-    suspend fun getAvailableUsersForUnit(
-        unitId: Short,
-        search: String? = null
-    ): List<UserOptionItem>
-    suspend fun addUsersToUnit(
-        unitId: Short,
-        userIds: List<Short>
-    ): Int
-    suspend fun getUserUnitTable(
-        query: PagedQuery,
-        unitId: Short
-    ): PagedResult<UserListItem>
-    suspend fun deleteUserUnit(
-        userId: Short,
-        unitId: Short
-    ): Boolean
+
 }

@@ -10,6 +10,8 @@ import id.darno.module.user.controller.UserProfileController
 import id.darno.module.user.controller.UserUnitController
 import id.darno.module.user.repository.UserRepository
 import id.darno.module.user.repository.UserRepositoryImpl
+import id.darno.module.user.repository.UserUnitRepository
+import id.darno.module.user.repository.UserUnitRepositoryImpl
 import id.darno.module.user.service.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.di.*
@@ -58,9 +60,17 @@ fun Application.configureUserDependencies(){
                 resolve<UserFileService>()
             )
         }
+        provide<UserUnitRepository> {
+            UserUnitRepositoryImpl()
+        }
+        provide<UserUnitService> {
+            UserUnitServiceImpl(
+                resolve<UserUnitRepository>()
+            )
+        }
         provide< UserUnitController> {
             UserUnitController(
-                resolve<UserService>(),
+                resolve<UserUnitService>(),
                 resolve<UnitService>()
             )
         }

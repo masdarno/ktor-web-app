@@ -38,27 +38,5 @@ interface UserRepository {
         sortDir: String
     ): PagedResult<UserListItem>
 
-    suspend fun findAllByUnit(
-        search: String?,
-        page: Int,
-        pageSize: Int,
-        sortBy: String,
-        sortDir: String,
-        unitId: Short
-    ): PagedResult<UserListItem>
 
-    suspend fun findAvailableForUnit(
-        unitId: Short,
-        search: String? = null
-    ): List<UserOptionItem>
-
-    suspend fun addUserUnits(
-        unitId: Short,
-        userIds: List<Short>
-    ): Int
-
-    suspend fun deleteUserUnit(
-        userId: Short,
-        unitId: Short
-    ): Boolean
 }
