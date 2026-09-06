@@ -52,3 +52,17 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation(ktorLibs.server.testHost)
 }
+
+tasks.register<JavaExec>("addUser") {
+    group = "application"
+    description = "Provision a new user via CLI: ./gradlew addUser --args=\"<username> <roleId> <unitId>\""
+
+    mainClass.set("id.darno.dev.cli.AddUserCliKt")
+    classpath = sourceSets["main"].runtimeClasspath
+
+    standardInput = System.`in`
+    standardOutput = System.out
+    errorOutput = System.err
+
+    workingDir = rootDir
+}
