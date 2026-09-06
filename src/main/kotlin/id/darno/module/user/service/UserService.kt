@@ -7,7 +7,6 @@ import id.darno.module.user.domain.UserDomain
 import id.darno.module.user.model.CreateUserParams
 import id.darno.module.user.model.UpdateUserParams
 import id.darno.module.user.model.UserListItem
-import id.darno.module.user.model.UserOptionItem
 
 interface UserService {
     suspend fun create(params: CreateUserParams): UserDomain
@@ -18,5 +17,5 @@ interface UserService {
     suspend fun getUnitsForUser(userId: Short): List<UnitDomain>
     suspend fun userHasUnit(userId: Short, unitId: Short): Boolean
     suspend fun getUserTable(query: PagedQuery): PagedResult<UserListItem>
-
+    suspend fun generateUsersPdf(search: String?): ByteArray
 }

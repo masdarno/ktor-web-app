@@ -7,7 +7,7 @@ import id.darno.module.user.domain.UserDomain
 import id.darno.module.user.model.CreateUserParams
 import id.darno.module.user.model.UpdateUserParams
 import id.darno.module.user.model.UserListItem
-import id.darno.module.user.model.UserOptionItem
+import id.darno.module.user.model.UserReportRow
 
 interface UserRepository {
     suspend fun create(params: CreateUserParams): UserDomain
@@ -38,5 +38,5 @@ interface UserRepository {
         sortDir: String
     ): PagedResult<UserListItem>
 
-
+    suspend fun findAllForReport(search: String?): List<UserReportRow>
 }

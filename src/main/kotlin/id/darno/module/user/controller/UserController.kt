@@ -223,4 +223,24 @@ class UserController(private val userService: UserService, private val roleServi
             "roleId" to user.roleId
         )
     }
+
+    suspend fun pdf(call: ApplicationCall) {
+        val search = call.request.queryParameters["search"]
+
+        try {
+            val pdfBytes = userService.generateUsersPdf(search)
+
+            call.response.header(
+                HttpHeaders.ContentDisposition,
+                ContentDisposition.Inline
+                    .withParameter(ContentDisposition.Parameters.FileName, "daftar-user.pdf")
+                    .toString()
+            )
+            call.respondBytes(pdfBytes, ContentType.Application.Pdf)
+
+        } catch (ex: Exception) {
+            logger.error("Gagal membuat laporan PDF user", ex)
+            call.respond(HttpStatusCode.InternalServerError, "Gagal membuat laporan PDF")
+        }
+    }
 }

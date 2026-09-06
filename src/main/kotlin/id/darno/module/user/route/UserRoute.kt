@@ -44,4 +44,9 @@ fun Route.configureUserRoute(userController: UserController){
 
         userController.delete(call, userId)
     }
+
+    //pdf
+    get("/users/report/pdf") {
+        userController.pdf(call)
+    }
 }

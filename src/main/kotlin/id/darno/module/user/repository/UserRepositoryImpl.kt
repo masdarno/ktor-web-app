@@ -18,13 +18,12 @@ import id.darno.module.user.mapper.toUserDomain
 import id.darno.module.user.model.CreateUserParams
 import id.darno.module.user.model.UpdateUserParams
 import id.darno.module.user.model.UserListItem
-import id.darno.module.user.model.UserOptionItem
+import id.darno.module.user.model.UserReportRow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 import org.jetbrains.exposed.v1.core.*
-import org.jetbrains.exposed.v1.jdbc.*
+import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -230,4 +229,32 @@ class UserRepositoryImpl(private val config: PhotoUrlConfig) : UserRepository {
         )
     }
 
+    override suspend fun findAllForReport(search: String?): List<UserReportRow> = dbQuery {
+        val filter = search?.let {
+            (UserTable.nama like "%$it%") or
+                    (UserTable.username like "%$it%") or
+                    (UserTable.email like "%$it%")
+        }
+
+        UserTable
+            .innerJoin(RoleTable) // sesuai query asli di JRXML: "join roles b on a.role_id = b.id"
+            .select(
+                UserTable.nama,
+                UserTable.username,
+                UserTable.email,
+                UserTable.emailVerifiedAt,
+                RoleTable.nama
+            )
+            .let { if (filter != null) it.where { filter } else it }
+            .orderBy(UserTable.nama to SortOrder.ASC)
+            .map {
+                UserReportRow(
+                    nama = it[UserTable.nama],
+                    username = it[UserTable.username],
+                    email = it[UserTable.email],
+                    verified = if (it[UserTable.emailVerifiedAt] != null) "Terverifikasi" else null,
+                    role = it[RoleTable.nama]
+                )
+            }
+    }
 }

@@ -44,3 +44,6 @@ logs/
 
 # Folder uploads
 /uploads/
+
+# Abaikan file kompilasi jasper
+*.jasper

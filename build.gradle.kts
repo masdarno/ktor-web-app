@@ -48,6 +48,15 @@ dependencies {
     implementation(libs.jakarta.mail)
     // Dotenv
     implementation(libs.dotenv.kotlin)
+    // JasperReports 7
+    implementation(libs.jasperreports.core)
+    implementation(libs.jasperreports.pdf) {
+        // fork OpenPDF milik Jaspersoft tidak ada di Maven Central,
+        // ganti dengan OpenPDF versi standar (cukup untuk export PDF biasa)
+        exclude(group = "com.github.librepdf", module = "openpdf")
+    }
+    implementation("com.github.librepdf:openpdf:1.3.43")
+    implementation(libs.jasperreports.fonts)
 
     testImplementation(kotlin("test"))
     testImplementation(ktorLibs.server.testHost)

@@ -9,6 +9,7 @@ valiktor = "0.12.0"
 jbcrypt = "0.4"
 jakarta-mail = "2.0.5"
 dotenv = "6.5.1"
+jasperreports = "7.0.8"
 
 [libraries]
 exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
@@ -23,6 +24,9 @@ valiktor-core = { module = "org.valiktor:valiktor-core", version.ref = "valiktor
 security-bcrypt = { module = "org.mindrot:jbcrypt", version.ref = "jbcrypt" }
 jakarta-mail = { group = "org.eclipse.angus", name = "jakarta.mail", version.ref = "jakarta-mail" }
 dotenv-kotlin = { module = "io.github.cdimascio:dotenv-kotlin", version.ref = "dotenv" }
+jasperreports-core = { module = "net.sf.jasperreports:jasperreports", version.ref = "jasperreports" }
+jasperreports-pdf = { module = "net.sf.jasperreports:jasperreports-pdf", version.ref = "jasperreports" }
+jasperreports-fonts = { module = "net.sf.jasperreports:jasperreports-fonts", version.ref = "jasperreports" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
