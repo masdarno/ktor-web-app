@@ -237,7 +237,7 @@ class UserRepositoryImpl(private val config: PhotoUrlConfig) : UserRepository {
         }
 
         UserTable
-            .innerJoin(RoleTable) // sesuai query asli di JRXML: "join roles b on a.role_id = b.id"
+            .innerJoin(RoleTable)
             .select(
                 UserTable.nama,
                 UserTable.username,
@@ -252,7 +252,7 @@ class UserRepositoryImpl(private val config: PhotoUrlConfig) : UserRepository {
                     nama = it[UserTable.nama],
                     username = it[UserTable.username],
                     email = it[UserTable.email],
-                    verified = if (it[UserTable.emailVerifiedAt] != null) "Terverifikasi" else null,
+                    verified = if (it[UserTable.emailVerifiedAt] != null) "Terverifikasi" else "",
                     role = it[RoleTable.nama]
                 )
             }
