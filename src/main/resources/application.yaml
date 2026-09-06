@@ -4,6 +4,7 @@ ktor:
       - id.darno.ApplicationKt.module
 
   deployment:
+    host: ${KTOR_HOST}
     port: ${KTOR_PORT}
     development: ${KTOR_DEVELOPMENT}
 
