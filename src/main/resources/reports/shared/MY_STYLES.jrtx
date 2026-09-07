@@ -18,7 +18,7 @@
 			<rightPen lineWidth="1.0"/>
 		</box>
 	</style>
-	<style name="ReportTitle" style="Base" mode="Opaque" backcolor="#D3D3D3" hTextAlign="Center" vTextAlign="Middle" bold="true">
+	<style name="ReportTitle" style="Base" mode="Transparent" backcolor="#D3D3D3" hTextAlign="Center" vTextAlign="Middle" fontSize="14.0" bold="true">
 		<box style="Base">
 			<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 			<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>

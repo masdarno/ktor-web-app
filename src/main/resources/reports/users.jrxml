@@ -31,7 +31,7 @@ join roles b on a.role_id = b.id]]></query>
 		<property name="com.jaspersoft.studio.field.tree.path" value="roles"/>
 	</field>
 	<title height="30" splitType="Stretch">
-		<element kind="staticText" uuid="b29e6fdf-b9dd-459f-b2c5-c69524ad8ced" x="150" y="0" width="200" height="30" mode="Transparent" hTextAlign="Center" style="ReportTitle">
+		<element kind="staticText" uuid="b29e6fdf-b9dd-459f-b2c5-c69524ad8ced" x="0" y="0" width="550" height="30" mode="Transparent" hTextAlign="Center" style="ReportTitle">
 			<property name="com.jaspersoft.studio.unit.width" value="px"/>
 			<property name="com.jaspersoft.studio.unit.y" value="px"/>
 			<property name="com.jaspersoft.studio.unit.x" value="px"/>
