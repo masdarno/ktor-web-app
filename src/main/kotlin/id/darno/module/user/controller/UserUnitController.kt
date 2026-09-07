@@ -8,6 +8,9 @@ import id.darno.core.pageddata.helper.pagedQueryParameters
 import id.darno.core.pebble.helper.respondPebblePage
 import id.darno.module.unit.service.UnitService
 import id.darno.module.user.service.UserUnitService
+import io.ktor.http.ContentDisposition
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
 import io.ktor.server.pebble.*
@@ -178,4 +181,27 @@ class UserUnitController(private val userUnitService: UserUnitService, private v
         "unit" to unitService.getById(unitId),
         "users" to userUnitService.getAvailableUsersForUnit(unitId)
     )
+
+    suspend fun pdf(call: ApplicationCall) {
+        val unitId = call.request.queryParameters["unitId"]
+            ?.toShortOrNull()
+            ?: throw BadRequestException("unitId wajib diisi")
+        val search = call.request.queryParameters["search"]
+
+        try {
+            val pdfBytes = userUnitService.generatePdf(unitId, search)
+
+            call.response.header(
+                HttpHeaders.ContentDisposition,
+                ContentDisposition.Inline
+                    .withParameter(ContentDisposition.Parameters.FileName, "daftar-user.pdf")
+                    .toString()
+            )
+            call.respondBytes(pdfBytes, ContentType.Application.Pdf)
+
+        } catch (ex: Exception) {
+            logger.error("Gagal membuat laporan PDF user", ex)
+            call.respond(HttpStatusCode.InternalServerError, "Gagal membuat laporan PDF")
+        }
+    }
 }

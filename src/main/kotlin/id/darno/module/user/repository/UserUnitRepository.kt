@@ -3,6 +3,7 @@ package id.darno.module.user.repository
 import id.darno.core.pageddata.model.PagedResult
 import id.darno.module.user.model.UserListItem
 import id.darno.module.user.model.UserOptionItem
+import id.darno.module.user.model.UserUnitReportRow
 
 interface UserUnitRepository {
 
@@ -30,4 +31,5 @@ interface UserUnitRepository {
         unitId: Short
     ): Boolean
 
+    suspend fun findAllUserByUnitForReport(unitId: Short, search: String?): List<UserUnitReportRow>
 }

@@ -4,16 +4,13 @@ import id.darno.core.database.DbExceptionMapper
 import id.darno.core.database.dbQuery
 import id.darno.core.pageddata.model.PagedResult
 import id.darno.module.role.database.table.RoleTable
+import id.darno.module.unit.database.table.UnitTable
 import id.darno.module.user.database.table.UserTable
 import id.darno.module.user.database.table.UserUnitTable
 import id.darno.module.user.model.UserListItem
 import id.darno.module.user.model.UserOptionItem
-import org.jetbrains.exposed.v1.core.SortOrder
-import org.jetbrains.exposed.v1.core.and
-import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.core.like
-import org.jetbrains.exposed.v1.core.notInSubQuery
-import org.jetbrains.exposed.v1.core.or
+import id.darno.module.user.model.UserUnitReportRow
+import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 import org.jetbrains.exposed.v1.jdbc.batchInsert
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
@@ -212,4 +209,43 @@ class UserUnitRepositoryImpl: UserUnitRepository {
         }
     }
 
+    override suspend fun findAllUserByUnitForReport(unitId: Short, search: String?): List<UserUnitReportRow> = dbQuery {
+        val searchFilter = search
+            ?.takeIf { it.isNotBlank() }
+            ?.let {
+                (UserTable.nama like "%$it%") or
+                (UserTable.username like "%$it%") or
+                (UserTable.email like "%$it%")
+            }
+        val unitFilter = UserUnitTable.unitId eq unitId
+
+        val filter = searchFilter
+            ?.let { unitFilter and it }
+            ?: unitFilter
+
+        UserTable
+            .innerJoin(UserUnitTable)
+            .innerJoin(RoleTable)
+            .innerJoin(UnitTable)
+            .select(
+                UserTable.nama,
+                UserTable.username,
+                UserTable.email,
+                UserTable.emailVerifiedAt,
+                RoleTable.nama,
+                UnitTable.nama
+            )
+            .let { if (filter != null) it.where { filter } else it }
+            .orderBy(UserTable.nama to SortOrder.ASC)
+            .map {
+                UserUnitReportRow(
+                    nama = it[UserTable.nama],
+                    username = it[UserTable.username],
+                    email = it[UserTable.email],
+                    verified = if (it[UserTable.emailVerifiedAt] != null) "Terverifikasi" else "",
+                    role = it[RoleTable.nama],
+                    unit = it[UnitTable.nama]
+                )
+            }
+    }
 }

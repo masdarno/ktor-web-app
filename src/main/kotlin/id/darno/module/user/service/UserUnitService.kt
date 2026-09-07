@@ -23,5 +23,5 @@ interface UserUnitService {
         userId: Short,
         unitId: Short
     ): Boolean
-
+    suspend fun generatePdf(unitId: Short, search: String?): ByteArray
 }

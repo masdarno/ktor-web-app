@@ -42,4 +42,9 @@ fun Route.configureUserUnitRoute(userUnitController: UserUnitController){
 
         userUnitController.delete(call, userId, unitId)
     }
+
+    //pdf
+    get("/user-unit/report/pdf") {
+        userUnitController.pdf(call)
+    }
 }
