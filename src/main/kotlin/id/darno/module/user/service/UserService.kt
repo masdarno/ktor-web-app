@@ -2,6 +2,8 @@ package id.darno.module.user.service
 
 import id.darno.core.pageddata.model.PagedQuery
 import id.darno.core.pageddata.model.PagedResult
+import id.darno.core.report.ReportFile
+import id.darno.core.report.ReportFormat
 import id.darno.module.unit.domain.UnitDomain
 import id.darno.module.user.domain.UserDomain
 import id.darno.module.user.model.CreateUserParams
@@ -17,5 +19,5 @@ interface UserService {
     suspend fun getUnitsForUser(userId: Short): List<UnitDomain>
     suspend fun userHasUnit(userId: Short, unitId: Short): Boolean
     suspend fun getUserTable(query: PagedQuery): PagedResult<UserListItem>
-    suspend fun generatePdf(search: String?): ByteArray
+    suspend fun generateReport(search: String?, format: ReportFormat = ReportFormat.PDF): ReportFile
 }

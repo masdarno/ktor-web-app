@@ -42,9 +42,6 @@ fun Application.configureUserDependencies(){
         provide<UserLookupService> {
             UserLookupServiceImpl(resolve<UserService>())
         }
-        provide<JasperReportService> {
-            JasperReportService()
-        }
         provide<UserService> {
             UserServiceImpl(
                 resolve<UserRepository>(),

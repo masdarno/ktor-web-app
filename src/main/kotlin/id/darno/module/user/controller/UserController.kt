@@ -8,6 +8,7 @@ import id.darno.core.htmx.utility.respondUniversalRedirect
 import id.darno.core.http.mapper.toFormData
 import id.darno.core.pageddata.helper.pagedQueryParameters
 import id.darno.core.pebble.helper.respondPebblePage
+import id.darno.core.report.respondReport
 import id.darno.core.session.model.UserSession
 import id.darno.core.validation.valiktor.helper.errors
 import id.darno.module.role.service.RoleService
@@ -20,9 +21,7 @@ import io.ktor.server.application.*
 import io.ktor.server.pebble.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
-import io.ktor.server.sessions.get
-import io.ktor.server.sessions.sessions
-import io.ktor.server.sessions.set
+import io.ktor.server.sessions.*
 import org.slf4j.LoggerFactory
 import org.valiktor.ConstraintViolationException
 
@@ -225,18 +224,15 @@ class UserController(private val userService: UserService, private val roleServi
     }
 
     suspend fun pdf(call: ApplicationCall) {
-        val search = call.request.queryParameters["search"]
-
         try {
-            val pdfBytes = userService.generatePdf(search)
+            val report =
+                userService.generateReport(
+                    search = call.request.queryParameters["search"]
+                )
 
-            call.response.header(
-                HttpHeaders.ContentDisposition,
-                ContentDisposition.Inline
-                    .withParameter(ContentDisposition.Parameters.FileName, "daftar-user.pdf")
-                    .toString()
+            call.respondReport(
+                report = report
             )
-            call.respondBytes(pdfBytes, ContentType.Application.Pdf)
 
         } catch (ex: Exception) {
             logger.error("Gagal membuat laporan PDF user", ex)

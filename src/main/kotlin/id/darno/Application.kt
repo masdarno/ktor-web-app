@@ -10,6 +10,7 @@ import id.darno.core.mail.InMemoryMailService
 import id.darno.core.mail.JakartaMailService
 import id.darno.core.mail.MailService
 import id.darno.core.pebble.helper.respondPebblePage
+import id.darno.core.report.JasperReportService
 import id.darno.core.route.guard.authenticatedGuard
 import id.darno.core.security.crypto.BCryptHasher
 import id.darno.core.security.crypto.Hasher
@@ -137,6 +138,10 @@ fun Application.configureDependencies(config: ApplicationConfig){
                     .property("security.rememberMePepper")
                     .getString()
             )
+        }
+        // Reporting
+        provide<JasperReportService> {
+            JasperReportService()
         }
     }
     configureMenuDependencies()

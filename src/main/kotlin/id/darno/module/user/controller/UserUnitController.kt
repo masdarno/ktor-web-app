@@ -6,12 +6,10 @@ import id.darno.core.htmx.model.ToastType
 import id.darno.core.htmx.utility.hxTriggerWithToast
 import id.darno.core.pageddata.helper.pagedQueryParameters
 import id.darno.core.pebble.helper.respondPebblePage
+import id.darno.core.report.respondReport
 import id.darno.module.unit.service.UnitService
 import id.darno.module.user.service.UserUnitService
-import io.ktor.http.ContentDisposition
-import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpStatusCode
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.pebble.*
 import io.ktor.server.plugins.*
@@ -189,15 +187,15 @@ class UserUnitController(private val userUnitService: UserUnitService, private v
         val search = call.request.queryParameters["search"]
 
         try {
-            val pdfBytes = userUnitService.generatePdf(unitId, search)
+            val report =
+                userUnitService.generateReport(
+                    unitId = unitId,
+                    search = search
+                )
 
-            call.response.header(
-                HttpHeaders.ContentDisposition,
-                ContentDisposition.Inline
-                    .withParameter(ContentDisposition.Parameters.FileName, "daftar-user-unit.pdf")
-                    .toString()
+            call.respondReport(
+                report = report
             )
-            call.respondBytes(pdfBytes, ContentType.Application.Pdf)
 
         } catch (ex: Exception) {
             logger.error("Gagal membuat laporan PDF user", ex)

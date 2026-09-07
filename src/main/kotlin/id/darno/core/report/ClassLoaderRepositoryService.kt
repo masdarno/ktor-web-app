@@ -4,16 +4,6 @@ import net.sf.jasperreports.repo.InputStreamResource
 import net.sf.jasperreports.repo.RepositoryService
 import net.sf.jasperreports.repo.Resource
 
-/**
- * RepositoryService untuk membaca resource JasperReports
- * dari classpath.
- *
- * Contoh:
- *   shared/MY_STYLES.jrtx
- *
- * akan dicari sebagai:
- *   reports/shared/MY_STYLES.jrtx
- */
 class ClassLoaderRepositoryService(
     private val classLoader: ClassLoader
 ) : RepositoryService {
@@ -21,14 +11,14 @@ class ClassLoaderRepositoryService(
     @Suppress("UNCHECKED_CAST")
     override fun <T : Resource?> getResource(
         location: String?,
-        resourceType: Class<T>?
+        javaType: Class<T>?
     ): T {
 
         val resource = getResource(location)
 
         if (
             resource != null &&
-            (resourceType == null || resourceType.isInstance(resource))
+            (javaType == null || javaType.isInstance(resource))
         ) {
             return resource as T
         }
@@ -45,13 +35,17 @@ class ClassLoaderRepositoryService(
         }
 
         /*
-         * Jasper biasanya memberikan path relatif seperti:
+         * JasperReports dapat meminta resource seperti:
          *
-         * shared/MY_STYLES.jrtx
+         * shared/header.jasper
+         * shared/footer.jasper
          *
-         * Sedangkan resource aplikasi berada di:
+         * Sedangkan resource sebenarnya berada di:
          *
-         * resources/reports/shared/MY_STYLES.jrtx
+         * src/main/resources/reports/shared/header.jasper
+         * src/main/resources/reports/shared/footer.jasper
+         *
+         * Maka prefix "shared/" diarahkan ke "reports/shared/".
          */
         val resourcePath =
             if (location.startsWith("shared/")) {
@@ -74,9 +68,8 @@ class ClassLoaderRepositoryService(
         resource: Resource?
     ) {
         /*
-         * Repository ini read-only.
-         *
-         * Resource JasperReports hanya dibaca dari classpath.
+         * Repository ini hanya digunakan untuk membaca resource
+         * dari classpath. Tidak ada operasi penyimpanan.
          */
     }
 }

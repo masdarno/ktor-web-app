@@ -2,6 +2,8 @@ package id.darno.module.user.service
 
 import id.darno.core.pageddata.model.PagedQuery
 import id.darno.core.report.JasperReportService
+import id.darno.core.report.ReportFile
+import id.darno.core.report.ReportFormat
 import id.darno.module.user.model.UserOptionItem
 import id.darno.module.user.repository.UserUnitRepository
 
@@ -43,10 +45,11 @@ class UserUnitServiceImpl(
             unitId = unitId
         )
 
-    override suspend fun generatePdf(
+    override suspend fun generateReport(
         unitId: Short,
-        search: String?
-    ): ByteArray {
+        search: String?,
+        format: ReportFormat
+    ): ReportFile {
 
         val rows =
             userUnitRepository.findAllUserByUnitForReport(
@@ -54,9 +57,15 @@ class UserUnitServiceImpl(
                 search
             )
 
-        return jasperReportService.generatePdf(
+        return jasperReportService.generate(
             reportPath = "reports/user-unit.jasper",
-            data = rows
+            format = format,
+            data = rows,
+            parameters = mapOf(
+                "UNIT_ID" to unitId,
+                "REPORT_TITLE" to "Daftar User Unit",
+            ),
+            fileName = "user-unit"
         )
     }
 }
