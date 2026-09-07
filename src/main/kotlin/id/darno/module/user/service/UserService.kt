@@ -17,5 +17,5 @@ interface UserService {
     suspend fun getUnitsForUser(userId: Short): List<UnitDomain>
     suspend fun userHasUnit(userId: Short, unitId: Short): Boolean
     suspend fun getUserTable(query: PagedQuery): PagedResult<UserListItem>
-    suspend fun generateUsersPdf(search: String?): ByteArray
+    suspend fun generatePdf(search: String?): ByteArray
 }

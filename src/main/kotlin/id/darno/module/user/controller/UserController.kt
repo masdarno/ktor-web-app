@@ -228,7 +228,7 @@ class UserController(private val userService: UserService, private val roleServi
         val search = call.request.queryParameters["search"]
 
         try {
-            val pdfBytes = userService.generateUsersPdf(search)
+            val pdfBytes = userService.generatePdf(search)
 
             call.response.header(
                 HttpHeaders.ContentDisposition,

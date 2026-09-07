@@ -194,7 +194,7 @@ class UserUnitController(private val userUnitService: UserUnitService, private v
             call.response.header(
                 HttpHeaders.ContentDisposition,
                 ContentDisposition.Inline
-                    .withParameter(ContentDisposition.Parameters.FileName, "daftar-user.pdf")
+                    .withParameter(ContentDisposition.Parameters.FileName, "daftar-user-unit.pdf")
                     .toString()
             )
             call.respondBytes(pdfBytes, ContentType.Application.Pdf)

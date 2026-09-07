@@ -1,5 +1,6 @@
 package id.darno.module.user
 
+import id.darno.core.report.JasperReportService
 import id.darno.core.security.crypto.Hasher
 import id.darno.core.storage.FileStorageService
 import id.darno.module.role.service.RoleService
@@ -41,11 +42,15 @@ fun Application.configureUserDependencies(){
         provide<UserLookupService> {
             UserLookupServiceImpl(resolve<UserService>())
         }
+        provide<JasperReportService> {
+            JasperReportService()
+        }
         provide<UserService> {
             UserServiceImpl(
                 resolve<UserRepository>(),
                 resolve<RoleService>(),
-                resolve<Hasher>("bcrypt")
+                resolve<Hasher>("bcrypt"),
+                resolve<JasperReportService>()
             )
         }
         provide<UserController> {
@@ -65,7 +70,8 @@ fun Application.configureUserDependencies(){
         }
         provide<UserUnitService> {
             UserUnitServiceImpl(
-                resolve<UserUnitRepository>()
+                resolve<UserUnitRepository>(),
+                resolve<JasperReportService>()
             )
         }
         provide< UserUnitController> {
