@@ -64,6 +64,7 @@
                         </select>
                     </div>
 
+                    <!-- Tombol -->
                     <div class="col-md-12 col-lg-4 text-lg-end">
                         <!-- Tambah -->
                         <button
@@ -82,9 +83,11 @@
                             Tambah
                         </button>
                         <!-- Tombol PDF -->
-                        <button type="button"
+                        <button
+                                type="button"
                                 class="btn btn-primary ms-2"
-                                onclick="openPdfReport()">
+                                data-pdf-report-url="/user-unit/report/pdf"
+                                data-pdf-params="search:input[name=search],unitId:select[name=unitId]">
                             <svg class="icon me-2">
                                 <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-file"></use>
                             </svg>
@@ -223,166 +226,7 @@
 </script>
 
 <!-- Modal PDF Report -->
-<div class="modal fade" id="pdfModal" tabindex="-1">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-        <div class="modal-content" style="height: 90vh;">
-
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    Laporan PDF - Daftar Pengguna Unit
-                </h5>
-
-                <button
-                        class="btn-close"
-                        type="button"
-                        data-coreui-dismiss="modal">
-                </button>
-            </div>
-
-            <div class="modal-body p-0 position-relative">
-
-                <!-- Loading -->
-                <div
-                        id="pdfLoading"
-                        class="position-absolute top-0 start-0 w-100 h-100
-                               d-flex flex-column justify-content-center
-                               align-items-center bg-body"
-                        style="z-index: 10;">
-
-                    <div
-                            class="spinner-border mb-3"
-                            role="status"
-                            aria-hidden="true">
-                    </div>
-
-                    <div class="fw-semibold">
-                        Sedang menyiapkan laporan PDF...
-                    </div>
-
-                    <small class="text-body-secondary mt-1">
-                        Mohon tunggu sebentar
-                    </small>
-                </div>
-
-                <!-- Error -->
-                <div
-                        id="pdfError"
-                        class="position-absolute top-0 start-0 w-100 h-100
-                               d-none flex-column justify-content-center
-                               align-items-center bg-body"
-                        style="z-index: 9;">
-
-                    <div class="text-danger mb-2">
-                        Gagal menampilkan laporan PDF.
-                    </div>
-
-                    <small class="text-body-secondary">
-                        Silakan tutup lalu coba lagi.
-                    </small>
-                </div>
-
-                <!-- PDF -->
-                <iframe
-                        id="pdfFrame"
-                        src=""
-                        title="Laporan PDF Daftar Pengguna"
-                        style="width:100%; height:100%; border:none;">
-                </iframe>
-
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    const pdfModalElement = document.getElementById("pdfModal");
-    const pdfFrame = document.getElementById("pdfFrame");
-    const pdfLoading = document.getElementById("pdfLoading");
-    const pdfError = document.getElementById("pdfError");
-
-    function showPdfLoading() {
-        pdfLoading.classList.remove("d-none");
-        pdfLoading.classList.add("d-flex");
-
-        pdfError.classList.remove("d-flex");
-        pdfError.classList.add("d-none");
-    }
-
-    function showPdfSuccess() {
-        pdfLoading.classList.remove("d-flex");
-        pdfLoading.classList.add("d-none");
-
-        pdfError.classList.remove("d-flex");
-        pdfError.classList.add("d-none");
-    }
-
-    function showPdfError() {
-        pdfLoading.classList.remove("d-flex");
-        pdfLoading.classList.add("d-none");
-
-        pdfError.classList.remove("d-none");
-        pdfError.classList.add("d-flex");
-    }
-
-    function openPdfReport() {
-
-        const searchInput =
-            document.querySelector('input[name="search"]');
-
-        const search =
-            searchInput ? searchInput.value.trim() : "";
-
-        const unitSelect =
-            document.querySelector('select[name="unitId"]');
-
-        const unitId =
-            unitSelect ? unitSelect.value : "";
-
-        const params = new URLSearchParams();
-        if (unitId) params.set("unitId", unitId);
-        if (search) params.set("search", search);
-
-        const url =
-            "/user-unit/report/pdf" +
-            (params.toString() ? "?" + params.toString() : "");
-
-        // Tampilkan loading terlebih dahulu
-        showPdfLoading();
-
-        // Bersihkan PDF sebelumnya
-        pdfFrame.src = "";
-
-        // Tampilkan modal
-        const modal =
-            coreui.Modal.getOrCreateInstance(pdfModalElement);
-
-        modal.show();
-
-        // Mulai request PDF setelah modal siap
-        requestAnimationFrame(() => {
-            pdfFrame.src = url;
-        });
-    }
-
-    /*
-     * Event load dipanggil ketika browser selesai
-     * memuat response PDF ke dalam iframe.
-     */
-    pdfFrame.addEventListener("load", () => {
-        showPdfSuccess();
-    });
-
-    /*
-     * Bersihkan iframe ketika modal ditutup.
-     */
-    pdfModalElement.addEventListener(
-        "hidden.coreui.modal",
-        () => {
-
-            pdfFrame.src = "";
-
-            showPdfLoading();
-        }
-    );
-</script>
+{% include "shared/pdf-report-modal.html" with {
+"pdfModalTitle": "Laporan PDF - Daftar Pengguna Unit"
+} %}
 {% endblock %}
