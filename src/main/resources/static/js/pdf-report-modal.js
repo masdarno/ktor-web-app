@@ -23,17 +23,41 @@ document.addEventListener("click", (e) => {
         error.classList.replace("d-none", "d-flex");
     };
 
-    // Ambil daftar param dari data-attribute, format: "name:selector,name2:selector2"
+    // Parsing param config — mendukung format satu baris maupun multiline
     const paramConfig = (trigger.dataset.pdfParams || "")
         .split(",")
+        .map(s => s.trim())
         .filter(Boolean)
-        .map(pair => pair.split(":"));
+        .map(pair => pair.split(":").map(s => s.trim()));
 
     const params = new URLSearchParams();
+
     paramConfig.forEach(([name, selector]) => {
-        const el = document.querySelector(selector);
-        const value = el ? el.value.trim() : "";
-        if (value) params.set(name, value);
+        const elements = document.querySelectorAll(selector);
+        if (elements.length === 0) return;
+
+        const first = elements[0];
+        const type = (first.type || "").toLowerCase();
+
+        if (type === "radio") {
+            const checked = document.querySelector(`${selector}:checked`);
+            if (checked) params.set(name, checked.value.trim());
+
+        } else if (type === "checkbox") {
+            const checkedValues = Array.from(elements)
+                .filter(el => el.checked)
+                .map(el => el.value.trim());
+
+            if (checkedValues.length === 1) {
+                params.set(name, checkedValues[0]);
+            } else if (checkedValues.length > 1) {
+                checkedValues.forEach(v => params.append(name, v));
+            }
+
+        } else {
+            const value = first.value.trim();
+            if (value) params.set(name, value);
+        }
     });
 
     const url = trigger.dataset.pdfReportUrl +
