@@ -1,49 +1,49 @@
-<!-- Created with Jaspersoft Studio version 7.0.3.final using JasperReports Library version 7.0.3-41034ca841d452f3305ba55b9042260aaa1ab5dd  -->
+<!-- Created with Jaspersoft Studio version 7.0.8.final using JasperReports Library version 7.0.8-6f896111  -->
 <jasperReport name="KopSurat" language="java" pageWidth="550" pageHeight="66" whenNoDataType="AllSectionsNoDetail" columnWidth="550" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="fbb7cfb2-99e6-4d46-ad43-f781c09009ab">
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="NO_DATA_ADAPTER"/>
 	<query language="sql"><![CDATA[]]></query>
 	<background splitType="Stretch"/>
 	<title height="66" splitType="Stretch">
 		<element kind="image" uuid="6b1fd175-5b4e-4ed9-ad37-71db06b4071d" x="0" y="0" width="60" height="60">
-			<expression><![CDATA["logo-pemkab-boyolali.jpg"]]></expression>
 			<property name="com.jaspersoft.studio.unit.x" value="px"/>
 			<property name="com.jaspersoft.studio.unit.y" value="px"/>
 			<property name="com.jaspersoft.studio.unit.width" value="px"/>
 			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<expression><![CDATA["images/logo-pemkab-boyolali.jpg"]]></expression>
 		</element>
 		<element kind="image" uuid="884c071a-140e-4a0f-9e4b-110c388bf1ed" x="490" y="0" width="60" height="60" hImageAlign="Right">
-			<expression><![CDATA["logo-perumda-boyolali.png"]]></expression>
 			<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
 			<property name="com.jaspersoft.studio.unit.y" value="px"/>
 			<property name="com.jaspersoft.studio.unit.width" value="px"/>
 			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<expression><![CDATA["images/logo-perumda-boyolali.png"]]></expression>
 		</element>
 		<element kind="staticText" uuid="d3debf3e-a803-41ca-afa3-4b400f8684eb" x="50" y="0" width="450" height="15" fontName="Times New Roman" bold="false" hTextAlign="Center" vTextAlign="Middle">
-			<text><![CDATA[PEMERINTAH KABUPATEN BOYOLALI]]></text>
 			<property name="com.jaspersoft.studio.unit.x" value="px"/>
 			<property name="com.jaspersoft.studio.unit.width" value="px"/>
 			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<text><![CDATA[PEMERINTAH KABUPATEN BOYOLALI]]></text>
 		</element>
 		<element kind="staticText" uuid="464a505e-32a7-40c5-92f7-83d46e84ff71" x="50" y="15" width="450" height="15" fontName="Times New Roman" bold="false" hTextAlign="Center" vTextAlign="Middle">
-			<text><![CDATA[PERUSAHAAN UMUM DAERAH AIR MINUM]]></text>
 			<property name="com.jaspersoft.studio.unit.x" value="px"/>
 			<property name="com.jaspersoft.studio.unit.width" value="px"/>
 			<property name="com.jaspersoft.studio.unit.height" value="px"/>
 			<property name="com.jaspersoft.studio.unit.y" value="px"/>
+			<text><![CDATA[PERUSAHAAN UMUM DAERAH AIR MINUM]]></text>
 		</element>
 		<element kind="staticText" uuid="11d6f08d-ae01-4315-a392-e626c3827dda" x="50" y="30" width="450" height="20" fontName="Times New Roman" fontSize="16.0" bold="false" hTextAlign="Center" vTextAlign="Middle">
-			<text><![CDATA[TIRTA AMPERA]]></text>
 			<property name="com.jaspersoft.studio.unit.x" value="px"/>
 			<property name="com.jaspersoft.studio.unit.width" value="px"/>
 			<property name="com.jaspersoft.studio.unit.height" value="px"/>
 			<property name="com.jaspersoft.studio.unit.y" value="px"/>
+			<text><![CDATA[TIRTA AMPERA]]></text>
 		</element>
 		<element kind="staticText" uuid="d6f3d831-764a-483e-9e42-f3b3879b8297" x="50" y="50" width="450" height="15" fontName="Times New Roman" bold="false" hTextAlign="Center" vTextAlign="Middle">
-			<text><![CDATA[Komplek Perkantoran Alun-alun Lor Kragilan Mojosongo Boyolali 57316]]></text>
 			<property name="com.jaspersoft.studio.unit.x" value="px"/>
 			<property name="com.jaspersoft.studio.unit.width" value="px"/>
 			<property name="com.jaspersoft.studio.unit.height" value="px"/>
 			<property name="com.jaspersoft.studio.unit.y" value="px"/>
+			<text><![CDATA[Komplek Perkantoran Alun-alun Lor Kragilan Mojosongo Boyolali 57316]]></text>
 		</element>
 		<element kind="line" uuid="939e7945-831f-4132-b368-2a35343e8a93" x="0" y="65" width="550" height="1">
 			<property name="com.jaspersoft.studio.unit.x" value="px"/>

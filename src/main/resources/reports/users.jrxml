@@ -37,10 +37,11 @@ join roles b on a.role_id = b.id]]></query>
 			<property name="com.jaspersoft.studio.unit.y" value="px"/>
 			<text><![CDATA[DAFTAR PENGGUNA]]></text>
 		</element>
-		<element kind="subreport" uuid="80adaa60-13e9-47b2-b7b6-ecf3e6302665" x="0" y="0" width="550" height="66">
+		<element kind="subreport" uuid="cc8fe793-dc42-4540-b9f6-c7f6f4e13fea" x="0" y="0" width="550" height="66">
 			<property name="com.jaspersoft.studio.unit.x" value="px"/>
 			<property name="com.jaspersoft.studio.unit.y" value="px"/>
 			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<property name="com.jaspersoft.studio.unit.width" value="px"/>
 			<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 			<expression><![CDATA["shared/KopSurat.jasper"]]></expression>
 		</element>
