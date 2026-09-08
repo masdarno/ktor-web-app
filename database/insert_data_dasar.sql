@@ -6,6 +6,22 @@ insert into roles (nama) values
 insert into genders (nama) values
 ('Laki-laki'), ('Perempuan');
 
+insert into company_profiles (
+    nama_pemerintah,
+    nama_perusahaan,
+    nama_singkat,
+    alamat,
+    logo_kiri,
+    logo_kanan
+) values (
+    'PEMERINTAH KABUPATEN BOYOLALI',
+    'PERUSAHAAN UMUM DAERAH AIR MINUM',
+    'TIRTA AMPERA',
+    'Komplek Perkantoran Alun-alun Lor Kragilan Mojosongo Boyolali 57316',
+    'logo-pemkab-boyolali.jpg',
+    'logo-perumda-boyolali.png'
+);
+
 insert into units (nama) values
 ('Unit Induk'), ('Unit Cabang');
 

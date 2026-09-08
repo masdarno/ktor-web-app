@@ -63,13 +63,32 @@ create table `users` (
   foreign key (`gender_id`) references `genders` (`id`) on update cascade
 );
 
+create table company_profiles (
+    `id` tinyint unsigned auto_increment,
+    `nama_pemerintah` varchar(150) not null,
+    `nama_perusahaan` varchar(150) not null,
+    `nama_singkat` varchar(100) not null,
+    `alamat` varchar(255),
+    `telepon` varchar(50),
+    `email` varchar(150),
+    `website` varchar(150),
+    `logo_kiri` varchar(255),
+    `logo_kanan` varchar(255),
+    `created_at` datetime default current_timestamp(),
+    `updated_at` datetime default null on update current_timestamp()
+        on update current_timestamp,
+    primary key (`id`)
+);
+
 create table `units` (
   `id` tinyint unsigned auto_increment,
   `nama` varchar(50) not null default '',
+  `company_profile_id` tinyint unsigned not null default 1,
   `is_active` tinyint unsigned not null default 1 check (is_active in (0, 1)),
   `created_at` datetime default current_timestamp(),
   `updated_at` datetime default null on update current_timestamp(),
-  primary key (`id`)
+  primary key (`id`),
+  foreign key (`company_profile_id`) references `company_profiles` (`id`),
 );
 
 create table `user_units` (
@@ -98,11 +117,11 @@ create table `password_reset_tokens` (
 );
 
 create table `remember_me_tokens` (
-  `selector` varchar(64) NOT NULL,
-  `user_id` tinyint(3) unsigned NOT NULL,
-  `unit_id` tinyint(3) unsigned NOT NULL,
-  `validator_hash` varchar(255) NOT NULL,
-  `expires_at` datetime NOT NULL,
+  `selector` varchar(64) not null,
+  `user_id` tinyint(3) unsigned not null,
+  `unit_id` tinyint(3) unsigned not null,
+  `validator_hash` varchar(255) not null,
+  `expires_at` datetime not null,
   primary key (`selector`),
   foreign key (`user_id`) references `users` (`id`) on delete cascade,
   foreign key (`unit_id`) references `units` (`id`) on delete cascade

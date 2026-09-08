@@ -4,6 +4,7 @@ import id.darno.core.report.JasperReportService
 import id.darno.core.security.crypto.Hasher
 import id.darno.core.storage.FileStorageService
 import id.darno.module.role.service.RoleService
+import id.darno.module.unit.repository.CompanyProfileRepository
 import id.darno.module.unit.service.UnitService
 import id.darno.module.user.config.userModuleConfig
 import id.darno.module.user.controller.UserController
@@ -47,7 +48,8 @@ fun Application.configureUserDependencies(){
                 resolve<UserRepository>(),
                 resolve<RoleService>(),
                 resolve<Hasher>("bcrypt"),
-                resolve<JasperReportService>()
+                resolve<JasperReportService>(),
+                resolve<CompanyProfileRepository>()
             )
         }
         provide<UserController> {

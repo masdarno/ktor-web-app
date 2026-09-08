@@ -3,6 +3,24 @@
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="KTOR_WEB_APP"/>
 	<template><![CDATA["shared/MY_STYLES.jrtx"]]></template>
+	<parameter name="KOP_SURAT_NAMA_PEMERINTAH" forPrompting="false" class="java.lang.String">
+		<defaultValueExpression><![CDATA["PEMERINTAH KABUPATEN KONOHA"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="KOP_SURAT_NAMA_PERUSAHAAN" forPrompting="false" class="java.lang.String">
+		<defaultValueExpression><![CDATA["PERUSAHAAN DAERAH KONOHA"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="KOP_SURAT_NAMA_SINGKAT" forPrompting="false" class="java.lang.String">
+		<defaultValueExpression><![CDATA["TIRTA KONOHA"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="KOP_SURAT_ALAMAT" forPrompting="false" class="java.lang.String">
+		<defaultValueExpression><![CDATA["Alamat Konoha"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="KOP_SURAT_LOGO_KANAN" forPrompting="false" class="java.lang.String">
+		<defaultValueExpression><![CDATA["logo-perumda-boyolali.png"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="KOP_SURAT_LOGO_KIRI" forPrompting="false" class="java.lang.String">
+		<defaultValueExpression><![CDATA["logo-pemkab-boyolali.jpg"]]></defaultValueExpression>
+	</parameter>
 	<query language="SQL"><![CDATA[select a.nama, username, email, (case when email_verified_at is not null then 'Terverifikasi' else '' end) verified, b.nama role
 from users a
 join roles b on a.role_id = b.id]]></query>
@@ -42,6 +60,24 @@ join roles b on a.role_id = b.id]]></query>
 			<property name="com.jaspersoft.studio.unit.y" value="px"/>
 			<property name="com.jaspersoft.studio.unit.height" value="px"/>
 			<property name="com.jaspersoft.studio.unit.width" value="px"/>
+			<parameter name="NAMA_PEMERINTAH">
+				<expression><![CDATA[$P{KOP_SURAT_NAMA_PEMERINTAH}]]></expression>
+			</parameter>
+			<parameter name="NAMA_PERUSAHAAN">
+				<expression><![CDATA[$P{KOP_SURAT_NAMA_PERUSAHAAN}]]></expression>
+			</parameter>
+			<parameter name="NAMA_SINGKAT">
+				<expression><![CDATA[$P{KOP_SURAT_NAMA_SINGKAT}]]></expression>
+			</parameter>
+			<parameter name="ALAMAT">
+				<expression><![CDATA[$P{KOP_SURAT_ALAMAT}]]></expression>
+			</parameter>
+			<parameter name="LOGO_KIRI">
+				<expression><![CDATA[$P{KOP_SURAT_LOGO_KIRI}]]></expression>
+			</parameter>
+			<parameter name="LOGO_KANAN">
+				<expression><![CDATA[$P{KOP_SURAT_LOGO_KANAN}]]></expression>
+			</parameter>
 			<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 			<expression><![CDATA["shared/KopSurat.jasper"]]></expression>
 		</element>

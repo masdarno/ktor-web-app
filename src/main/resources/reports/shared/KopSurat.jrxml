@@ -1,7 +1,58 @@
 <!-- Created with Jaspersoft Studio version 7.0.8.final using JasperReports Library version 7.0.8-6f896111  -->
 <jasperReport name="KopSurat" language="java" pageWidth="550" pageHeight="66" whenNoDataType="AllSectionsNoDetail" columnWidth="550" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="fbb7cfb2-99e6-4d46-ad43-f781c09009ab">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="NO_DATA_ADAPTER"/>
-	<query language="sql"><![CDATA[]]></query>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<parameter name="NAMA_PEMERINTAH" forPrompting="false" class="java.lang.String">
+		<defaultValueExpression><![CDATA["PEMERINTAH KABUPATEN MADHANGKARA"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="NAMA_PERUSAHAAN" forPrompting="false" class="java.lang.String">
+		<defaultValueExpression><![CDATA["PERUSAHAAN DAERAH AIR MINUM MADHANGKARA"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="NAMA_SINGKAT" forPrompting="false" class="java.lang.String">
+		<defaultValueExpression><![CDATA["TIRTA MADHANGKARA"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="ALAMAT" forPrompting="false" class="java.lang.String">
+		<defaultValueExpression><![CDATA["Alun-alun Utara madhangkara"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="LOGO_KIRI" forPrompting="false" class="java.lang.String">
+		<defaultValueExpression><![CDATA["logo-pemkab-boyolali.jpg"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="LOGO_KANAN" forPrompting="false" class="java.lang.String">
+		<defaultValueExpression><![CDATA["logo-perumda-boyolali.png"]]></defaultValueExpression>
+	</parameter>
+	<query language="sql"><![CDATA[select nama_pemerintah, nama_perusahaan, nama_singkat, alamat, logo_kanan, logo_kiri
+from company_profiles 
+limit 1]]></query>
+	<field name="nama_pemerintah" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="nama_pemerintah"/>
+		<property name="com.jaspersoft.studio.field.label" value="nama_pemerintah"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="company_profiles"/>
+	</field>
+	<field name="nama_perusahaan" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="nama_perusahaan"/>
+		<property name="com.jaspersoft.studio.field.label" value="nama_perusahaan"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="company_profiles"/>
+	</field>
+	<field name="nama_singkat" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="nama_singkat"/>
+		<property name="com.jaspersoft.studio.field.label" value="nama_singkat"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="company_profiles"/>
+	</field>
+	<field name="alamat" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="alamat"/>
+		<property name="com.jaspersoft.studio.field.label" value="alamat"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="company_profiles"/>
+	</field>
+	<field name="logo_kanan" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="logo_kanan"/>
+		<property name="com.jaspersoft.studio.field.label" value="logo_kanan"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="company_profiles"/>
+	</field>
+	<field name="logo_kiri" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="logo_kiri"/>
+		<property name="com.jaspersoft.studio.field.label" value="logo_kiri"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="company_profiles"/>
+	</field>
 	<background splitType="Stretch"/>
 	<title height="66" splitType="Stretch">
 		<element kind="image" uuid="6b1fd175-5b4e-4ed9-ad37-71db06b4071d" x="0" y="0" width="60" height="60">
@@ -9,41 +60,41 @@
 			<property name="com.jaspersoft.studio.unit.y" value="px"/>
 			<property name="com.jaspersoft.studio.unit.width" value="px"/>
 			<property name="com.jaspersoft.studio.unit.height" value="px"/>
-			<expression><![CDATA["images/logo-pemkab-boyolali.jpg"]]></expression>
+			<expression><![CDATA["images/" + $P{LOGO_KIRI}]]></expression>
 		</element>
 		<element kind="image" uuid="884c071a-140e-4a0f-9e4b-110c388bf1ed" x="490" y="0" width="60" height="60" hImageAlign="Right">
 			<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
 			<property name="com.jaspersoft.studio.unit.y" value="px"/>
 			<property name="com.jaspersoft.studio.unit.width" value="px"/>
 			<property name="com.jaspersoft.studio.unit.height" value="px"/>
-			<expression><![CDATA["images/logo-perumda-boyolali.png"]]></expression>
+			<expression><![CDATA["images/" + $P{LOGO_KANAN}]]></expression>
 		</element>
-		<element kind="staticText" uuid="d3debf3e-a803-41ca-afa3-4b400f8684eb" x="50" y="0" width="450" height="15" fontName="Times New Roman" bold="false" hTextAlign="Center" vTextAlign="Middle">
+		<element kind="textField" uuid="10ccd96a-f511-439d-87ae-be68505dd429" x="50" y="0" width="450" height="15" fontName="Times New Roman" bold="false" hTextAlign="Center" vTextAlign="Middle">
 			<property name="com.jaspersoft.studio.unit.x" value="px"/>
 			<property name="com.jaspersoft.studio.unit.width" value="px"/>
 			<property name="com.jaspersoft.studio.unit.height" value="px"/>
-			<text><![CDATA[PEMERINTAH KABUPATEN BOYOLALI]]></text>
+			<expression><![CDATA[$P{NAMA_PEMERINTAH}]]></expression>
 		</element>
-		<element kind="staticText" uuid="464a505e-32a7-40c5-92f7-83d46e84ff71" x="50" y="15" width="450" height="15" fontName="Times New Roman" bold="false" hTextAlign="Center" vTextAlign="Middle">
-			<property name="com.jaspersoft.studio.unit.x" value="px"/>
-			<property name="com.jaspersoft.studio.unit.width" value="px"/>
-			<property name="com.jaspersoft.studio.unit.height" value="px"/>
-			<property name="com.jaspersoft.studio.unit.y" value="px"/>
-			<text><![CDATA[PERUSAHAAN UMUM DAERAH AIR MINUM]]></text>
-		</element>
-		<element kind="staticText" uuid="11d6f08d-ae01-4315-a392-e626c3827dda" x="50" y="30" width="450" height="20" fontName="Times New Roman" fontSize="16.0" bold="false" hTextAlign="Center" vTextAlign="Middle">
+		<element kind="textField" uuid="2f076ce2-6187-4a12-862d-66ea30ec1d92" x="50" y="15" width="450" height="15" fontName="Times New Roman" bold="false" hTextAlign="Center" vTextAlign="Middle">
 			<property name="com.jaspersoft.studio.unit.x" value="px"/>
 			<property name="com.jaspersoft.studio.unit.width" value="px"/>
 			<property name="com.jaspersoft.studio.unit.height" value="px"/>
 			<property name="com.jaspersoft.studio.unit.y" value="px"/>
-			<text><![CDATA[TIRTA AMPERA]]></text>
+			<expression><![CDATA[$P{NAMA_PERUSAHAAN}]]></expression>
 		</element>
-		<element kind="staticText" uuid="d6f3d831-764a-483e-9e42-f3b3879b8297" x="50" y="50" width="450" height="15" fontName="Times New Roman" bold="false" hTextAlign="Center" vTextAlign="Middle">
+		<element kind="textField" uuid="e86b01fd-ab7a-4824-9934-51899e0b11f8" x="50" y="30" width="450" height="20" fontName="Times New Roman" fontSize="16.0" bold="false" hTextAlign="Center" vTextAlign="Middle">
 			<property name="com.jaspersoft.studio.unit.x" value="px"/>
 			<property name="com.jaspersoft.studio.unit.width" value="px"/>
 			<property name="com.jaspersoft.studio.unit.height" value="px"/>
 			<property name="com.jaspersoft.studio.unit.y" value="px"/>
-			<text><![CDATA[Komplek Perkantoran Alun-alun Lor Kragilan Mojosongo Boyolali 57316]]></text>
+			<expression><![CDATA[$P{NAMA_SINGKAT}]]></expression>
+		</element>
+		<element kind="textField" uuid="6f96ecfa-dfb0-425b-b431-4913d071e54e" x="50" y="50" width="450" height="15" fontName="Times New Roman" bold="false" hTextAlign="Center" vTextAlign="Middle">
+			<property name="com.jaspersoft.studio.unit.x" value="px"/>
+			<property name="com.jaspersoft.studio.unit.width" value="px"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<property name="com.jaspersoft.studio.unit.y" value="px"/>
+			<expression><![CDATA[$P{ALAMAT}]]></expression>
 		</element>
 		<element kind="line" uuid="939e7945-831f-4132-b368-2a35343e8a93" x="0" y="65" width="550" height="1">
 			<property name="com.jaspersoft.studio.unit.x" value="px"/>

@@ -4,11 +4,14 @@ import id.darno.core.exceptions.service.ConflictException
 import id.darno.core.exceptions.service.NotFoundException
 import id.darno.core.pageddata.model.PagedQuery
 import id.darno.core.report.JasperReportService
+import id.darno.core.report.KopSurat
+import id.darno.core.report.KopSuratParameters
 import id.darno.core.report.ReportFile
 import id.darno.core.report.ReportFormat
 import id.darno.core.security.crypto.Hasher
 import id.darno.module.role.service.RoleService
 import id.darno.module.unit.domain.UnitDomain
+import id.darno.module.unit.repository.CompanyProfileRepository
 import id.darno.module.user.domain.UserDomain
 import id.darno.module.user.model.CreateUserParams
 import id.darno.module.user.model.UpdateUserParams
@@ -19,7 +22,8 @@ class UserServiceImpl(
     private val userRepository: UserRepository,
     private val roleService: RoleService,
     private val hasher: Hasher,
-    private val jasperReportService: JasperReportService
+    private val jasperReportService: JasperReportService,
+    private val companyProfileRepository: CompanyProfileRepository
 ) : UserService {
 
     private val logger = LoggerFactory.getLogger(UserService::class.java)
@@ -132,11 +136,14 @@ class UserServiceImpl(
         val rows =
             userRepository.findAllForReport(search)
 
+        val kopSurat = companyProfileRepository.find()
+
         return jasperReportService.generate(
             reportPath = "reports/users.jasper",
             format = format,
             data = rows,
-            fileName = "users"
+            fileName = "users",
+            parameters = KopSuratParameters.from(kopSurat)
         )
     }
 }
