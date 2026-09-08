@@ -30,13 +30,21 @@ join roles b on a.role_id = b.id]]></query>
 		<property name="com.jaspersoft.studio.field.label" value="role"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="roles"/>
 	</field>
-	<title height="30" splitType="Stretch">
-		<element kind="staticText" uuid="b29e6fdf-b9dd-459f-b2c5-c69524ad8ced" x="0" y="0" width="550" height="30" mode="Transparent" hTextAlign="Center" style="ReportTitle">
+	<title height="96" splitType="Stretch">
+		<element kind="staticText" uuid="b29e6fdf-b9dd-459f-b2c5-c69524ad8ced" x="0" y="66" width="550" height="30" mode="Transparent" hTextAlign="Center" style="ReportTitle">
 			<property name="com.jaspersoft.studio.unit.width" value="px"/>
-			<property name="com.jaspersoft.studio.unit.y" value="px"/>
 			<property name="com.jaspersoft.studio.unit.x" value="px"/>
+			<property name="com.jaspersoft.studio.unit.y" value="px"/>
 			<text><![CDATA[DAFTAR PENGGUNA]]></text>
 		</element>
+		<element kind="subreport" uuid="80adaa60-13e9-47b2-b7b6-ecf3e6302665" x="0" y="0" width="550" height="66">
+			<property name="com.jaspersoft.studio.unit.x" value="px"/>
+			<property name="com.jaspersoft.studio.unit.y" value="px"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+			<expression><![CDATA["shared/KopSurat.jasper"]]></expression>
+		</element>
+		<property name="com.jaspersoft.studio.unit.height" value="px"/>
 	</title>
 	<columnHeader height="30" splitType="Stretch">
 		<element kind="staticText" uuid="91fe424b-1c4a-443d-ad34-a00f42592982" x="50" y="0" width="100" height="30" style="TableHeader">
