@@ -8,7 +8,7 @@ import id.darno.core.htmx.utility.respondUniversalRedirect
 import id.darno.core.http.mapper.toFormData
 import id.darno.core.pageddata.helper.pagedQueryParameters
 import id.darno.core.pebble.helper.respondPebblePage
-import id.darno.core.report.respondReport
+import id.darno.core.report.helper.respondReport
 import id.darno.core.session.model.UserSession
 import id.darno.core.validation.valiktor.helper.errors
 import id.darno.module.role.service.RoleService

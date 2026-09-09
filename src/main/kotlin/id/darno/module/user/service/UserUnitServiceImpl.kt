@@ -2,8 +2,8 @@ package id.darno.module.user.service
 
 import id.darno.core.pageddata.model.PagedQuery
 import id.darno.core.report.JasperReportService
-import id.darno.core.report.ReportFile
-import id.darno.core.report.ReportFormat
+import id.darno.core.report.model.ReportFile
+import id.darno.core.report.model.ReportFormat
 import id.darno.module.user.model.UserOptionItem
 import id.darno.module.user.repository.UserUnitRepository
 

@@ -4,8 +4,8 @@ import id.darno.core.exceptions.service.ConflictException
 import id.darno.core.exceptions.service.NotFoundException
 import id.darno.core.pageddata.model.PagedQuery
 import id.darno.core.report.JasperReportService
-import id.darno.core.report.ReportFile
-import id.darno.core.report.ReportFormat
+import id.darno.core.report.model.ReportFile
+import id.darno.core.report.model.ReportFormat
 import id.darno.core.security.crypto.Hasher
 import id.darno.module.role.service.RoleService
 import id.darno.module.unit.domain.UnitDomain

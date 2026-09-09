@@ -2,8 +2,8 @@ package id.darno.module.user.service
 
 import id.darno.core.pageddata.model.PagedQuery
 import id.darno.core.pageddata.model.PagedResult
-import id.darno.core.report.ReportFile
-import id.darno.core.report.ReportFormat
+import id.darno.core.report.model.ReportFile
+import id.darno.core.report.model.ReportFormat
 import id.darno.module.unit.domain.UnitDomain
 import id.darno.module.user.domain.UserDomain
 import id.darno.module.user.model.CreateUserParams

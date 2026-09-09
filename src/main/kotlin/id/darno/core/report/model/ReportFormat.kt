@@ -1,4 +1,4 @@
-package id.darno.core.report
+package id.darno.core.report.model
 
 enum class ReportFormat(
     val extension: String,

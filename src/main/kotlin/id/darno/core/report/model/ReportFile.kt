@@ -1,4 +1,4 @@
-package id.darno.core.report
+package id.darno.core.report.model
 
 data class ReportFile(
     val content: ByteArray,

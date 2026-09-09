@@ -1,5 +1,6 @@
-package id.darno.core.report
+package id.darno.core.report.helper
 
+import id.darno.core.report.model.ReportFile
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.server.application.ApplicationCall

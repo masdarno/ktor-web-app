@@ -18,7 +18,7 @@ import id.darno.module.user.mapper.toUserDomain
 import id.darno.module.user.model.CreateUserParams
 import id.darno.module.user.model.UpdateUserParams
 import id.darno.module.user.model.UserListItem
-import id.darno.module.user.model.UserReportRow
+import id.darno.core.report.dto.user.UserReportRowDto
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -229,7 +229,7 @@ class UserRepositoryImpl(private val config: PhotoUrlConfig) : UserRepository {
         )
     }
 
-    override suspend fun findAllForReport(search: String?): List<UserReportRow> = dbQuery {
+    override suspend fun findAllForReport(search: String?): List<UserReportRowDto> = dbQuery {
         val filter = search?.let {
             (UserTable.nama like "%$it%") or
                     (UserTable.username like "%$it%") or
@@ -248,7 +248,7 @@ class UserRepositoryImpl(private val config: PhotoUrlConfig) : UserRepository {
             .let { if (filter != null) it.where { filter } else it }
             .orderBy(UserTable.nama to SortOrder.ASC)
             .map {
-                UserReportRow(
+                UserReportRowDto(
                     nama = it[UserTable.nama],
                     username = it[UserTable.username],
                     email = it[UserTable.email],

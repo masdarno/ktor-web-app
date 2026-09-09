@@ -6,7 +6,7 @@ import id.darno.core.htmx.model.ToastType
 import id.darno.core.htmx.utility.hxTriggerWithToast
 import id.darno.core.pageddata.helper.pagedQueryParameters
 import id.darno.core.pebble.helper.respondPebblePage
-import id.darno.core.report.respondReport
+import id.darno.core.report.helper.respondReport
 import id.darno.module.unit.service.UnitService
 import id.darno.module.user.service.UserUnitService
 import io.ktor.http.*

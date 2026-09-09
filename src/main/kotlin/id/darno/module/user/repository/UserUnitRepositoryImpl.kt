@@ -9,7 +9,7 @@ import id.darno.module.user.database.table.UserTable
 import id.darno.module.user.database.table.UserUnitTable
 import id.darno.module.user.model.UserListItem
 import id.darno.module.user.model.UserOptionItem
-import id.darno.module.user.model.UserUnitReportRow
+import id.darno.core.report.dto.user.UserUnitReportRowDto
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 import org.jetbrains.exposed.v1.jdbc.batchInsert
@@ -209,7 +209,7 @@ class UserUnitRepositoryImpl: UserUnitRepository {
         }
     }
 
-    override suspend fun findAllUserByUnitForReport(unitId: Short, search: String?): List<UserUnitReportRow> = dbQuery {
+    override suspend fun findAllUserByUnitForReport(unitId: Short, search: String?): List<UserUnitReportRowDto> = dbQuery {
         val searchFilter = search
             ?.takeIf { it.isNotBlank() }
             ?.let {
@@ -238,7 +238,7 @@ class UserUnitRepositoryImpl: UserUnitRepository {
             .let { if (filter != null) it.where { filter } else it }
             .orderBy(UserTable.nama to SortOrder.ASC)
             .map {
-                UserUnitReportRow(
+                UserUnitReportRowDto(
                     nama = it[UserTable.nama],
                     username = it[UserTable.username],
                     email = it[UserTable.email],
