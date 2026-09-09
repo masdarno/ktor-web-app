@@ -75,3 +75,15 @@ tasks.register<JavaExec>("addUser") {
 
     workingDir = rootDir
 }
+tasks.register<Jar>("reportDtoJar") {
+    group = "report"
+    description = "Build JAR containing only report DTO classes. Usage: ./gradlew reportDtoJar"
+
+    archiveFileName.set("report-dto.jar")
+
+    dependsOn(tasks.named("compileKotlin"))
+
+    from(sourceSets.main.get().output) {
+        include("id/darno/core/report/dto/**/*.class")
+    }
+}

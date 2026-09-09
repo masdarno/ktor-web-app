@@ -4,8 +4,6 @@ import id.darno.core.exceptions.service.ConflictException
 import id.darno.core.exceptions.service.NotFoundException
 import id.darno.core.pageddata.model.PagedQuery
 import id.darno.core.report.JasperReportService
-import id.darno.core.report.KopSurat
-import id.darno.core.report.KopSuratParameters
 import id.darno.core.report.ReportFile
 import id.darno.core.report.ReportFormat
 import id.darno.core.security.crypto.Hasher
@@ -133,8 +131,7 @@ class UserServiceImpl(
         format: ReportFormat
     ): ReportFile {
 
-        val rows =
-            userRepository.findAllForReport(search)
+        val rows = userRepository.findAllForReport(search)
 
         val kopSurat = companyProfileRepository.find()
 
@@ -143,7 +140,9 @@ class UserServiceImpl(
             format = format,
             data = rows,
             fileName = "users",
-            parameters = KopSuratParameters.from(kopSurat)
+            parameters = mapOf(
+                "KOP_SURAT" to kopSurat
+            )
         )
     }
 }

@@ -9,6 +9,7 @@ import net.sf.jasperreports.engine.SimpleJasperReportsContext
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource
 import net.sf.jasperreports.engine.export.JRCsvExporter
 import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter
+import net.sf.jasperreports.engine.util.JRResourcesUtil
 import net.sf.jasperreports.export.SimpleExporterInput
 import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput
 import net.sf.jasperreports.export.SimpleWriterExporterOutput
@@ -26,9 +27,24 @@ class JasperReportService {
         private const val REPORT_ROOT = "reports"
     }
 
+    /*
+     * PENTING:
+     * Classloader ini adalah FALLBACK saja, dipakai untuk resolve
+     * resource seperti direktori "reports" di classpath.
+     *
+     * JANGAN dianggap sebagai classloader yang sama dengan yang
+     * memuat DTO aplikasi. Kalau JasperReportService ini berada di
+     * module/library yang terpisah dari module tempat DTO
+     * didefinisikan (mis. "core" vs "app"), classloader-nya BISA
+     * berbeda dari classloader yang dipakai Ktor untuk memuat DTO
+     * (Ktor memakai OverridingClassLoader saat development/run).
+     *
+     * Classloader yang BENAR-BENAR dipakai untuk fill report harus
+     * diambil dari objek data/DTO itu sendiri saat runtime, lihat
+     * resolveClassLoader().
+     */
     private val classLoader: ClassLoader =
-        Thread.currentThread().contextClassLoader
-            ?: JasperReportService::class.java.classLoader
+        JasperReportService::class.java.classLoader
 
     private val context: SimpleJasperReportsContext =
         createContext()
@@ -43,16 +59,28 @@ class JasperReportService {
         parameters: Map<String, Any> = emptyMap(),
         fileName: String? = null
     ): ReportFile {
+        val dataSource = JRBeanCollectionDataSource(data)
 
-        val dataSource =
-            JRBeanCollectionDataSource(data)
+        /*
+         * CLASSLOADER:
+         * Cari classloader dari kandidat objek aplikasi yang ada
+         * (baik dari data maupun parameters), bukan cuma dari
+         * elemen pertama "data". Kalau "data" kosong (0 baris),
+         * mengandalkan data.firstOrNull() saja akan salah jatuh ke
+         * fallback classLoader milik JasperReportService, padahal
+         * DTO lain (mis. KOP_SURAT) mungkin tetap dikirim lewat
+         * parameters dan perlu classloader yang sama dengannya.
+         */
+        val effectiveClassLoader =
+            resolveClassLoader(data, parameters)
 
         return generate(
             reportPath = reportPath,
             format = format,
             dataSource = dataSource,
             parameters = parameters,
-            fileName = fileName
+            fileName = fileName,
+            effectiveClassLoader = effectiveClassLoader
         )
     }
 
@@ -64,90 +92,145 @@ class JasperReportService {
         format: ReportFormat,
         dataSource: JRDataSource,
         parameters: Map<String, Any> = emptyMap(),
-        fileName: String? = null
+        fileName: String? = null,
+        effectiveClassLoader: ClassLoader = classLoader
     ): ReportFile = withContext(Dispatchers.IO) {
 
         validateReportPath(reportPath)
 
-        /*
-         * JasperReports dapat memodifikasi parameter selama proses fill.
-         * Karena itu gunakan MutableMap.
-         */
-        val jasperParameters =
-            parameters.toMutableMap()
+        val jasperParameters = parameters.toMutableMap()
 
         /*
-         * Contoh:
-         *
-         * users.jasper
-         *     ->
-         * reports/users.jasper
-         *
-         * shared/users.jasper
-         *     ->
-         * reports/shared/users.jasper
+         * CLASSLOADER:
+         * Beritahu JasperReports classloader yang benar (classloader
+         * DTO aplikasi), bukan classloader JasperReportService.
          */
+        jasperParameters["REPORT_CLASS_LOADER"] = effectiveClassLoader
+
         val repositoryReportPath =
             resolveReportPath(reportPath)
 
-        /*
-         * Gunakan fillFromRepo(), bukan fill(InputStream,...).
-         *
-         * Ini penting karena Jasper harus mengetahui lokasi report
-         * agar resource relatif seperti:
-         *
-         * shared/MY_STYLES.jrtx
-         * shared/KopSurat.jasper
-         * logo-pemkab-boyolali.jpg
-         *
-         * dapat di-resolve dengan benar.
-         */
+        val originalContextClassLoader =
+            Thread.currentThread().contextClassLoader
+
         val jasperPrint =
-            JasperFillManager
-                .getInstance(context)
-                .fillFromRepo(
-                    repositoryReportPath,
-                    jasperParameters,
-                    dataSource
-                )
+            try {
+                /*
+                 * CLASSLOADER (1/2):
+                 * Set classloader JasperReports internal (dipakai
+                 * saat evaluasi expression, dsb).
+                 */
+                JRResourcesUtil.setThreadClassLoader(effectiveClassLoader)
+
+                /*
+                 * CLASSLOADER (2/2):
+                 * Set juga context classloader Java standar, karena
+                 * deserialisasi objek JasperReport dari file .jasper
+                 * (lewat ObjectInputStream di JRLoader) memakai
+                 * Thread.currentThread().contextClassLoader, BUKAN
+                 * ThreadLocal milik JRResourcesUtil.
+                 *
+                 * Selalu dikembalikan di blok finally supaya tidak
+                 * "bocor" ke coroutine/thread lain setelah selesai.
+                 */
+                Thread.currentThread().contextClassLoader =
+                    effectiveClassLoader
+
+                JasperFillManager
+                    .getInstance(context)
+                    .fillFromRepo(
+                        repositoryReportPath,
+                        jasperParameters,
+                        dataSource
+                    )
+
+            } finally {
+                /*
+                 * Kembalikan ThreadLocal classloader JasperReports
+                 * dan context classloader Java setelah proses fill
+                 * selesai.
+                 */
+                JRResourcesUtil.resetClassLoader()
+                Thread.currentThread().contextClassLoader =
+                    originalContextClassLoader
+            }
 
         val content =
             export(
-                jasperPrint = jasperPrint,
-                format = format
+                jasperPrint,
+                format
             )
 
         ReportFile(
             content = content,
             fileName = buildFileName(
-                fileName = fileName,
-                reportPath = reportPath,
-                format = format
+                fileName,
+                reportPath,
+                format
             ),
             contentType = format.contentType
         )
     }
 
-    /**
-     * Membuat JasperReports context.
+    /*
+     * Cari classloader dari objek data aplikasi yang benar-benar
+     * ada di request ini, dengan urutan prioritas:
      *
-     * Repository root sengaja diarahkan ke:
+     *   1. Elemen pertama dari "data" (baris detail report).
+     *   2. Nilai pertama di "parameters" yang bukan tipe milik
+     *      JasperReports/JDK sendiri (mis. KOP_SURAT dto, dsb).
+     *   3. Fallback ke classLoader milik JasperReportService kalau
+     *      tidak ada kandidat sama sekali (mis. data & parameters
+     *      keduanya kosong/tidak berisi DTO aplikasi).
      *
-     * build/resources/main
+     * Ini penting terutama saat "data" kosong (0 baris) tapi
+     * "parameters" tetap membawa DTO aplikasi lain (mis. dto untuk
+     * kop surat/header) yang perlu classloader yang sama.
      *
-     * bukan langsung ke:
-     *
-     * build/resources/main/reports
-     *
-     * Karena report path yang digunakan Jasper adalah:
-     *
-     * reports/users.jasper
-     *
-     * sehingga semua resource berada dalam satu root:
-     *
-     * build/resources/main/
-     * └── reports/
+     * PERHATIAN proxy: kalau objek yang ditemukan adalah proxy
+     * (mis. CGLIB proxy dari Spring @Transactional), classloadernya
+     * bisa jadi classloader proxy, bukan classloader DTO asli.
+     * Kalau ini terjadi, sebaiknya mapping ke DTO murni (data class
+     * biasa) sebelum dikirim ke generate(), bukan meneruskan
+     * entity/proxy langsung.
      */
+    private fun resolveClassLoader(
+        data: Collection<*>,
+        parameters: Map<String, Any>
+    ): ClassLoader {
+
+        val fromData = data.firstOrNull()
+
+        val fromParameters =
+            parameters.values.firstOrNull { value ->
+                !isFrameworkType(value)
+            }
+
+        return (fromData ?: fromParameters)
+            ?.javaClass
+            ?.classLoader
+            ?: classLoader
+    }
+
+    /*
+     * Tipe "milik framework" (Jasper, JDK dasar) tidak relevan
+     * untuk deteksi classloader aplikasi, karena selalu dimuat
+     * lewat bootstrap/platform classloader, bukan classloader
+     * yang memuat DTO aplikasi.
+     */
+    private fun isFrameworkType(value: Any?): Boolean {
+
+        if (value == null) return true
+
+        val packageName =
+            value.javaClass.`package`?.name.orEmpty()
+
+        return packageName.startsWith("java.") ||
+                packageName.startsWith("javax.") ||
+                packageName.startsWith("kotlin.") ||
+                packageName.startsWith("net.sf.jasperreports.")
+    }
+
     private fun createContext(): SimpleJasperReportsContext {
 
         val repositoryRoot =
@@ -163,6 +246,15 @@ class JasperReportService {
                 true
             )
 
+        /*
+         * JANGAN tambahkan:
+         *
+         * repositoryService.setClassLoader(classLoader)
+         *
+         * FileRepositoryService pada JasperReports 7.0.8
+         * tidak memiliki method tersebut.
+         */
+
         context.setExtensions(
             RepositoryService::class.java,
             listOf(repositoryService)
@@ -171,21 +263,6 @@ class JasperReportService {
         return context
     }
 
-    /**
-     * Mendapatkan root repository.
-     *
-     * Jika:
-     *
-     * classLoader.getResource("reports")
-     *
-     * menghasilkan:
-     *
-     * file:/.../build/resources/main/reports
-     *
-     * maka repository root yang digunakan adalah:
-     *
-     * /.../build/resources/main
-     */
     private fun findRepositoryRoot(): String {
 
         val reportsUrl =
@@ -218,18 +295,6 @@ class JasperReportService {
         return repositoryRoot.absolutePath
     }
 
-    /**
-     * Mengubah report path menjadi repository path JasperReports.
-     *
-     * users.jasper
-     *     -> reports/users.jasper
-     *
-     * shared/users.jasper
-     *     -> reports/shared/users.jasper
-     *
-     * reports/users.jasper
-     *     -> reports/users.jasper
-     */
     private fun resolveReportPath(
         reportPath: String
     ): String {
@@ -285,10 +350,8 @@ class JasperReportService {
     private fun export(
         jasperPrint: JasperPrint,
         format: ReportFormat
-    ): ByteArray {
-
-        return when (format) {
-
+    ): ByteArray =
+        when (format) {
             ReportFormat.PDF ->
                 exportPdf(jasperPrint)
 
@@ -298,7 +361,6 @@ class JasperReportService {
             ReportFormat.CSV ->
                 exportCsv(jasperPrint)
         }
-    }
 
     /**
      * Export PDF.
@@ -365,9 +427,6 @@ class JasperReportService {
         return output.toByteArray()
     }
 
-    /**
-     * Export CSV.
-     */
     private fun exportCsv(
         jasperPrint: JasperPrint
     ): ByteArray {
