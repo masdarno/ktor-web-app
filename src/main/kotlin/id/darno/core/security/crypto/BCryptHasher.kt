@@ -14,7 +14,6 @@ class BCryptHasher(
     }
 
     override fun verify(value: String, hash: String): Boolean {
-        logger.info("BCRYPT_HASHER verify value : {}", value)
         return BCrypt.checkpw(value, hash)
     }
 }

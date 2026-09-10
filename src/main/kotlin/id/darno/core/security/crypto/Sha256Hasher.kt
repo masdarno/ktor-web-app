@@ -14,7 +14,6 @@ class Sha256Hasher(
     }
 
     override fun verify(value: String, hash: String): Boolean {
-        logger.info("SHA256_HASHER verify value : {}", value)
         return constantTimeEquals(hash(value), hash)
     }
 
