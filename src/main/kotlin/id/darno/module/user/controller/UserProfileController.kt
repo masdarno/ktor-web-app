@@ -6,7 +6,7 @@ import id.darno.core.htmx.exception.HtmxFormException
 import id.darno.core.htmx.model.ToastType
 import id.darno.core.htmx.utility.hxTriggerWithToast
 import id.darno.core.http.mapper.toFormData
-import id.darno.core.model.DefaultValues
+import id.darno.module.user.model.DefaultValues
 import id.darno.core.multipart.mapper.extractContent
 import id.darno.core.pebble.helper.respondPebblePage
 import id.darno.core.session.model.UserSession

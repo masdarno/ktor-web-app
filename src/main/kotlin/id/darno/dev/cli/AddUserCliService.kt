@@ -1,6 +1,6 @@
 package id.darno.dev.cli
 
-import id.darno.core.model.DefaultValues
+import id.darno.module.user.model.DefaultValues
 import id.darno.module.user.model.CreateUserParams
 import id.darno.module.user.service.UserProvisioningService
 

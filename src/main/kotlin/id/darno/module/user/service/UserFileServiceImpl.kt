@@ -1,7 +1,7 @@
 package id.darno.module.user.service
 
 import id.darno.core.exceptions.service.FileUploadException
-import id.darno.core.model.DefaultValues
+import id.darno.module.user.model.DefaultValues
 import id.darno.core.multipart.model.UploadedFile
 import id.darno.core.storage.FileStorageService
 import id.darno.module.user.config.UserUploadConfig

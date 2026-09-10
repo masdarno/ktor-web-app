@@ -1,4 +1,4 @@
-package id.darno.core.model
+package id.darno.module.user.model
 
 object DefaultValues {
     const val DEFAULT_GENDER: Short = 2

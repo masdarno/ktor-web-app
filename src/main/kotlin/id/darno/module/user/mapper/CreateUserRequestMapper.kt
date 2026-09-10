@@ -1,6 +1,6 @@
 package id.darno.module.user.mapper
 
-import id.darno.core.model.DefaultValues
+import id.darno.module.user.model.DefaultValues
 import id.darno.module.user.dto.CreateUserRequest
 import id.darno.module.user.model.CreateUserParams
 
