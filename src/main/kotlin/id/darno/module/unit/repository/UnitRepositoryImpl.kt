@@ -1,16 +1,18 @@
 package id.darno.module.unit.repository
 
-import id.darno.core.database.dbQuery
+import id.darno.core.database.DatabaseQuery
 import id.darno.module.unit.database.dao.UnitEntity
 import id.darno.module.unit.domain.UnitDomain
 import id.darno.module.unit.mapper.toUnitDomain
 
-class UnitRepositoryImpl: UnitRepository {
-    override suspend fun findAll(): List<UnitDomain> = dbQuery {
+class UnitRepositoryImpl(
+    private val databaseQuery: DatabaseQuery
+) : UnitRepository {
+    override suspend fun findAll(): List<UnitDomain> = databaseQuery {
         UnitEntity.all().map { it.toUnitDomain() }
     }
 
-    override suspend fun findById(id: Short): UnitDomain? = dbQuery {
+    override suspend fun findById(id: Short): UnitDomain? = databaseQuery {
         UnitEntity.findById(id)?.toUnitDomain()
     }
 }

@@ -1,6 +1,6 @@
 package id.darno.module.auth.repository
 
-import id.darno.core.database.dbQuery
+import id.darno.core.database.DatabaseQuery
 import id.darno.module.auth.database.table.EmailVerificationTokenTable
 import id.darno.module.auth.model.EmailVerificationToken
 import kotlinx.datetime.Clock
@@ -10,11 +10,12 @@ import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.*
 import kotlin.time.Duration.Companion.hours
 
-class EmailVerificationRepositoryImpl :
-    EmailVerificationRepository {
+class EmailVerificationRepositoryImpl(
+    private val databaseQuery: DatabaseQuery
+) : EmailVerificationRepository {
 
     override suspend fun find(token: String): EmailVerificationToken? =
-        dbQuery {
+        databaseQuery {
             EmailVerificationTokenTable
                 .selectAll()
                 .where {
@@ -41,7 +42,7 @@ class EmailVerificationRepositoryImpl :
                 .plus(24.hours)
                 .toLocalDateTime(TimeZone.UTC)
 
-        dbQuery {
+        databaseQuery {
             // 1 user = 1 active token
             EmailVerificationTokenTable.deleteWhere {
                 EmailVerificationTokenTable.userId eq userId
@@ -56,7 +57,7 @@ class EmailVerificationRepositoryImpl :
     }
 
     override suspend fun delete(token: String) {
-        dbQuery {
+        databaseQuery {
             EmailVerificationTokenTable.deleteWhere {
                 EmailVerificationTokenTable.token eq token
             }
@@ -64,7 +65,7 @@ class EmailVerificationRepositoryImpl :
     }
 
     override suspend fun deleteByUserId(userId: Short) {
-        dbQuery {
+        databaseQuery {
             EmailVerificationTokenTable.deleteWhere {
                 EmailVerificationTokenTable.userId eq userId
             }

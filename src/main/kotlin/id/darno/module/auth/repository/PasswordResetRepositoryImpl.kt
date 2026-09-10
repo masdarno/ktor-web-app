@@ -1,24 +1,28 @@
 package id.darno.module.auth.repository
 
-import id.darno.core.database.dbQuery
+import id.darno.core.database.DatabaseQuery
 import id.darno.module.auth.database.table.PasswordResetTokenTable
-import id.darno.module.auth.database.table.PasswordResetTokenTable.usedAt
 import id.darno.module.auth.model.PasswordResetToken
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.v1.core.*
-import org.jetbrains.exposed.v1.jdbc.*
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.update
 
-class PasswordResetRepositoryImpl : PasswordResetRepository {
+class PasswordResetRepositoryImpl(
+    private val databaseQuery: DatabaseQuery
+) : PasswordResetRepository {
 
     override suspend fun save(
         tokenHash: String,
         userId: Short,
         expiresAt: LocalDateTime
     ){
-        dbQuery {
+        databaseQuery {
             PasswordResetTokenTable.insert {
                 it[PasswordResetTokenTable.token] = tokenHash
                 it[PasswordResetTokenTable.userId] = userId
@@ -28,7 +32,7 @@ class PasswordResetRepositoryImpl : PasswordResetRepository {
         }
     }
 
-    override suspend fun findValid(tokenHash: String): PasswordResetToken? = dbQuery {
+    override suspend fun findValid(tokenHash: String): PasswordResetToken? = databaseQuery {
         PasswordResetTokenTable
             .selectAll()
             .where {
@@ -42,7 +46,7 @@ class PasswordResetRepositoryImpl : PasswordResetRepository {
 
     override suspend fun markUsed(tokenHash: String) {
         val usedAt = Clock.System.now().toLocalDateTime(TimeZone.UTC)
-        dbQuery {
+        databaseQuery {
             PasswordResetTokenTable.update(
                 { PasswordResetTokenTable.token eq tokenHash }
             ) {
@@ -52,7 +56,7 @@ class PasswordResetRepositoryImpl : PasswordResetRepository {
     }
 
     override suspend fun deleteByUserId(userId: Short) {
-        dbQuery {
+        databaseQuery {
             PasswordResetTokenTable.deleteWhere {
                 PasswordResetTokenTable.userId eq userId
             }

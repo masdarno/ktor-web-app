@@ -1,14 +1,16 @@
 package id.darno.module.role.repository
 
-import id.darno.core.database.dbQuery
+import id.darno.core.database.DatabaseQuery
 import id.darno.module.menu.database.table.RoleMenuTable
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.*
 
-class RoleMenuRepositoryImpl: RoleMenuRepository {
+class RoleMenuRepositoryImpl(
+    private val databaseQuery: DatabaseQuery
+) : RoleMenuRepository {
 
     override suspend fun findAllRoleMenus(): Map<Short, Set<Short>> =
-        dbQuery {
+        databaseQuery {
             RoleMenuTable
                 .selectAll()
                 .groupBy(
@@ -23,7 +25,7 @@ class RoleMenuRepositoryImpl: RoleMenuRepository {
     override suspend fun findMenuIdsByRole(
         roleId: Short
     ): Set<Short> =
-        dbQuery {
+        databaseQuery {
             RoleMenuTable
                 .selectAll()
                 .where { RoleMenuTable.roleId eq roleId }   // ✅ BENAR
@@ -35,7 +37,7 @@ class RoleMenuRepositoryImpl: RoleMenuRepository {
         roleId: Short,
         menuIds: Set<Short>
     ): Unit =
-        dbQuery {
+        databaseQuery {
             RoleMenuTable.deleteWhere {
                 RoleMenuTable.roleId eq roleId
             }
@@ -52,7 +54,7 @@ class RoleMenuRepositoryImpl: RoleMenuRepository {
         roleId: Short,
         menuId: Short
     ): Unit =
-        dbQuery {
+        databaseQuery {
             RoleMenuTable.insertIgnore {
                 it[this.roleId] = roleId
                 it[this.menuId] = menuId
@@ -63,7 +65,7 @@ class RoleMenuRepositoryImpl: RoleMenuRepository {
         roleId: Short,
         menuId: Short
     ): Unit =
-        dbQuery {
+        databaseQuery {
             RoleMenuTable.deleteWhere {
                 (RoleMenuTable.roleId eq roleId) and
                         (RoleMenuTable.menuId eq menuId)

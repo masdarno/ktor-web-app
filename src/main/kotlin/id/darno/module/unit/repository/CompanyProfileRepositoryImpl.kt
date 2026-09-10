@@ -1,13 +1,15 @@
 package id.darno.module.unit.repository
 
-import id.darno.core.database.dbQuery
+import id.darno.core.database.DatabaseQuery
 import id.darno.core.report.dto.shared.KopSuratReportDto
 import id.darno.module.unit.database.table.CompanyProfileTable
 import id.darno.module.unit.database.table.CompanyProfileTable.namaPemerintah
 import org.jetbrains.exposed.v1.jdbc.select
 
-class CompanyProfileRepositoryImpl: CompanyProfileRepository {
-    override suspend fun find(): KopSuratReportDto = dbQuery {
+class CompanyProfileRepositoryImpl(
+    private val databaseQuery: DatabaseQuery
+) : CompanyProfileRepository {
+    override suspend fun find(): KopSuratReportDto = databaseQuery {
         CompanyProfileTable
             .select(CompanyProfileTable.namaPemerintah,
                 CompanyProfileTable.namaPerusahaan,

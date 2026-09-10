@@ -1,7 +1,6 @@
 package id.darno.module.user.repository
 
-import id.darno.core.database.DbExceptionMapper
-import id.darno.core.database.dbQuery
+import id.darno.core.database.DatabaseQuery
 import id.darno.module.role.database.dao.RoleEntity
 import id.darno.module.unit.database.dao.UnitEntity
 import id.darno.module.user.config.PhotoUrlConfig
@@ -10,22 +9,20 @@ import id.darno.module.user.database.table.UserUnitTable
 import id.darno.module.user.domain.UserDomain
 import id.darno.module.user.mapper.toUserDomain
 import id.darno.module.user.model.CreateUserParams
-import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 import org.jetbrains.exposed.v1.jdbc.insert
 
 class UserProvisioningRepositoryImpl(
     private val config: PhotoUrlConfig,
-    private val dbExceptionMapper: DbExceptionMapper
+    private val databaseQuery: DatabaseQuery
 ) : UserProvisioningRepository {
 
     override suspend fun createUserWithUnit(
         params: CreateUserParams,
         unitId: Short
-    ): UserDomain = dbQuery {
+    ): UserDomain = databaseQuery {
 
-        try {
-            /*
-             * Satu dbQuery = satu transaction.
+        /*
+             * Satu databaseQuery = satu transaction.
              *
              * Jadi:
              *
@@ -38,34 +35,31 @@ class UserProvisioningRepositoryImpl(
              * INSERT users juga rollback.
              */
 
-            // Pastikan FK unit valid.
-            val unit = UnitEntity[unitId]
+        // Pastikan FK unit valid.
+        val unit = UnitEntity[unitId]
 
-            // 1. INSERT users
-            val user = UserEntity.new {
+        // 1. INSERT users
+        val user = UserEntity.new {
 
-                nama = params.nama
-                alias = params.alias
-                username = params.username
-                password = params.password
-                email = params.email
-                genderId = params.genderId
-                photo = params.photo
+            nama = params.nama
+            alias = params.alias
+            username = params.username
+            password = params.password
+            email = params.email
+            genderId = params.genderId
+            photo = params.photo
 
-                role = RoleEntity[params.roleId]
-            }
-
-            // 2. INSERT user_units
-            UserUnitTable.insert {
-                it[UserUnitTable.userId] = user.id
-                it[UserUnitTable.unitId] = unit.id
-            }
-
-            // Kembalikan domain user.
-            user.toUserDomain(config)
-
-        } catch (e: ExposedSQLException) {
-            throw dbExceptionMapper.map(e)
+            role = RoleEntity[params.roleId]
         }
+
+        // 2. INSERT user_units
+        UserUnitTable.insert {
+            it[UserUnitTable.userId] = user.id
+            it[UserUnitTable.unitId] = unit.id
+        }
+
+        // Kembalikan domain user.
+        user.toUserDomain(config)
+
     }
 }

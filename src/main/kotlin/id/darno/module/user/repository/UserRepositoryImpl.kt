@@ -1,7 +1,6 @@
 package id.darno.module.user.repository
 
-import id.darno.core.database.DbExceptionMapper
-import id.darno.core.database.dbQuery
+import id.darno.core.database.DatabaseQuery
 import id.darno.core.pageddata.model.PagedResult
 import id.darno.module.auth.model.UserCredentials
 import id.darno.module.role.database.dao.RoleEntity
@@ -23,7 +22,6 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.v1.core.*
-import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -32,106 +30,96 @@ import org.slf4j.LoggerFactory
 
 class UserRepositoryImpl(
     private val config: PhotoUrlConfig,
-    private val dbExceptionMapper: DbExceptionMapper
+    private val databaseQuery: DatabaseQuery
 ) : UserRepository {
 
     private val logger = LoggerFactory.getLogger(UserRepository::class.java)
 
     // --- C: CREATE (Membuat User Baru) ---
-    override suspend fun create(params: CreateUserParams): UserDomain = dbQuery {
+    override suspend fun create(params: CreateUserParams): UserDomain = databaseQuery {
+
         logger.info("Create user with name: {}", params.nama)
-        try {
-            UserEntity.new {
-                nama = params.nama
-                alias = params.nama
-                username = params.username
-                password = params.password
-                email = params.email
-                genderId = params.genderId
-                role = RoleEntity[params.roleId]
-            }.toUserDomain(config)
-        } catch (e: ExposedSQLException) {
-            throw dbExceptionMapper.map(e)
-        }
+
+        UserEntity.new {
+            nama = params.nama
+            alias = params.nama
+            username = params.username
+            password = params.password
+            email = params.email
+            genderId = params.genderId
+            role = RoleEntity[params.roleId]
+        }.toUserDomain(config)
+
     }
 
     // --- R: READ (Mencari berdasarkan Username) ---
-    override suspend fun findByUsername(username: String): UserDomain? = dbQuery {
+    override suspend fun findByUsername(username: String): UserDomain? = databaseQuery {
         UserEntity.find { UserTable.username eq username }
             .singleOrNull()
             ?.toUserDomain(config)
     }
 
-    override suspend fun existsByUsername(username: String): Boolean = dbQuery{
+    override suspend fun existsByUsername(username: String): Boolean = databaseQuery {
         UserEntity.find { UserTable.username eq username }
             .empty()
             .not()
     }
 
     // --- R: READ (Mencari berdasarkan Email) ---
-    override suspend fun findByEmail(email: String): UserDomain? = dbQuery {
+    override suspend fun findByEmail(email: String): UserDomain? = databaseQuery {
         UserEntity.find { UserTable.email eq email }
             .singleOrNull()
             ?.toUserDomain(config)
     }
 
-    override suspend fun existsByEmail(email: String): Boolean = dbQuery{
+    override suspend fun existsByEmail(email: String): Boolean = databaseQuery{
         UserEntity.find { UserTable.email eq email }
             .any() // sama dengan .empty().not()
     }
 
     // Untuk Login
-    override suspend fun findCredentialsByUsername(username: String): UserCredentials? = dbQuery {
+    override suspend fun findCredentialsByUsername(username: String): UserCredentials? = databaseQuery {
         UserEntity.find { UserTable.username eq username }
             .firstOrNull()
             ?.toUserCredentials()
     }
 
-    override suspend fun findCredentialsById(id: Short): UserCredentials? = dbQuery {
+    override suspend fun findCredentialsById(id: Short): UserCredentials? = databaseQuery {
         UserEntity.find { UserTable.id eq id }
             .firstOrNull()
             ?.toUserCredentials()
     }
 
     // --- R: READ (Mencari berdasarkan ID) ---
-    override suspend fun findById(id: Short): UserDomain? = dbQuery {
+    override suspend fun findById(id: Short): UserDomain? = databaseQuery {
         UserEntity.findById(id)?.toUserDomain(config)
     }
 
     // --- U: UPDATE (Memperbarui User) ---
-    override suspend fun update(id: Short, params: UpdateUserParams): UserDomain = dbQuery {
-        try {
-            val entity = UserEntity[id] // PRECONDITION: user exists
+    override suspend fun update(id: Short, params: UpdateUserParams): UserDomain = databaseQuery {
+        val entity = UserEntity[id] // PRECONDITION: user exists
 
-            entity.apply {
-                nama = params.nama ?: nama
-                alias = params.alias ?: alias
-                username = params.username ?: username
-                password = params.password ?: password
-                email = params.email ?: email
-                genderId = params.genderId ?: genderId
-                photo = params.photo ?: photo
-                isActive = params.isActive ?: isActive
-                params.roleId?.let { role = RoleEntity[it] }
-            }.toUserDomain(config)
-
-        } catch (e: ExposedSQLException) {
-            throw dbExceptionMapper.map(e)
-        }
+        entity.apply {
+            nama = params.nama ?: nama
+            alias = params.alias ?: alias
+            username = params.username ?: username
+            password = params.password ?: password
+            email = params.email ?: email
+            genderId = params.genderId ?: genderId
+            photo = params.photo ?: photo
+            isActive = params.isActive ?: isActive
+            params.roleId?.let { role = RoleEntity[it] }
+        }.toUserDomain(config)
     }
 
     // --- D: DELETE (Menghapus User) ---
-    override suspend fun delete(id: Short): Boolean = dbQuery {
-        try {
-            UserTable.deleteWhere { UserTable.id eq id }
-            true
-        } catch (e: ExposedSQLException) {
-            throw dbExceptionMapper.map(e)
-        }
+    override suspend fun delete(id: Short): Boolean = databaseQuery {
+        UserTable.deleteWhere { UserTable.id eq id }
+        true
     }
 
     override suspend fun markEmailVerified(userId: Short) {
-        dbQuery {
+        databaseQuery {
             UserTable.update({ UserTable.id eq userId }) {
                 it[emailVerifiedAt] =
                     Clock.System.now().toLocalDateTime(TimeZone.UTC)
@@ -139,7 +127,7 @@ class UserRepositoryImpl(
         }
     }
 
-    override suspend fun findUnitsByUserId(userId: Short): List<UnitDomain> = dbQuery{
+    override suspend fun findUnitsByUserId(userId: Short): List<UnitDomain> = databaseQuery {
         // userId sudah dipastikan keberadaannya di service
         UserEntity[userId].units.map { it.toUnitDomain() }
     }
@@ -147,7 +135,7 @@ class UserRepositoryImpl(
     override suspend fun userHasUnit(
         userId: Short,
         unitId: Short
-    ): Boolean = dbQuery {
+    ): Boolean = databaseQuery {
         UserUnitTable
             .selectAll()
             .where {
@@ -164,7 +152,7 @@ class UserRepositoryImpl(
         pageSize: Int,
         sortBy: String,
         sortDir: String
-    ): PagedResult<UserListItem> = dbQuery {
+    ): PagedResult<UserListItem> = databaseQuery {
 
         // --- 1. Tentukan sort column ---
         val sortColumn = when (sortBy) {
@@ -232,7 +220,7 @@ class UserRepositoryImpl(
         )
     }
 
-    override suspend fun findAllForReport(search: String?): List<UserReportRowDto> = dbQuery {
+    override suspend fun findAllForReport(search: String?): List<UserReportRowDto> = databaseQuery {
         val filter = search?.let {
             (UserTable.nama like "%$it%") or
                     (UserTable.username like "%$it%") or

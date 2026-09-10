@@ -1,6 +1,7 @@
 package id.darno.module.auth
 
 import id.darno.core.config.appConfig
+import id.darno.core.database.DatabaseQuery
 import id.darno.core.mail.MailService
 import id.darno.core.security.crypto.Hasher
 import id.darno.module.auth.controller.*
@@ -16,9 +17,21 @@ import io.ktor.server.plugins.di.*
 fun Application.configureAuthDependencies(){
     val config = appConfig()
     dependencies {
-        provide<RememberMeRepository> { RememberMeRepositoryImpl() }
-        provide<EmailVerificationRepository> { EmailVerificationRepositoryImpl() }
-        provide<PasswordResetRepository>{ PasswordResetRepositoryImpl() }
+        provide<RememberMeRepository> {
+            RememberMeRepositoryImpl(
+                resolve<DatabaseQuery>()
+            )
+        }
+        provide<EmailVerificationRepository> {
+            EmailVerificationRepositoryImpl(
+                resolve<DatabaseQuery>()
+            )
+        }
+        provide<PasswordResetRepository> {
+            PasswordResetRepositoryImpl(
+                resolve<DatabaseQuery>()
+            )
+        }
 
         provide<EmailVerificationService>{
             EmailVerificationServiceImpl(

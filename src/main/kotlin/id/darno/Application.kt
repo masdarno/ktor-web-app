@@ -1,5 +1,6 @@
 package id.darno
 
+import id.darno.core.database.DatabaseQuery
 import id.darno.core.database.DbExceptionMapper
 import id.darno.core.database.JdbcType
 import id.darno.core.database.configureDatabase
@@ -149,6 +150,11 @@ fun Application.configureDependencies(config: ApplicationConfig){
                     PostgreSqlExceptionMapper()
                 }
             }
+        }
+        provide<DatabaseQuery> {
+            DatabaseQuery(
+                resolve<DbExceptionMapper>()
+            )
         }
         if(isDev){
             provide<MailService> { InMemoryMailService() }

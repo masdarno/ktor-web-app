@@ -1,7 +1,6 @@
 package id.darno.module.user.repository
 
-import id.darno.core.database.DbExceptionMapper
-import id.darno.core.database.dbQuery
+import id.darno.core.database.DatabaseQuery
 import id.darno.core.pageddata.model.PagedResult
 import id.darno.module.role.database.table.RoleTable
 import id.darno.module.unit.database.table.UnitTable
@@ -11,14 +10,13 @@ import id.darno.module.user.model.UserListItem
 import id.darno.module.user.model.UserOptionItem
 import id.darno.core.report.dto.user.UserUnitReportRowDto
 import org.jetbrains.exposed.v1.core.*
-import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 import org.jetbrains.exposed.v1.jdbc.batchInsert
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 
 class UserUnitRepositoryImpl(
-    private val dbExceptionMapper: DbExceptionMapper
+    private val databaseQuery: DatabaseQuery
 ): UserUnitRepository {
 
     override suspend fun findAllUserByUnit(
@@ -28,7 +26,7 @@ class UserUnitRepositoryImpl(
         sortBy: String,
         sortDir: String,
         unitId: Short
-    ): PagedResult<UserListItem> = dbQuery {
+    ): PagedResult<UserListItem> = databaseQuery {
 
         // --- 1. Tentukan sort column ---
         val sortColumn = when (sortBy) {
@@ -140,7 +138,7 @@ class UserUnitRepositoryImpl(
     override suspend fun findAvailableUserForUnit(
         unitId: Short,
         search: String?
-    ): List<UserOptionItem> = dbQuery {
+    ): List<UserOptionItem> = databaseQuery {
 
         val assignedUserIds = UserUnitTable
             .select(UserUnitTable.userId)
@@ -178,40 +176,32 @@ class UserUnitRepositoryImpl(
     override suspend fun addUserUnits(
         unitId: Short,
         userIds: List<Short>
-    ): Int = dbQuery {
-        if (userIds.isEmpty()) return@dbQuery 0
+    ): Int = databaseQuery {
+        if (userIds.isEmpty()) return@databaseQuery 0
 
-        try {
-            UserUnitTable.batchInsert(
-                data = userIds.distinct(),
-                ignore = true,
-                shouldReturnGeneratedValues = false
-            ) { userId ->
-                this[UserUnitTable.userId] = userId
-                this[UserUnitTable.unitId] = unitId
-            }.size
-        } catch (e: ExposedSQLException) {
-            throw dbExceptionMapper.map(e)
-        }
+        UserUnitTable.batchInsert(
+            data = userIds.distinct(),
+            ignore = true,
+            shouldReturnGeneratedValues = false
+        ) { userId ->
+            this[UserUnitTable.userId] = userId
+            this[UserUnitTable.unitId] = unitId
+        }.size
     }
 
     override suspend fun deleteUserUnit(
         userId: Short,
         unitId: Short
-    ): Boolean = dbQuery {
-        try {
-            UserUnitTable
-                .deleteWhere {
-                    (UserUnitTable.userId eq userId) and
-                            (UserUnitTable.unitId eq unitId)
-                } > 0
-            true
-        } catch (e: ExposedSQLException) {
-            throw dbExceptionMapper.map(e)
-        }
+    ): Boolean = databaseQuery {
+        UserUnitTable
+            .deleteWhere {
+                (UserUnitTable.userId eq userId) and
+                        (UserUnitTable.unitId eq unitId)
+            } > 0
+        true
     }
 
-    override suspend fun findAllUserByUnitForReport(unitId: Short, search: String?): List<UserUnitReportRowDto> = dbQuery {
+    override suspend fun findAllUserByUnitForReport(unitId: Short, search: String?): List<UserUnitReportRowDto> = databaseQuery {
         val searchFilter = search
             ?.takeIf { it.isNotBlank() }
             ?.let {

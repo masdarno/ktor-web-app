@@ -1,6 +1,6 @@
 package id.darno.module.auth.repository
 
-import id.darno.core.database.dbQuery
+import id.darno.core.database.DatabaseQuery
 import id.darno.module.auth.database.table.RememberMeTokenTable
 import id.darno.module.user.model.RememberToken
 import org.jetbrains.exposed.v1.core.eq
@@ -8,10 +8,12 @@ import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 
-class RememberMeRepositoryImpl : RememberMeRepository {
+class RememberMeRepositoryImpl(
+    private val databaseQuery: DatabaseQuery
+) : RememberMeRepository {
 
     override suspend fun findBySelector(selector: String): RememberToken? =
-        dbQuery {
+        databaseQuery {
             RememberMeTokenTable
                 .selectAll()
                 .where { RememberMeTokenTable.selector eq selector }
@@ -28,7 +30,7 @@ class RememberMeRepositoryImpl : RememberMeRepository {
         }
 
     override suspend fun save(token: RememberToken) {
-        dbQuery {
+        databaseQuery {
             RememberMeTokenTable.insert {
                 it[selector] = token.selector
                 it[userId] = token.userId
@@ -40,7 +42,7 @@ class RememberMeRepositoryImpl : RememberMeRepository {
     }
 
     override suspend fun delete(selector: String) {
-        dbQuery {
+        databaseQuery {
             RememberMeTokenTable.deleteWhere {
                 RememberMeTokenTable.selector eq selector
             }
@@ -48,7 +50,7 @@ class RememberMeRepositoryImpl : RememberMeRepository {
     }
 
     override suspend fun deleteByUserId(userId: Short) {
-        dbQuery {
+        databaseQuery {
             RememberMeTokenTable.deleteWhere{
                 RememberMeTokenTable.userId eq userId
             }
