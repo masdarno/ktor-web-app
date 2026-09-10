@@ -1,6 +1,6 @@
 package id.darno.module.user.database.table
 
-import id.darno.core.database.TimeExpressions
+import id.darno.core.database.query.TimeExpressions
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.datetime.datetime
 import org.jetbrains.exposed.v1.datetime.timestamp

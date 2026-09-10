@@ -1,7 +1,8 @@
-package id.darno.core.database
+package id.darno.core.database.provider
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import id.darno.core.database.config.DatabaseConfig
 import org.jetbrains.exposed.v1.jdbc.Database
 
 class DatabaseProvider(private val dbConfig: DatabaseConfig) : AutoCloseable {

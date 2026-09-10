@@ -1,4 +1,4 @@
-package id.darno.core.database
+package id.darno.core.database.exception
 
 import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 import java.sql.SQLException

@@ -1,5 +1,7 @@
-package id.darno.core.database
+package id.darno.core.database.exception.mapper
 
+import id.darno.core.database.exception.DbExceptionMapper
+import id.darno.core.database.exception.DbExceptionUtils
 import id.darno.core.exceptions.repository.CheckConstraintException
 import id.darno.core.exceptions.repository.DatabaseConcurrencyException
 import id.darno.core.exceptions.repository.DatabaseConnectionException
@@ -12,7 +14,7 @@ import id.darno.core.exceptions.repository.RepositoryException
 import id.darno.core.exceptions.repository.UnknownDatabaseException
 import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 
-class PostgreSqlExceptionMapper : DbExceptionMapper {
+class MariaDbExceptionMapper : DbExceptionMapper {
 
     override fun map(exception: ExposedSQLException): RepositoryException {
         val info = DbExceptionUtils.inspect(exception)
@@ -20,65 +22,73 @@ class PostgreSqlExceptionMapper : DbExceptionMapper {
         val constraint =
             DbExceptionUtils.extractConstraint(info.message)
 
-        return when (info.sqlState) {
+        return when {
 
-            // Integrity
-            "23505" ->
+            // Duplicate key / unique constraint
+            info.errorCode == 1062 ->
                 DuplicateKeyException(
                     constraint = constraint,
                     cause = exception
                 )
 
-            "23503" ->
+            // Cannot delete/update parent row
+            info.errorCode == 1451 ->
                 ForeignKeyException(
                     constraint = constraint,
                     cause = exception
                 )
 
-            "23502" ->
+            // Cannot insert/update child row
+            info.errorCode == 1452 ->
+                ForeignKeyException(
+                    constraint = constraint,
+                    cause = exception
+                )
+
+            // Column cannot be null
+            info.errorCode == 1048 ->
                 NotNullViolationException(
                     constraint = constraint,
                     cause = exception
                 )
 
-            "23514" ->
+            // CHECK constraint
+            info.errorCode == 4025 ||
+                    info.message.contains("check constraint") ->
                 CheckConstraintException(
                     constraint = constraint,
                     cause = exception
                 )
 
-            // Concurrency
-            "40001",
-            "40P01" ->
-                DatabaseConcurrencyException(
+            // Connection errors
+            info.sqlState?.startsWith("08") == true ->
+                DatabaseConnectionException(
                     cause = exception
                 )
 
-            // Timeout / cancellation
-            "57014" ->
+            // Lock wait timeout
+            info.errorCode == 1205 ->
                 DatabaseTimeoutException(
                     cause = exception
                 )
 
-            else -> when {
+            // Deadlock
+            info.errorCode == 1213 ->
+                DatabaseConcurrencyException(
+                    cause = exception
+                )
 
-                // Connection failure
-                info.sqlState?.startsWith("08") == true ->
-                    DatabaseConnectionException(
-                        cause = exception
-                    )
+            // SQL syntax / invalid SQL
+            info.errorCode == 1064 ||
+                    info.sqlState?.startsWith("42") == true ->
+                DatabaseSyntaxException(
+                    cause = exception
+                )
 
-                // SQL syntax / access rule
-                info.sqlState?.startsWith("42") == true ->
-                    DatabaseSyntaxException(
-                        cause = exception
-                    )
-
-                else ->
-                    UnknownDatabaseException(
-                        cause = exception
-                    )
-            }
+            else ->
+                UnknownDatabaseException(
+                    cause = exception
+                )
         }
     }
 }

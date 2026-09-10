@@ -1,6 +1,6 @@
 package id.darno.module.unit.repository
 
-import id.darno.core.database.DatabaseQuery
+import id.darno.core.database.query.DatabaseQuery
 import id.darno.core.report.dto.shared.KopSuratReportDto
 import id.darno.module.unit.database.table.CompanyProfileTable
 import id.darno.module.unit.database.table.CompanyProfileTable.namaPemerintah

@@ -1,5 +1,7 @@
 package id.darno.core.database
 
+import id.darno.core.database.config.databaseConfig
+import id.darno.core.database.provider.DatabaseProvider
 import io.ktor.server.application.*
 import io.ktor.server.plugins.di.*
 

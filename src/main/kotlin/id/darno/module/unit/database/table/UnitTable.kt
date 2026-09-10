@@ -1,6 +1,6 @@
 package id.darno.module.unit.database.table
 
-import id.darno.core.database.TimeExpressions
+import id.darno.core.database.query.TimeExpressions
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
@@ -14,7 +14,7 @@ object UnitTable : IdTable<Short>("units") {
         .references(CompanyProfileTable.id)
         .default(1)
     val createdAt = datetime("created_at")
-        .defaultExpression(TimeExpressions.Companion.CurrentKotlinDateTime)
+        .defaultExpression(TimeExpressions.CurrentKotlinDateTime)
     val updatedAt = datetime("updated_at").nullable()
 
     override val primaryKey = PrimaryKey(id)

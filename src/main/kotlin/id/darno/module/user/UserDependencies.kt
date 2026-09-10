@@ -1,6 +1,6 @@
 package id.darno.module.user
 
-import id.darno.core.database.DatabaseQuery
+import id.darno.core.database.query.DatabaseQuery
 import id.darno.core.report.JasperReportService
 import id.darno.core.security.crypto.Hasher
 import id.darno.core.storage.FileStorageService

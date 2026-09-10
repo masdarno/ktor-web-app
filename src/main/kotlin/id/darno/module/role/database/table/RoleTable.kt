@@ -1,6 +1,6 @@
 package id.darno.module.role.database.table
 
-import id.darno.core.database.TimeExpressions
+import id.darno.core.database.query.TimeExpressions
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
@@ -11,7 +11,7 @@ object RoleTable : IdTable<Short>("roles") {
     val nama = varchar("nama", 50).uniqueIndex()
     val isActive = bool("is_active").default(true)
     val createdAt = datetime("created_at")
-        .defaultExpression(TimeExpressions.Companion.CurrentKotlinDateTime)
+        .defaultExpression(TimeExpressions.CurrentKotlinDateTime)
     val updatedAt = datetime("updated_at").nullable()
 
     override val primaryKey = PrimaryKey(id)

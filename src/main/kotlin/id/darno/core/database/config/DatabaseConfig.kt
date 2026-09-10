@@ -1,4 +1,4 @@
-package id.darno.core.database
+package id.darno.core.database.config
 
 import io.ktor.server.application.*
 import io.ktor.server.config.*

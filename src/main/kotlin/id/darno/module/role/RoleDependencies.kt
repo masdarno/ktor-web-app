@@ -1,7 +1,6 @@
 package id.darno.module.role
 
-import id.darno.core.database.DatabaseQuery
-import id.darno.core.database.DbExceptionMapper
+import id.darno.core.database.query.DatabaseQuery
 import id.darno.module.menu.service.MenuAccessService
 import id.darno.module.menu.service.MenuAccessServiceImpl
 import id.darno.module.menu.service.MenuCacheService

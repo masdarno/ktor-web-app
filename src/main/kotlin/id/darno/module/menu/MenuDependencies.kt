@@ -1,6 +1,6 @@
 package id.darno.module.menu
 
-import id.darno.core.database.DatabaseQuery
+import id.darno.core.database.query.DatabaseQuery
 import id.darno.module.menu.repository.MenuRepository
 import id.darno.module.menu.repository.MenuRepositoryImpl
 import id.darno.module.menu.service.MenuCacheService

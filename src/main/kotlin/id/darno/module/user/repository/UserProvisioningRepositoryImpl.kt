@@ -1,6 +1,6 @@
 package id.darno.module.user.repository
 
-import id.darno.core.database.DatabaseQuery
+import id.darno.core.database.query.DatabaseQuery
 import id.darno.module.role.database.dao.RoleEntity
 import id.darno.module.unit.database.dao.UnitEntity
 import id.darno.module.user.config.PhotoUrlConfig

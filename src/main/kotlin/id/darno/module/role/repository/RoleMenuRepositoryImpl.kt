@@ -1,6 +1,6 @@
 package id.darno.module.role.repository
 
-import id.darno.core.database.DatabaseQuery
+import id.darno.core.database.query.DatabaseQuery
 import id.darno.module.menu.database.table.RoleMenuTable
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.*

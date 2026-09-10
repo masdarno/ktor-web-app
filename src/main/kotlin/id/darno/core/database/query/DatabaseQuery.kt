@@ -1,5 +1,6 @@
-package id.darno.core.database
+package id.darno.core.database.query
 
+import id.darno.core.database.exception.DbExceptionMapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.v1.exceptions.ExposedSQLException

@@ -1,13 +1,13 @@
 package id.darno
 
-import id.darno.core.database.DatabaseQuery
-import id.darno.core.database.DbExceptionMapper
-import id.darno.core.database.JdbcType
+import id.darno.core.database.query.DatabaseQuery
+import id.darno.core.database.exception.DbExceptionMapper
+import id.darno.core.database.config.JdbcType
 import id.darno.core.database.configureDatabase
-import id.darno.core.database.databaseConfig
-import id.darno.core.database.MariaDbExceptionMapper
-import id.darno.core.database.MySqlExceptionMapper
-import id.darno.core.database.PostgreSqlExceptionMapper
+import id.darno.core.database.config.databaseConfig
+import id.darno.core.database.exception.mapper.MariaDbExceptionMapper
+import id.darno.core.database.exception.mapper.MySqlExceptionMapper
+import id.darno.core.database.exception.mapper.PostgreSqlExceptionMapper
 import id.darno.core.exceptions.ForbiddenException
 import id.darno.core.htmx.exception.HtmxFormException
 import id.darno.core.htmx.model.ToastType

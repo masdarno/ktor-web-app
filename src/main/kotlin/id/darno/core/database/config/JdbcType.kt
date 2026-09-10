@@ -1,4 +1,4 @@
-package id.darno.core.database
+package id.darno.core.database.config
 
 import com.zaxxer.hikari.HikariConfig
 

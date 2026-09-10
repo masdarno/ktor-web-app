@@ -1,6 +1,6 @@
 package id.darno.module.role.repository
 
-import id.darno.core.database.DatabaseQuery
+import id.darno.core.database.query.DatabaseQuery
 import id.darno.module.role.database.dao.RoleEntity
 import id.darno.module.role.database.table.RoleTable
 import id.darno.module.role.domain.RoleDomain

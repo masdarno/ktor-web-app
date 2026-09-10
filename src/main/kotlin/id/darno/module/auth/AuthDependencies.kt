@@ -1,7 +1,7 @@
 package id.darno.module.auth
 
 import id.darno.core.config.appConfig
-import id.darno.core.database.DatabaseQuery
+import id.darno.core.database.query.DatabaseQuery
 import id.darno.core.mail.MailService
 import id.darno.core.security.crypto.Hasher
 import id.darno.module.auth.controller.*

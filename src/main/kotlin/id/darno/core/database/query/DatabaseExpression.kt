@@ -1,4 +1,4 @@
-package id.darno.core.database
+package id.darno.core.database.query
 
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.v1.core.Expression

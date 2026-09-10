@@ -1,9 +1,9 @@
 package id.darno.dev.cli
 
-import id.darno.core.database.DatabaseProvider
-import id.darno.core.database.DatabaseQuery
-import id.darno.core.database.MariaDbExceptionMapper
-import id.darno.core.database.databaseConfig
+import id.darno.core.database.provider.DatabaseProvider
+import id.darno.core.database.query.DatabaseQuery
+import id.darno.core.database.exception.mapper.MariaDbExceptionMapper
+import id.darno.core.database.config.databaseConfig
 import id.darno.core.security.crypto.BCryptHasher
 import id.darno.module.user.config.userPhotoUrlConfig
 import id.darno.module.user.repository.UserProvisioningRepositoryImpl

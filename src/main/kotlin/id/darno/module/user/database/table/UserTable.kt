@@ -1,6 +1,6 @@
 package id.darno.module.user.database.table
 
-import id.darno.core.database.TimeExpressions
+import id.darno.core.database.query.TimeExpressions
 import id.darno.module.role.database.table.RoleTable
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.dao.id.EntityID

@@ -1,6 +1,6 @@
 package id.darno.module.user.repository
 
-import id.darno.core.database.DatabaseQuery
+import id.darno.core.database.query.DatabaseQuery
 import id.darno.core.pageddata.model.PagedResult
 import id.darno.module.auth.model.UserCredentials
 import id.darno.module.role.database.dao.RoleEntity

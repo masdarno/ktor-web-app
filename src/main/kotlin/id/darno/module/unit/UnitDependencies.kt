@@ -1,6 +1,6 @@
 package id.darno.module.unit
 
-import id.darno.core.database.DatabaseQuery
+import id.darno.core.database.query.DatabaseQuery
 import id.darno.module.unit.repository.CompanyProfileRepository
 import id.darno.module.unit.repository.CompanyProfileRepositoryImpl
 import id.darno.module.unit.repository.UnitRepository

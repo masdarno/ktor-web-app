@@ -1,6 +1,6 @@
 package id.darno.module.auth.repository
 
-import id.darno.core.database.DatabaseQuery
+import id.darno.core.database.query.DatabaseQuery
 import id.darno.module.auth.database.table.EmailVerificationTokenTable
 import id.darno.module.auth.model.EmailVerificationToken
 import kotlinx.datetime.Clock
