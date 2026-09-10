@@ -1,7 +1,7 @@
 package id.darno.module.user.route
 
 import id.darno.module.user.controller.UserUnitController
-import io.ktor.server.plugins.BadRequestException
+import id.darno.core.exceptions.BadRequestException
 import io.ktor.server.routing.*
 import org.slf4j.LoggerFactory
 

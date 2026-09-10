@@ -1,6 +1,7 @@
 package id.darno.module.user.controller
 
 import id.darno.core.exceptions.ApplicationException
+import id.darno.core.exceptions.BadRequestException
 import id.darno.core.htmx.exception.HtmxFormException
 import id.darno.core.htmx.model.ToastType
 import id.darno.core.htmx.utility.hxTriggerWithToast
@@ -12,7 +13,6 @@ import id.darno.module.user.service.UserUnitService
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.pebble.*
-import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import org.slf4j.LoggerFactory

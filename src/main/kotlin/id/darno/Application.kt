@@ -1,7 +1,7 @@
 package id.darno
 
 import id.darno.core.database.configureDatabase
-import id.darno.core.exceptions.ForbiddenAccessException
+import id.darno.core.exceptions.ForbiddenException
 import id.darno.core.htmx.exception.HtmxFormException
 import id.darno.core.htmx.model.ToastType
 import id.darno.core.htmx.utility.hxTriggerWithToast
@@ -378,7 +378,7 @@ fun Application.configureStatusPages(){
                 )
             )
         }
-        exception<ForbiddenAccessException> { call, cause ->
+        exception<ForbiddenException> { call, cause ->
             if (call.request.headers["HX-Request"] == "true") {
                 call.hxTriggerWithToast(message = cause.message ?: "Akses ditolak", type = ToastType.ERROR)
             } else {

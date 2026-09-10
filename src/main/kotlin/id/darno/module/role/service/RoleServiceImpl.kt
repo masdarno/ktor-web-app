@@ -1,11 +1,11 @@
 package id.darno.module.role.service
 
 import id.darno.core.exceptions.service.ConflictException
+import id.darno.core.exceptions.service.NotFoundException
 import id.darno.module.role.domain.RoleDomain
 import id.darno.module.role.model.RoleCreateParams
 import id.darno.module.role.model.RoleUpdateParams
 import id.darno.module.role.repository.RoleRepository
-import io.ktor.server.plugins.*
 
 class RoleServiceImpl(
     private val roleRepository: RoleRepository

@@ -1,6 +1,6 @@
 package id.darno.core.route.plugin
 
-import id.darno.core.exceptions.ForbiddenAccessException
+import id.darno.core.exceptions.ForbiddenException
 import id.darno.core.htmx.utility.respondUniversalRedirect
 import id.darno.core.session.model.TempUserSession
 import id.darno.core.session.model.UserSession
@@ -96,7 +96,7 @@ val UrlMenu = createRouteScopedPlugin("UrlMenu") {
                 "Access DENIED: method={}, path={}, roleId={}",
                 call.request.httpMethod.value, path, session.roleId
             )
-            throw ForbiddenAccessException()
+            throw ForbiddenException()
         }
     }
 }

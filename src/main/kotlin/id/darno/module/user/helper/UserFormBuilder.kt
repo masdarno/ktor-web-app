@@ -1,6 +1,6 @@
 package id.darno.module.user.helper
 
-import id.darno.core.exceptions.service.BadRequestException
+import id.darno.core.exceptions.BadRequestException
 import id.darno.module.user.dto.CreateUserRequest
 import id.darno.module.user.dto.UpdateUserRequest
 import io.ktor.http.*
