@@ -49,7 +49,7 @@ enum class JdbcType(
         fun fromString(value: String): JdbcType = try {
             valueOf(value.uppercase())
         } catch (e: IllegalArgumentException) {
-            val validTypes = values().joinToString(", ") { it.name.lowercase() }
+            val validTypes = entries.joinToString(", ") { it.name.lowercase() }
             throw IllegalArgumentException(
                 "Invalid database type: '$value'. " +
                         "Supported types are: $validTypes"
