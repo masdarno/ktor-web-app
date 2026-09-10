@@ -11,7 +11,9 @@ import id.darno.module.role.model.RoleUpdateParams
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 
-class RoleRepositoryImpl : RoleRepository {
+class RoleRepositoryImpl(
+    private val dbExceptionMapper: DbExceptionMapper
+) : RoleRepository {
 
     override suspend fun findAll(): List<RoleDomain> = dbQuery {
         RoleEntity.all().map { it.toRoleDomain() }
@@ -36,7 +38,7 @@ class RoleRepositoryImpl : RoleRepository {
                 isActive = params.isActive
             }.toRoleDomain()
         } catch (e: ExposedSQLException) {
-            throw DbExceptionMapper.map(e)
+            throw dbExceptionMapper.map(e)
         }
     }
 
@@ -48,7 +50,7 @@ class RoleRepositoryImpl : RoleRepository {
                 isActive = params.isActive ?: isActive
             }.toRoleDomain()
         } catch (e: ExposedSQLException) {
-            throw DbExceptionMapper.map(e)
+            throw dbExceptionMapper.map(e)
         }
     }
 
@@ -57,7 +59,7 @@ class RoleRepositoryImpl : RoleRepository {
             RoleEntity[id].delete()
             true
         } catch (e: ExposedSQLException) {
-            throw DbExceptionMapper.map(e)
+            throw dbExceptionMapper.map(e)
         }
     }
 }

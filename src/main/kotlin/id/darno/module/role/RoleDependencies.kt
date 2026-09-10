@@ -1,5 +1,6 @@
 package id.darno.module.role
 
+import id.darno.core.database.DbExceptionMapper
 import id.darno.module.menu.service.MenuAccessService
 import id.darno.module.menu.service.MenuAccessServiceImpl
 import id.darno.module.menu.service.MenuCacheService
@@ -10,10 +11,13 @@ import id.darno.module.role.repository.RoleRepositoryImpl
 import id.darno.module.role.service.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.di.*
+import io.ktor.server.plugins.di.resolve
 
 fun Application.configureRoleDependencies(){
     dependencies {
-        provide<RoleRepository> { RoleRepositoryImpl() }
+        provide<RoleRepository> {
+            RoleRepositoryImpl(resolve<DbExceptionMapper>())
+        }
         provide<RoleService> {
             RoleServiceImpl(resolve<RoleRepository>())
         }

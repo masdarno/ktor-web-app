@@ -32,7 +32,7 @@ enum class JdbcType(
             config.addDataSourceProperty("useSSL", "false")
         }
       },
-    POSTGRES(
+    POSTGRESQL(
         driver = "org.postgresql.Driver",
         prefix = "jdbc:postgresql",
         defaultPort = 5432

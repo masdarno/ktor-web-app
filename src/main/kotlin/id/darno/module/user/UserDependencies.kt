@@ -1,5 +1,6 @@
 package id.darno.module.user
 
+import id.darno.core.database.DbExceptionMapper
 import id.darno.core.report.JasperReportService
 import id.darno.core.security.crypto.Hasher
 import id.darno.core.storage.FileStorageService
@@ -22,7 +23,10 @@ fun Application.configureUserDependencies(){
     val userConfig = userModuleConfig()
     dependencies {
         provide<UserRepository> {
-            UserRepositoryImpl(userConfig.photoUrl)
+            UserRepositoryImpl(
+                userConfig.photoUrl,
+                resolve<DbExceptionMapper>()
+            )
         }
         provide<UserAuthService> {
             UserAuthServiceImpl(
@@ -65,7 +69,9 @@ fun Application.configureUserDependencies(){
             )
         }
         provide<UserUnitRepository> {
-            UserUnitRepositoryImpl()
+            UserUnitRepositoryImpl(
+                resolve<DbExceptionMapper>()
+            )
         }
         provide<UserUnitService> {
             UserUnitServiceImpl(

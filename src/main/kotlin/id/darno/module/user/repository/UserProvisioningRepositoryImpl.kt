@@ -14,7 +14,8 @@ import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 import org.jetbrains.exposed.v1.jdbc.insert
 
 class UserProvisioningRepositoryImpl(
-    private val config: PhotoUrlConfig
+    private val config: PhotoUrlConfig,
+    private val dbExceptionMapper: DbExceptionMapper
 ) : UserProvisioningRepository {
 
     override suspend fun createUserWithUnit(
@@ -64,7 +65,7 @@ class UserProvisioningRepositoryImpl(
             user.toUserDomain(config)
 
         } catch (e: ExposedSQLException) {
-            throw DbExceptionMapper.map(e)
+            throw dbExceptionMapper.map(e)
         }
     }
 }

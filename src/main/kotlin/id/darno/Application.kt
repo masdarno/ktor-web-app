@@ -1,6 +1,12 @@
 package id.darno
 
+import id.darno.core.database.DbExceptionMapper
+import id.darno.core.database.JdbcType
 import id.darno.core.database.configureDatabase
+import id.darno.core.database.databaseConfig
+import id.darno.core.database.MariaDbExceptionMapper
+import id.darno.core.database.MySqlExceptionMapper
+import id.darno.core.database.PostgreSqlExceptionMapper
 import id.darno.core.exceptions.ForbiddenException
 import id.darno.core.htmx.exception.HtmxFormException
 import id.darno.core.htmx.model.ToastType
@@ -123,7 +129,27 @@ fun Application.configureDependencies(config: ApplicationConfig){
         ?.getString()
         ?.toBoolean()
         ?: false
+
+    val dbConfig = databaseConfig()
+
     dependencies {
+        when (dbConfig.type) {
+            JdbcType.MARIADB -> {
+                provide<DbExceptionMapper> {
+                    MariaDbExceptionMapper()
+                }
+            }
+            JdbcType.MYSQL -> {
+                provide<DbExceptionMapper> {
+                    MySqlExceptionMapper()
+                }
+            }
+            JdbcType.POSTGRESQL -> {
+                provide<DbExceptionMapper> {
+                    PostgreSqlExceptionMapper()
+                }
+            }
+        }
         if(isDev){
             provide<MailService> { InMemoryMailService() }
         }else{

@@ -17,7 +17,9 @@ import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 
-class UserUnitRepositoryImpl: UserUnitRepository {
+class UserUnitRepositoryImpl(
+    private val dbExceptionMapper: DbExceptionMapper
+): UserUnitRepository {
 
     override suspend fun findAllUserByUnit(
         search: String?,
@@ -189,7 +191,7 @@ class UserUnitRepositoryImpl: UserUnitRepository {
                 this[UserUnitTable.unitId] = unitId
             }.size
         } catch (e: ExposedSQLException) {
-            throw DbExceptionMapper.map(e)
+            throw dbExceptionMapper.map(e)
         }
     }
 
@@ -205,7 +207,7 @@ class UserUnitRepositoryImpl: UserUnitRepository {
                 } > 0
             true
         } catch (e: ExposedSQLException) {
-            throw DbExceptionMapper.map(e)
+            throw dbExceptionMapper.map(e)
         }
     }
 

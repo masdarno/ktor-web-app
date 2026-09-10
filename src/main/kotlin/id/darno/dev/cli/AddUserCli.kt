@@ -1,6 +1,7 @@
 package id.darno.dev.cli
 
 import id.darno.core.database.DatabaseProvider
+import id.darno.core.database.MariaDbExceptionMapper
 import id.darno.core.database.databaseConfig
 import id.darno.core.security.crypto.BCryptHasher
 import id.darno.module.user.config.userPhotoUrlConfig
@@ -57,10 +58,13 @@ fun main(args: Array<String>) {
 
             val photoUrlConfig = config.userPhotoUrlConfig()
 
+            val dbExceptionMapper = MariaDbExceptionMapper()
+
             val hasher = BCryptHasher()
 
-            val userRepository = UserRepositoryImpl(photoUrlConfig)
-            val provisioningRepository = UserProvisioningRepositoryImpl(photoUrlConfig)
+            val userRepository = UserRepositoryImpl(photoUrlConfig, dbExceptionMapper)
+
+            val provisioningRepository = UserProvisioningRepositoryImpl(photoUrlConfig, dbExceptionMapper)
 
             val provisioningService = UserProvisioningServiceImpl(
                 userRepository = userRepository,

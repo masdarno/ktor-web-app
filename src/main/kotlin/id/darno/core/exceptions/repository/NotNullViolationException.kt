@@ -1,8 +1,8 @@
 package id.darno.core.exceptions.repository
 
-class ForeignKeyException(
+class NotNullViolationException(
     val constraint: String? = null,
-    message: String = "Referensi data tidak valid",
+    message: String = "Field wajib tidak boleh kosong",
     cause: Throwable? = null
 ) : DataIntegrityException(
     message = message,

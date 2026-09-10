@@ -30,7 +30,10 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
 import org.slf4j.LoggerFactory
 
-class UserRepositoryImpl(private val config: PhotoUrlConfig) : UserRepository {
+class UserRepositoryImpl(
+    private val config: PhotoUrlConfig,
+    private val dbExceptionMapper: DbExceptionMapper
+) : UserRepository {
 
     private val logger = LoggerFactory.getLogger(UserRepository::class.java)
 
@@ -48,7 +51,7 @@ class UserRepositoryImpl(private val config: PhotoUrlConfig) : UserRepository {
                 role = RoleEntity[params.roleId]
             }.toUserDomain(config)
         } catch (e: ExposedSQLException) {
-            throw DbExceptionMapper.map(e)
+            throw dbExceptionMapper.map(e)
         }
     }
 
@@ -113,7 +116,7 @@ class UserRepositoryImpl(private val config: PhotoUrlConfig) : UserRepository {
             }.toUserDomain(config)
 
         } catch (e: ExposedSQLException) {
-            throw DbExceptionMapper.map(e)
+            throw dbExceptionMapper.map(e)
         }
     }
 
@@ -123,7 +126,7 @@ class UserRepositoryImpl(private val config: PhotoUrlConfig) : UserRepository {
             UserTable.deleteWhere { UserTable.id eq id }
             true
         } catch (e: ExposedSQLException) {
-            throw DbExceptionMapper.map(e)
+            throw dbExceptionMapper.map(e)
         }
     }
 

@@ -1,6 +1,10 @@
 package id.darno.core.exceptions.repository
 
 class DuplicateKeyException(
-    val field: String,
+    val constraint: String? = null,
+    message: String = "Data sudah ada / duplikat",
     cause: Throwable? = null
-) : RepositoryException("Duplicate $field", cause)
+) : DataIntegrityException(
+    message = message,
+    cause = cause
+)
