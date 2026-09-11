@@ -3,7 +3,7 @@ package id.darno.module.auth.repository
 import id.darno.core.database.query.DatabaseQuery
 import id.darno.module.auth.database.table.EmailVerificationTokenTable
 import id.darno.module.auth.model.EmailVerificationToken
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.v1.core.*
