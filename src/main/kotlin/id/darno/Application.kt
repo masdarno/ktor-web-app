@@ -3,8 +3,9 @@ package id.darno
 import id.darno.core.database.query.DatabaseQuery
 import id.darno.core.database.exception.DbExceptionMapper
 import id.darno.core.database.config.JdbcType
-import id.darno.core.database.configureDatabase
-import id.darno.core.database.config.databaseConfig
+import id.darno.core.database.configureMainDatabase
+import id.darno.core.database.config.mainDatabaseConfig
+import id.darno.core.database.configureReportingDatabase
 import id.darno.core.database.exception.mapper.MariaDbExceptionMapper
 import id.darno.core.database.exception.mapper.MySqlExceptionMapper
 import id.darno.core.database.exception.mapper.PostgreSqlExceptionMapper
@@ -112,7 +113,8 @@ fun Application.configureInfrastructure(config: ApplicationConfig){
         cacheActive(!isDev)
     }
     // Database
-    configureDatabase()
+    configureMainDatabase()
+    configureReportingDatabase()
     // File Storage
     val storageConfig = storageConfig()
     dependencies{
@@ -131,10 +133,10 @@ fun Application.configureDependencies(config: ApplicationConfig){
         ?.toBoolean()
         ?: false
 
-    val dbConfig = databaseConfig()
+    val databaseConfig = mainDatabaseConfig()
 
     dependencies {
-        when (dbConfig.type) {
+        when (databaseConfig.type) {
             JdbcType.MARIADB -> {
                 provide<DbExceptionMapper> {
                     MariaDbExceptionMapper()

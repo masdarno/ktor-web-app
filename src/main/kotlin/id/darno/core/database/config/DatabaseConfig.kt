@@ -1,8 +1,5 @@
 package id.darno.core.database.config
 
-import io.ktor.server.application.*
-import io.ktor.server.config.*
-
 data class DatabaseConfig(
     val type: JdbcType,
     val host: String,
@@ -25,52 +22,4 @@ data class DatabaseConfig(
         // password boleh kosong di beberapa kasus (misalnya trust auth Postgres), jadi tidak wajib
         if (port != null) require(port in 1..65535) { "Port must be between 1 and 65535" }
     }
-}
-
-fun Application.databaseConfig(): DatabaseConfig =
-    environment.config.databaseConfig()
-
-fun ApplicationConfig.databaseConfig(): DatabaseConfig {
-    val dbConfig = try {
-        config("db")
-    } catch (e: ApplicationConfigurationException) {
-        throw IllegalStateException(
-            "Missing 'db' configuration section in application.yaml",
-            e
-        )
-    }
-
-    fun ApplicationConfig.requiredString(path: String): String =
-        propertyOrNull(path)?.getString()?.trim()
-            ?: throw IllegalArgumentException(
-                "Required configuration 'db.$path' is missing"
-            )
-
-    fun ApplicationConfig.optionalInt(path: String): Int? =
-        propertyOrNull(path)?.getString()?.trim()?.toIntOrNull()
-            ?: run {
-                propertyOrNull(path)?.let {
-                    throw IllegalArgumentException(
-                        "Invalid integer value for 'db.$path'"
-                    )
-                }
-                null
-            }
-
-    val type = JdbcType.fromString(dbConfig.requiredString("type"))
-    val host = dbConfig.requiredString("host")
-    val port = dbConfig.optionalInt("port")
-    val name = dbConfig.requiredString("name")
-    val user = dbConfig.requiredString("user")
-    val password =
-        dbConfig.propertyOrNull("password")?.getString()?.trim() ?: ""
-
-    return DatabaseConfig(
-        type = type,
-        host = host,
-        port = port,
-        name = name,
-        user = user,
-        password = password
-    )
 }

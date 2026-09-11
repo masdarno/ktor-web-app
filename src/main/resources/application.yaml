@@ -17,6 +17,13 @@ db:
   user: ${DB_USER}
   password: ${DB_PASSWORD}
   type: ${DB_TYPE}
+  reporting:
+    host: "${DB_REPORTING_HOST:}"
+    port: "${DB_REPORTING_PORT:}"
+    name: "${DB_REPORTING_NAME:}"
+    user: ${DB_REPORTING_USER}
+    password: "${DB_REPORTING_PASSWORD:}"
+    type: "${DB_REPORTING_TYPE:}"
 storage:
   type: ${STORAGE_TYPE}
   base-path: ${STORAGE_BASE_PATH}

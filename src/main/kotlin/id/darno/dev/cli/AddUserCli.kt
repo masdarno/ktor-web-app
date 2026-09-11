@@ -1,9 +1,9 @@
 package id.darno.dev.cli
 
-import id.darno.core.database.provider.DatabaseProvider
+import id.darno.core.database.provider.MainConnectionProvider
 import id.darno.core.database.query.DatabaseQuery
 import id.darno.core.database.exception.mapper.MariaDbExceptionMapper
-import id.darno.core.database.config.databaseConfig
+import id.darno.core.database.config.mainDatabaseConfig
 import id.darno.core.security.crypto.BCryptHasher
 import id.darno.module.user.config.userPhotoUrlConfig
 import id.darno.module.user.repository.UserProvisioningRepositoryImpl
@@ -48,8 +48,8 @@ fun main(args: Array<String>) {
         return
     }
 
-    val dbConfig = config.databaseConfig()
-    val dbProvider = DatabaseProvider(dbConfig)
+    val dbConfig = config.mainDatabaseConfig()
+    val dbProvider = MainConnectionProvider(dbConfig)
 
     try {
         dbProvider.connect()
