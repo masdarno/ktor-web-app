@@ -48,3 +48,33 @@ select a.id, b.id
 from roles a, menus b
 where a.id in (3)
 and b.id not in (@daftar_pengguna, @pengguna_unit);
+
+-- User Superadmin
+insert into users(nama, alias, username, password, role_id, email, email_verified_at)
+values ('Superadmin', 'Super', 'super', '$2a$10$mpfckf1HQdfMep4eiSz8teQzhf/NCHi6S9OgVil/Tki99nY9ilpt.', 1, 'super@mail.com', current_timestamp);
+
+insert into user_units (user_id, unit_id)
+select last_insert_id(), id
+from units;
+
+-- ==========================================================================================
+-- WILAYAH
+-- ==========================================================================================
+insert into provinsi(kode, nama)
+select id, name
+from wilayah_indonesia.reg_provinces;
+
+insert into kabupaten (provinsi_id, kode, nama)
+select b.id provinsi_id, a.id kode, a.name nama
+from wilayah_indonesia.reg_regencies a
+join provinsi b on a.province_id  = b.kode;
+
+insert into kecamatan (kabupaten_id, kode, nama)
+select b.id, a.id, a.name
+from wilayah_indonesia.reg_districts a
+join kabupaten b on a.regency_id = b.kode;
+
+insert into kelurahan (kecamatan_id, kode, nama)
+select b.id, a.id, a.name
+from wilayah_indonesia.reg_villages a
+join kecamatan b on a.district_id = b.kode;

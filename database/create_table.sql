@@ -126,3 +126,70 @@ create table `remember_me_tokens` (
   foreign key (`user_id`) references `users` (`id`) on delete cascade,
   foreign key (`unit_id`) references `units` (`id`) on delete cascade
 );
+-- ==========================================================================================
+-- WILAYAH
+-- ==========================================================================================
+create table `provinsi` (
+  `id` tinyint unsigned auto_increment,
+  `kode` char(2) not null unique,
+  `nama` varchar(50) not null default '' unique,
+  `is_active` tinyint unsigned not null default 1 check (is_active in (0, 1)),
+  `created_at` datetime default current_timestamp(),
+  `created_by` tinyint unsigned not null default 1,
+  `updated_at` datetime default null on update current_timestamp(),
+  `updated_by` tinyint unsigned,
+  primary key (`id`),
+  foreign key (`created_by`) references `users` (`id`) on update cascade,
+  foreign key (`updated_by`) references `users` (`id`) on update cascade
+);
+
+create table `kabupaten` (
+  `id` smallint unsigned auto_increment,
+  `provinsi_id` tinyint unsigned not null,
+  `kode` char(4) not null,
+  `nama` varchar(50) not null default '',
+  `is_active` tinyint unsigned not null default 1 check (is_active in (0, 1)),
+  `created_at` datetime default current_timestamp(),
+  `created_by` tinyint unsigned not null default 1,
+  `updated_at` datetime default null on update current_timestamp(),
+  `updated_by` tinyint unsigned,
+  primary key (`id`),
+  unique key `kabupaten-kode-unique` (`provinsi_id`,`kode`),
+  foreign key (`provinsi_id`) references `provinsi` (`id`) on update cascade,
+  foreign key (`created_by`) references `users` (`id`) on update cascade,
+  foreign key (`updated_by`) references `users` (`id`) on update cascade
+);
+
+create table `kecamatan` (
+  `id` smallint unsigned auto_increment,
+  `kabupaten_id` smallint unsigned not null,
+  `kode` char(6) not null,
+  `nama` varchar(50) not null default '',
+  `is_active` tinyint unsigned not null default 1 check (is_active in (0, 1)),
+  `created_at` datetime default current_timestamp(),
+  `created_by` tinyint unsigned not null default 1,
+  `updated_at` datetime default null on update current_timestamp(),
+  `updated_by` tinyint unsigned,
+  primary key (`id`),
+  unique key `kecamatan-kode-unique` (`kabupaten_id`,`kode`),
+  foreign key (`kabupaten_id`) references `kabupaten` (`id`) on update cascade,
+  foreign key (`created_by`) references `users` (`id`) on update cascade,
+  foreign key (`updated_by`) references `users` (`id`) on update cascade
+);
+
+create table `kelurahan` (
+  `id` mediumint(8) unsigned auto_increment,
+  `kecamatan_id` smallint unsigned not null,
+  `kode` char(10) not null,
+  `nama` varchar(50) not null default '',
+  `is_active` tinyint unsigned not null default 1 check (is_active in (0, 1)),
+  `created_at` datetime default current_timestamp(),
+  `created_by` tinyint unsigned not null default 1,
+  `updated_at` datetime default null on update current_timestamp(),
+  `updated_by` tinyint unsigned,
+  primary key (`id`),
+  unique key `kelurahan-kode-unique` (`kecamatan_id`,`kode`),
+  foreign key (`kecamatan_id`) references `kecamatan` (`id`) on update cascade,
+  foreign key (`created_by`) references `users` (`id`) on update cascade,
+  foreign key (`updated_by`) references `users` (`id`) on update cascade
+);
