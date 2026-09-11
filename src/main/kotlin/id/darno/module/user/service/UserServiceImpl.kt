@@ -145,4 +145,45 @@ class UserServiceImpl(
             )
         )
     }
+    override suspend fun generateReportFromQuery(
+        search: String?,
+        format: ReportFormat
+    ): ReportFile {
+        val kopSurat = companyProfileRepository.find()
+
+        val sql = """
+        select a.nama, username, email,
+               (case when email_verified_at is not null then 'Terverifikasi FQ' else '' end) verified,
+               b.nama role
+        from users a
+        join roles b on a.role_id = b.id
+        where (? is null or a.nama like concat('%', ?, '%'))
+    """.trimIndent()
+
+        return jasperReportService.generateFromQuery(
+            reportPath = "reports/users.jasper",
+            format = format,
+            sql = sql,
+            sqlParams = listOf(search, search),
+            fileName = "users",
+            parameters = mapOf("KOP_SURAT" to kopSurat)
+        )
+    }
+
+    override suspend fun generateReportFromConnection(
+        search: String?,
+        format: ReportFormat
+    ): ReportFile {
+        val kopSurat = companyProfileRepository.find()
+
+        return jasperReportService.generateFromConnection(
+            reportPath = "reports/users.jasper",
+            format = format,
+            fileName = "users",
+            parameters = mapOf(
+                "KOP_SURAT" to kopSurat,
+                "SEARCH_KEYWORD" to search   // ini yang dipakai $P{SEARCH_KEYWORD} di query jrxml
+            )
+        )
+    }
 }

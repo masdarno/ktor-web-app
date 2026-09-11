@@ -1,10 +1,12 @@
 package id.darno.core.report
 
+import id.darno.core.database.provider.ReportingConnectionProvider
 import id.darno.core.report.model.ReportFile
 import id.darno.core.report.model.ReportFormat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.sf.jasperreports.engine.JRDataSource
+import net.sf.jasperreports.engine.JRResultSetDataSource
 import net.sf.jasperreports.engine.JasperFillManager
 import net.sf.jasperreports.engine.JasperPrint
 import net.sf.jasperreports.engine.SimpleJasperReportsContext
@@ -23,7 +25,9 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.StringWriter
 
-class JasperReportService {
+class JasperReportService(
+    private val reportingConnectionProvider: ReportingConnectionProvider? = null
+)  {
 
     companion object {
         private const val REPORT_ROOT = "reports"
@@ -172,6 +176,142 @@ class JasperReportService {
             ),
             contentType = format.contentType
         )
+    }
+
+    /**
+     * Generate report langsung dari JDBC (streaming), dipakai untuk
+     * dataset besar yang tidak realistis di-load penuh ke memori
+     * sebagai Collection<DTO>. Memakai pool koneksi reporting yang
+     * terpisah dari pool aplikasi.
+     */
+    suspend fun generateFromQuery(
+        reportPath: String,
+        format: ReportFormat,
+        sql: String,
+        sqlParams: List<Any?> = emptyList(),
+        parameters: Map<String, Any?> = emptyMap(),
+        fileName: String? = null,
+        fetchSize: Int = 500
+    ): ReportFile = withContext(Dispatchers.IO) {
+
+        val provider = requireNotNull(reportingConnectionProvider) {
+            "ReportingConnectionProvider belum di-inject ke JasperReportService"
+        }
+
+        validateReportPath(reportPath)
+
+        provider.dataSource.connection.use { connection ->
+
+            val driverName = connection.metaData.driverName
+
+            if (driverName.contains("PostgreSQL", ignoreCase = true)) {
+                connection.autoCommit = false
+            }
+
+            connection.prepareStatement(
+                sql,
+                java.sql.ResultSet.TYPE_FORWARD_ONLY,
+                java.sql.ResultSet.CONCUR_READ_ONLY
+            ).use { statement ->
+
+                val isTrueMySql = driverName.contains("MySQL Connector/J", ignoreCase = true)
+                statement.fetchSize = if (isTrueMySql) Integer.MIN_VALUE else fetchSize
+
+                sqlParams.forEachIndexed { idx, value ->
+                    statement.setObject(idx + 1, value)
+                }
+
+                statement.executeQuery().use { resultSet ->
+
+                    val dataSource = JRResultSetDataSource(resultSet)
+
+                    val effectiveClassLoader =
+                        resolveClassLoaderNullable(emptyList<Any>(), parameters)
+
+                    val jasperParameters = parameters.toMutableMap()
+                    jasperParameters["REPORT_CLASS_LOADER"] = effectiveClassLoader
+
+                    val repositoryReportPath = resolveReportPath(reportPath)
+                    val originalContextClassLoader = Thread.currentThread().contextClassLoader
+
+                    val jasperPrint = try {
+                        JRResourcesUtil.setThreadClassLoader(effectiveClassLoader)
+                        Thread.currentThread().contextClassLoader = effectiveClassLoader
+
+                        JasperFillManager
+                            .getInstance(context)
+                            .fillFromRepo(repositoryReportPath, jasperParameters, dataSource)
+                    } finally {
+                        JRResourcesUtil.resetClassLoader()
+                        Thread.currentThread().contextClassLoader = originalContextClassLoader
+                    }
+
+                    val content = export(jasperPrint, format)
+
+                    // <-- INI harus jadi ekspresi TERAKHIR di blok resultSet.use{}
+                    ReportFile(
+                        content = content,
+                        fileName = buildFileName(fileName, reportPath, format),
+                        contentType = format.contentType
+                    )
+                } // <-- statement.executeQuery().use{} return ReportFile
+            } // <-- connection.prepareStatement(...).use{} return ReportFile (diteruskan dari atas)
+        } // <-- provider.dataSource.connection.use{} return ReportFile (diteruskan dari atas)
+    }
+
+    /**
+     * Generate report dengan query yang SUDAH didefinisikan di dalam
+     * .jrxml (queryString). JasperReports sendiri yang mengeksekusi
+     * SQL-nya lewat connection ini, streaming baris demi baris.
+     */
+    suspend fun generateFromConnection(
+        reportPath: String,
+        format: ReportFormat,
+        parameters: Map<String, Any?> = emptyMap(),
+        fileName: String? = null
+    ): ReportFile = withContext(Dispatchers.IO) {
+
+        val provider = requireNotNull(reportingConnectionProvider) {
+            "ReportingConnectionProvider belum di-inject ke JasperReportService"
+        }
+
+        validateReportPath(reportPath)
+
+        provider.dataSource.connection.use { connection ->
+
+            if (connection.metaData.driverName.contains("PostgreSQL", ignoreCase = true)) {
+                connection.autoCommit = false
+            }
+
+            val effectiveClassLoader =
+                resolveClassLoaderNullable(emptyList<Any>(), parameters)
+
+            val jasperParameters = parameters.toMutableMap()
+            jasperParameters["REPORT_CLASS_LOADER"] = effectiveClassLoader
+
+            val repositoryReportPath = resolveReportPath(reportPath)
+            val originalContextClassLoader = Thread.currentThread().contextClassLoader
+
+            val jasperPrint = try {
+                JRResourcesUtil.setThreadClassLoader(effectiveClassLoader)
+                Thread.currentThread().contextClassLoader = effectiveClassLoader
+
+                JasperFillManager
+                    .getInstance(context)
+                    .fillFromRepo(repositoryReportPath, jasperParameters, connection)
+            } finally {
+                JRResourcesUtil.resetClassLoader()
+                Thread.currentThread().contextClassLoader = originalContextClassLoader
+            }
+
+            val content = export(jasperPrint, format)
+
+            ReportFile(
+                content = content,
+                fileName = buildFileName(fileName, reportPath, format),
+                contentType = format.contentType
+            )
+        }
     }
 
     /*
@@ -473,4 +613,27 @@ class JasperReportService {
 
         return "$baseName.${format.extension}"
     }
+
+    /**
+     * Varian resolveClassLoader() untuk method baru yang menerima
+     * parameter nullable (Map<String, Any?>). TIDAK menggantikan
+     * resolveClassLoader() yang lama — supaya generate() existing
+     * tidak perlu diubah sama sekali.
+     */
+    private fun resolveClassLoaderNullable(
+        data: Collection<*>,
+        parameters: Map<String, Any?>
+    ): ClassLoader {
+        val fromData = data.firstOrNull()
+
+        val fromParameters = parameters.values.firstOrNull { value ->
+            value != null && !isFrameworkType(value)
+        }
+
+        return (fromData ?: fromParameters)
+            ?.javaClass
+            ?.classLoader
+            ?: classLoader
+    }
+
 }

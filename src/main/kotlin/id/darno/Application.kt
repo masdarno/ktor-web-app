@@ -9,6 +9,7 @@ import id.darno.core.database.configureReportingDatabase
 import id.darno.core.database.exception.mapper.MariaDbExceptionMapper
 import id.darno.core.database.exception.mapper.MySqlExceptionMapper
 import id.darno.core.database.exception.mapper.PostgreSqlExceptionMapper
+import id.darno.core.database.provider.ReportingConnectionProvider
 import id.darno.core.exceptions.ForbiddenException
 import id.darno.core.htmx.exception.HtmxFormException
 import id.darno.core.htmx.model.ToastType
@@ -175,7 +176,9 @@ fun Application.configureDependencies(config: ApplicationConfig){
         }
         // Reporting
         provide<JasperReportService> {
-            JasperReportService()
+            JasperReportService(
+                reportingConnectionProvider = resolve<ReportingConnectionProvider>()
+            )
         }
     }
     configureMenuDependencies()

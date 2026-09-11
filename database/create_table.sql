@@ -88,7 +88,7 @@ create table `units` (
   `created_at` datetime default current_timestamp(),
   `updated_at` datetime default null on update current_timestamp(),
   primary key (`id`),
-  foreign key (`company_profile_id`) references `company_profiles` (`id`),
+  foreign key (`company_profile_id`) references `company_profiles` (`id`)
 );
 
 create table `user_units` (

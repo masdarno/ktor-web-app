@@ -20,4 +20,6 @@ interface UserService {
     suspend fun userHasUnit(userId: Short, unitId: Short): Boolean
     suspend fun getUserTable(query: PagedQuery): PagedResult<UserListItem>
     suspend fun generateReport(search: String?, format: ReportFormat = ReportFormat.PDF): ReportFile
+    suspend fun generateReportFromQuery(search: String?, format: ReportFormat = ReportFormat.PDF): ReportFile
+    suspend fun generateReportFromConnection(search: String?, format: ReportFormat = ReportFormat.PDF): ReportFile
 }
