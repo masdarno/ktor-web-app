@@ -27,7 +27,7 @@ insert into units (nama) values
 
 insert into menus (type, nama) values ('title', 'Master');
 set @master = LAST_INSERT_ID();
-insert into menus (type, nama, url, icon) values ('group', 'Pengguna', '#', 'cil-star');
+insert into menus (type, nama, url, icon) values ('group', 'Pengguna', '#', 'cil-user');
 set @master_pengguna = LAST_INSERT_ID();
 insert into menus (parent_id, type, nama, url, icon) values (@master_pengguna, 'item', 'Daftar Pengguna', '/users', 'cil-user');
 set @daftar_pengguna = LAST_INSERT_ID();
@@ -35,6 +35,18 @@ insert into menus (parent_id, type, nama, url, icon) values (@master_pengguna, '
 set @pengguna_unit = LAST_INSERT_ID();
 insert into menus (parent_id, type, nama, url, icon) values (@master_pengguna, 'item', 'Ubah Password', '/change-password', 'cil-user');
 set @ubah_password = LAST_INSERT_ID();
+
+insert into menus (type, nama, url, icon) values ('group', 'Wilayah', '#', 'cil-location-pin');
+set @master_wilayah = LAST_INSERT_ID();
+insert into menus (parent_id, type, nama, url) values (@master_wilayah, 'item', 'Daftar Provinsi', 'wilayah/provinsi');
+set @daftar_provinsi = LAST_INSERT_ID();
+insert into menus (parent_id, type, nama, url) values (@master_wilayah, 'item', 'Daftar Kabupaten', 'wilayah/kabupaten');
+set @daftar_kabupaten = LAST_INSERT_ID();
+insert into menus (parent_id, type, nama, url) values (@master_wilayah, 'item', 'Daftar Kecamatan', 'wilayah/kecamatan');
+set @daftar_kecamatan = LAST_INSERT_ID();
+insert into menus (parent_id, type, nama, url) values (@master_wilayah, 'item', 'Daftar Kelurahan', 'wilayah/kelurahan');
+set @daftar_kelurahan = LAST_INSERT_ID();
+
 
 -- menu SuperAdmin & Admin
 insert into role_menus (role_id, menu_id)

@@ -42,6 +42,7 @@ import id.darno.module.role.service.RoleMenuCacheService
 import id.darno.module.unit.configureUnitDependencies
 import id.darno.module.user.configureUserDependencies
 import id.darno.module.user.configureUserModule
+import id.darno.module.wilayah.configureWilayahModule
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -213,6 +214,7 @@ fun Application.configureRoutes(){
 
     configureUserModule()
     configureAuthModule()
+    configureWilayahModule()
 }
 
 fun Application.configureSessions() {

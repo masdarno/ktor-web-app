@@ -1,0 +1,8 @@
+{% if kecamatanList is empty %}
+<option value="">-- Tidak ada kecamatan --</option>
+{% endif %}
+{% for kecamatan in kecamatanList %}
+<option value="{{ kecamatan.id }}" {% if selectedId == kecamatan.id %}selected{% endif %}>
+  {{ kecamatan.nama }}
+</option>
+{% endfor %}

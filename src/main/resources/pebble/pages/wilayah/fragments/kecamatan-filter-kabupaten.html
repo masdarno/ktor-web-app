@@ -1,0 +1,19 @@
+<select
+        class="form-select table-params"
+        name="kabupatenId"
+        id="filterKabupatenId"
+        hx-get="/wilayah/kecamatan/table"
+        hx-target="#table-container"
+        hx-trigger="{% if autoLoad %}load, {% endif %}change"
+        hx-push-url="false"
+        hx-include=".table-params, .table-sort"
+>
+    {% if kabupatenList is empty %}
+    <option value="">-- Tidak ada kabupaten --</option>
+    {% endif %}
+    {% for kabupaten in kabupatenList %}
+    <option value="{{ kabupaten.id }}" {% if selectedKabupatenId == kabupaten.id %}selected{% endif %}>
+        {{ kabupaten.nama }}
+    </option>
+    {% endfor %}
+</select>
