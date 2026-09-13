@@ -29,11 +29,11 @@ insert into menus (type, nama) values ('title', 'Master');
 set @master = LAST_INSERT_ID();
 insert into menus (type, nama, url, icon) values ('group', 'Pengguna', '#', 'cil-user');
 set @master_pengguna = LAST_INSERT_ID();
-insert into menus (parent_id, type, nama, url, icon) values (@master_pengguna, 'item', 'Daftar Pengguna', '/users', 'cil-user');
+insert into menus (parent_id, type, nama, url) values (@master_pengguna, 'item', 'Daftar Pengguna', '/users');
 set @daftar_pengguna = LAST_INSERT_ID();
-insert into menus (parent_id, type, nama, url, icon) values (@master_pengguna, 'item', 'Pengguna Unit', '/user-unit', 'cil-user');
+insert into menus (parent_id, type, nama, url) values (@master_pengguna, 'item', 'Pengguna Unit', '/user-unit');
 set @pengguna_unit = LAST_INSERT_ID();
-insert into menus (parent_id, type, nama, url, icon) values (@master_pengguna, 'item', 'Ubah Password', '/change-password', 'cil-user');
+insert into menus (parent_id, type, nama, url) values (@master_pengguna, 'item', 'Ubah Password', '/change-password');
 set @ubah_password = LAST_INSERT_ID();
 
 insert into menus (type, nama, url, icon) values ('group', 'Wilayah', '#', 'cil-location-pin');
