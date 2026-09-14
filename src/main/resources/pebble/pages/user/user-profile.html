@@ -1,46 +1,108 @@
 {% extends "layouts/app.html" %}
 
 {% block content %}
+
 <div class="row">
     <div class="col-12">
+
         <div class="card mb-4">
-            <div class="card-header">Profile Information</div>
+
+            <div class="card-header">
+                Profile Information
+            </div>
+
             <div class="card-body position-relative p-4">
-                <form hx-put="/user-profile/{{formData.id}}"
-                      hx-target="#form-container"
-                      hx-swap="innerHTML"
-                      id="my-form"
-                      class="row g-3 needs-validation"
-                      novalidate=""
-                      autocomplete="off"
-                      enctype="multipart/form-data">
+
+                <!-- =========================================
+                     FOTO PROFIL
+                     ========================================= -->
+
+                <div id="photo-container">
+
+                    {% include "pages/user/fragments/user-profile-photo.html" %}
+
+                </div>
+
+
+                <hr class="my-4">
+
+
+                <!-- =========================================
+                     DATA PROFILE
+                     ========================================= -->
+
+                <form
+                        hx-put="/user-profile/{{ formData.id }}"
+                        hx-target="#form-container"
+                        hx-swap="innerHTML"
+                        id="profile-form"
+                        class="row g-3"
+                        autocomplete="off">
 
                     <div id="form-container">
+
                         {% include "pages/user/fragments/user-profile-form.html" %}
+
                     </div>
 
                 </form>
-                <script>
-                    function previewImage(event) {
-                      const file = event.target.files[0];
-                      const preview = document.getElementById('preview');
-                      if (file) {
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                          preview.src = e.target.result;
-                          preview.style.display = 'block';
-                        }
-                        reader.readAsDataURL(file);
-                      }
-                    }
-                </script>
+
             </div>
+
+
+            <!-- =============================================
+                 PROFILE SAVE BUTTON
+                 ============================================= -->
+
             <div class="card-footer">
-                <button class="btn btn-block btn-success" type="submit" form="my-form">
+
+                <button
+                        class="btn btn-block btn-success"
+                        type="submit"
+                        form="profile-form">
+
                     Simpan
+
                 </button>
+
             </div>
+
         </div>
+
     </div>
 </div>
+
+
+<script>
+
+    function previewImage(event) {
+
+        const file =
+            event.target.files[0];
+
+        const preview =
+            document.getElementById('preview');
+
+        if (!file) {
+            return;
+        }
+
+        const reader =
+            new FileReader();
+
+        reader.onload =
+            function (e) {
+
+                preview.src =
+                    e.target.result;
+
+                preview.style.display =
+                    'block';
+            };
+
+        reader.readAsDataURL(file);
+    }
+
+</script>
+
 {% endblock %}

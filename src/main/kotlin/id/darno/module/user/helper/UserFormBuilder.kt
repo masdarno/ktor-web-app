@@ -2,6 +2,7 @@ package id.darno.module.user.helper
 
 import id.darno.core.exceptions.BadRequestException
 import id.darno.module.user.dto.CreateUserRequest
+import id.darno.module.user.dto.UpdateUserProfileRequest
 import id.darno.module.user.dto.UpdateUserRequest
 import io.ktor.http.*
 
@@ -28,6 +29,14 @@ object UserFormBuilder {
             roleId = params["roleId"]
                 ?.toShortOrNull()
                 ?: throw BadRequestException("Role wajib diisi")
+        )
+    }
+
+    fun profile(params: Parameters): UpdateUserProfileRequest {
+        return UpdateUserProfileRequest(
+            nama = params["nama"].sanitize(),
+            alias = params["alias"].sanitize(),
+            email = params["email"].sanitizeLower()
         )
     }
 
