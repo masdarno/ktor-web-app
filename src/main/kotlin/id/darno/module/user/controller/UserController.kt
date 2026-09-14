@@ -10,12 +10,14 @@ import id.darno.core.pageddata.helper.pagedQueryParameters
 import id.darno.core.pebble.helper.respondPebblePage
 import id.darno.core.report.helper.respondReport
 import id.darno.core.session.model.UserSession
-import id.darno.core.validation.valiktor.helper.errors
+import id.darno.core.validation.toErrorMap
 import id.darno.module.role.service.RoleService
 import id.darno.module.user.helper.UserFormBuilder
 import id.darno.module.user.mapper.toCreateUserParams
 import id.darno.module.user.mapper.toUpdateUserParams
 import id.darno.module.user.service.UserService
+import id.darno.module.user.validator.CreateUserValidator
+import id.darno.module.user.validator.UpdateUserValidator
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.pebble.*
@@ -23,23 +25,40 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.sessions.*
 import org.slf4j.LoggerFactory
-import org.valiktor.ConstraintViolationException
 
-class UserController(private val userService: UserService, private val roleService: RoleService) {
+class UserController(
+    private val userService: UserService,
+    private val roleService: RoleService
+) {
 
-    private val logger = LoggerFactory.getLogger(UserController::class.java)
+    private val logger =
+        LoggerFactory.getLogger(UserController::class.java)
 
     companion object {
-        private const val TEMPLATE_PAGE = "pages/user/users.html"
-        private const val TEMPLATE_TABLE = "pages/user/fragments/users-table.html"
-        private const val TEMPLATE_FORM = "pages/user/fragments/users-form.html"
-        private const val PAGE_TITLE = "Daftar User"
+        private const val TEMPLATE_PAGE =
+            "pages/user/users.html"
+
+        private const val TEMPLATE_TABLE =
+            "pages/user/fragments/users-table.html"
+
+        private const val TEMPLATE_FORM =
+            "pages/user/fragments/users-form.html"
+
+        private const val PAGE_TITLE =
+            "Daftar User"
     }
+
+    // =========================================================
+    // INDEX
+    // =========================================================
 
     suspend fun index(call: ApplicationCall) {
 
-        val query = call.pagedQueryParameters()
-        val result = userService.getUserTable(query)
+        val query =
+            call.pagedQueryParameters()
+
+        val result =
+            userService.getUserTable(query)
 
         call.respondPebblePage(
             TEMPLATE_PAGE,
@@ -47,12 +66,21 @@ class UserController(private val userService: UserService, private val roleServi
                 "title" to PAGE_TITLE,
                 "result" to result,
                 "params" to query
-            ))
+            )
+        )
     }
 
+    // =========================================================
+    // TABLE
+    // =========================================================
+
     suspend fun table(call: ApplicationCall) {
-        val query = call.pagedQueryParameters()
-        val result = userService.getUserTable(query)
+
+        val query =
+            call.pagedQueryParameters()
+
+        val result =
+            userService.getUserTable(query)
 
         call.respond(
             PebbleContent(
@@ -65,13 +93,26 @@ class UserController(private val userService: UserService, private val roleServi
         )
     }
 
+    // =========================================================
+    // FORM
+    // =========================================================
+
     suspend fun form(call: ApplicationCall) {
 
-        val parameters = call.request.queryParameters
-        val id = parameters["id"]?.toShortOrNull()
-        val mode = parameters["mode"] ?: "add"
+        val parameters =
+            call.request.queryParameters
 
-        val formData = id?.let { loadFormData(it) } ?: emptyMap()
+        val id =
+            parameters["id"]
+                ?.toShortOrNull()
+
+        val mode =
+            parameters["mode"]
+                ?: "add"
+
+        val formData =
+            id?.let { loadFormData(it) }
+                ?: emptyMap()
 
         call.respond(
             PebbleContent(
@@ -85,40 +126,73 @@ class UserController(private val userService: UserService, private val roleServi
         )
     }
 
+    // =========================================================
+    // CREATE
+    // =========================================================
+
     suspend fun create(call: ApplicationCall) {
-        val parameters = call.receiveParameters()
 
-        try {
-            val request = UserFormBuilder.create(parameters)
+        val parameters =
+            call.receiveParameters()
 
-            val user = userService.create(request.toCreateUserParams())
+        val request =
+            UserFormBuilder.create(parameters)
 
-            logger.info("User created successfully: {}", user.nama)
+        val validationErrors =
+            CreateUserValidator.validate(request)
 
-            call.hxTriggerWithToast(
-                "User ${user.nama} BERHASIL disimpan.",
-                ToastType.SUCCESS,
-                "user-saved")
-            call.respond(HttpStatusCode.Created)
+        if (validationErrors.isNotEmpty()) {
 
-        } catch (ex: ConstraintViolationException) {
-            // ERROR VALIDASI VALIKTOR
-            logger.warn("Validation failed for user creation: {}", ex.constraintViolations)
+            logger.warn(
+                "Validation failed for user creation: {}",
+                validationErrors
+            )
 
             throw HtmxFormException(
                 templatePath = TEMPLATE_FORM,
-                errors = ex.errors(),
+                errors = validationErrors.toErrorMap(),
                 formData = parameters.toFormData(),
                 formElement = formContext(),
                 mode = "add"
             )
+        }
+
+        try {
+
+            val user =
+                userService.create(
+                    request.toCreateUserParams()
+                )
+
+            logger.info(
+                "User created successfully: {}",
+                user.nama
+            )
+
+            call.hxTriggerWithToast(
+                "User ${user.nama} BERHASIL disimpan.",
+                ToastType.SUCCESS,
+                "user-saved"
+            )
+
+            call.respond(
+                HttpStatusCode.Created
+            )
+
         } catch (ex: ApplicationException) {
-            // ERROR SERVICE/REPOSITORY
-            logger.error("Failed to create user: {}", parameters["nama"], ex)
+
+            logger.error(
+                "Failed to create user: {}",
+                parameters["nama"],
+                ex
+            )
 
             throw HtmxFormException(
                 templatePath = TEMPLATE_FORM,
-                errors = mapOf(mapErrorKey(ex) to (ex.message ?: "Ada kesalahan")),
+                errors = mapOf(
+                    mapErrorKey(ex) to
+                            (ex.message ?: "Ada kesalahan")
+                ),
                 formData = parameters.toFormData(),
                 formElement = formContext(),
                 mode = "add"
@@ -126,18 +200,68 @@ class UserController(private val userService: UserService, private val roleServi
         }
     }
 
-    suspend fun update(call: ApplicationCall, userId: Short) {
-        val session = call.sessions.get<UserSession>()
-            ?: return call.respondUniversalRedirect("/login")
+    // =========================================================
+    // UPDATE
+    // =========================================================
 
-        val parameters = call.receiveParameters()
+    suspend fun update(
+        call: ApplicationCall,
+        userId: Short
+    ) {
+
+        val session =
+            call.sessions.get<UserSession>()
+                ?: return call.respondUniversalRedirect(
+                    "/login"
+                )
+
+        val parameters =
+            call.receiveParameters()
+
+        val request =
+            UserFormBuilder.update(parameters)
+
+        val validationErrors =
+            UpdateUserValidator.validate(request)
+
+        if (validationErrors.isNotEmpty()) {
+
+            logger.warn(
+                "Validation failed for user update (id: {}): {}",
+                userId,
+                validationErrors
+            )
+
+            throw HtmxFormException(
+                templatePath = TEMPLATE_FORM,
+                errors = validationErrors.toErrorMap(),
+                formData =
+                    parameters.toFormData(
+                        "id" to userId
+                    ),
+                formElement = formContext(),
+                mode = "edit"
+            )
+        }
 
         try {
-            val request = UserFormBuilder.update(parameters)
 
-            val user = userService.update(userId, request.toUpdateUserParams())
+            val user =
+                userService.update(
+                    userId,
+                    request.toUpdateUserParams()
+                )
 
-            if(userId == session.userId && session.roleId != user.roleId){
+            /*
+             * Jika user yang sedang login mengubah dirinya sendiri
+             * dan role berubah, update session agar role/menu
+             * langsung mengikuti data terbaru.
+             */
+            if (
+                userId == session.userId &&
+                session.roleId != user.roleId
+            ) {
+
                 call.sessions.set(
                     session.copy(
                         roleId = user.roleId,
@@ -146,72 +270,136 @@ class UserController(private val userService: UserService, private val roleServi
                 )
             }
 
-            logger.info("User updated successfully: {} (id: {})", user.nama, userId)
+            logger.info(
+                "User updated successfully: {} (id: {})",
+                user.nama,
+                userId
+            )
 
             call.hxTriggerWithToast(
                 "User ${user.nama} BERHASIL disimpan.",
                 ToastType.SUCCESS,
-                "user-saved")
-            call.respond(HttpStatusCode.OK)
-
-        } catch (ex: ConstraintViolationException) {
-            // EROR VALIDASI VALIKTOR
-            logger.warn("Validation failed for user update (id: $userId)", ex)
-
-            throw HtmxFormException(
-                templatePath = TEMPLATE_FORM,
-                errors = ex.errors(),
-                formData = parameters.toFormData() + ("id" to userId.toString()),
-                formElement = formContext(),
-                mode = "edit"
+                "user-saved"
             )
+
+            call.respond(
+                HttpStatusCode.OK
+            )
+
         } catch (ex: ApplicationException) {
-            // ERROR SERVICE/REPOSITORY
-            logger.error("Failed to update user (id: $userId): ${parameters["nama"]}", ex)
+
+            logger.error(
+                "Failed to update user (id: $userId): ${parameters["nama"]}",
+                ex
+            )
 
             throw HtmxFormException(
                 templatePath = TEMPLATE_FORM,
-                errors = mapOf(mapErrorKey(ex) to (ex.message ?: "Ada kesalahan")),
-                formData = parameters.toFormData() + ("id" to userId.toString()),
+                errors = mapOf(
+                    mapErrorKey(ex) to
+                            (ex.message ?: "Ada kesalahan")
+                ),
+                formData =
+                    parameters.toFormData(
+                        "id" to userId
+                    ),
                 formElement = formContext(),
                 mode = "edit"
             )
         }
     }
 
-    suspend fun delete(call: ApplicationCall, id: Short) {
+    // =========================================================
+    // DELETE
+    // =========================================================
+
+    suspend fun delete(
+        call: ApplicationCall,
+        id: Short
+    ) {
+
         try {
+
             userService.delete(id)
+
             call.hxTriggerWithToast(
                 "User BERHASIL dihapus.",
                 ToastType.SUCCESS,
-                "user-deleted")
-            call.respond(HttpStatusCode.NoContent)
-        } catch (e: ApplicationException) {
-            logger.error("Failed to delete user (id: {})", id, e)
+                "user-deleted"
+            )
+
+            call.respond(
+                HttpStatusCode.NoContent
+            )
+
+        } catch (ex: ApplicationException) {
+
+            logger.error(
+                "Failed to delete user (id: {})",
+                id,
+                ex
+            )
 
             call.hxTriggerWithToast(
                 "User GAGAL dihapus.",
-                ToastType.ERROR)
-            call.respond(HttpStatusCode.NoContent)
+                ToastType.ERROR
+            )
+
+            call.respond(
+                HttpStatusCode.NoContent
+            )
         }
     }
 
-    // HELPER
-    private suspend fun formContext(): Map<String, Any> = mapOf(
-        "roles" to roleService.getAll()
-    )
-    fun mapErrorKey(ex: ApplicationException): String {
-        val msg = ex.message?.lowercase().orEmpty()
+    // =========================================================
+    // FORM CONTEXT
+    // =========================================================
+
+    private suspend fun formContext():
+            Map<String, Any> =
+        mapOf(
+            "roles" to roleService.getAll()
+        )
+
+    // =========================================================
+    // ERROR MAPPING
+    // =========================================================
+
+    private fun mapErrorKey(
+        ex: ApplicationException
+    ): String {
+
+        val msg =
+            ex.message
+                ?.lowercase()
+                .orEmpty()
+
         return when {
-            "username" in msg -> "username"
-            "email" in msg -> "email"
-            else -> "nama"
+
+            "username" in msg ->
+                "username"
+
+            "email" in msg ->
+                "email"
+
+            "role" in msg ->
+                "roleId"
+
+            else ->
+                "nama"
         }
     }
 
-    private suspend fun loadFormData(userId: Short): Map<String, Any> {
-        val user = userService.getById(userId)
+    // =========================================================
+    // LOAD FORM DATA
+    // =========================================================
+
+    private suspend fun loadFormData(
+        userId: Short
+    ): Map<String, Any> {
+
+        val user =
+            userService.getById(userId)
 
         return mapOf(
             "id" to user.id,
@@ -223,11 +411,19 @@ class UserController(private val userService: UserService, private val roleServi
         )
     }
 
+    // =========================================================
+    // PDF
+    // =========================================================
+
     suspend fun pdf(call: ApplicationCall) {
+
         try {
+
             val report =
                 userService.generateReport(
-                    search = call.request.queryParameters["search"]
+                    search =
+                        call.request
+                            .queryParameters["search"]
                 )
 
             call.respondReport(
@@ -235,8 +431,16 @@ class UserController(private val userService: UserService, private val roleServi
             )
 
         } catch (ex: Exception) {
-            logger.error("Gagal membuat laporan PDF user", ex)
-            call.respond(HttpStatusCode.InternalServerError, "Gagal membuat laporan PDF")
+
+            logger.error(
+                "Gagal membuat laporan PDF user",
+                ex
+            )
+
+            call.respond(
+                HttpStatusCode.InternalServerError,
+                "Gagal membuat laporan PDF"
+            )
         }
     }
 }
