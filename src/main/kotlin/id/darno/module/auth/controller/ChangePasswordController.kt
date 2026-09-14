@@ -6,9 +6,10 @@ import id.darno.core.htmx.utility.respondUniversalRedirect
 import id.darno.core.session.helper.ensureCsrfToken
 import id.darno.core.session.model.TempUserSession
 import id.darno.core.session.model.UserSession
-import id.darno.core.validation.valiktor.helper.errors
-import id.darno.module.auth.dto.ChangePasswordRequest
+import id.darno.core.validation.toErrorMap
+import id.darno.module.auth.mapper.toChangePasswordRequest
 import id.darno.module.auth.service.RememberMeService
+import id.darno.module.auth.validator.ChangePasswordValidator
 import id.darno.module.user.service.UserAuthService
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.pebble.PebbleContent
@@ -17,7 +18,6 @@ import io.ktor.server.response.respond
 import io.ktor.server.sessions.clear
 import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions
-import org.valiktor.ConstraintViolationException
 
 class ChangePasswordController(
     private val userAuthService: UserAuthService,
@@ -25,7 +25,8 @@ class ChangePasswordController(
 ) {
 
     suspend fun index(call: ApplicationCall) {
-        val fromReset = call.request.queryParameters["from"] == "reset"
+        val fromReset =
+            call.request.queryParameters["from"] == "reset"
 
         call.respond(
             PebbleContent(
@@ -39,34 +40,47 @@ class ChangePasswordController(
         )
     }
 
-    suspend fun handleChangePassword(call: ApplicationCall) {
-        val session = call.sessions.get<UserSession>()
-            ?: return call.respondUniversalRedirect("/login")
+    suspend fun handleChangePassword(
+        call: ApplicationCall
+    ) {
+        val session =
+            call.sessions.get<UserSession>()
+                ?: return call.respondUniversalRedirect(
+                    "/login"
+                )
 
-        val params = call.receiveParameters()
-        val currentPassword = params["current_password"]?.trim().orEmpty()
-        val newPassword = params["password"]?.trim().orEmpty()
-        val confirmPassword = params["password_confirmation"]?.trim().orEmpty()
+        val parameters =
+            call.receiveParameters()
+
+        val request =
+            parameters.toChangePasswordRequest()
+
+        val validationErrors =
+            ChangePasswordValidator.validate(request)
+
+        if (validationErrors.isNotEmpty()) {
+            /*
+             * Jangan redisplay password.
+             */
+            throw HtmxFormException(
+                templatePath =
+                    "pages/auth/fragments/change-password-form.html",
+                errors = validationErrors.toErrorMap(),
+                formData = emptyMap()
+            )
+        }
 
         try {
-            // 2️⃣ Validation DTO
-            ChangePasswordRequest(
-                currentPassword = currentPassword,
-                newPassword = newPassword,
-                passwordConfirmation = confirmPassword
-            )
-
-            // 3️⃣ Business logic
             userAuthService.changePassword(
                 userId = session.userId,
-                currentPassword = currentPassword,
-                newPassword = newPassword
+                currentPassword = request.currentPassword,
+                newPassword = request.newPassword
             )
 
-            // 🔐 Invalidate ALL remember-me
-            rememberMeService.revokeByUserId(session.userId)
+            rememberMeService.revokeByUserId(
+                session.userId
+            )
 
-            // 4️⃣ Logout semua session
             call.sessions.clear<UserSession>()
             call.sessions.clear<TempUserSession>()
 
@@ -74,22 +88,18 @@ class ChangePasswordController(
                 "/login?password=changed"
             )
 
-        } catch (ex: ConstraintViolationException) {
-            throw HtmxFormException(
-                templatePath = "pages/auth/fragments/change-password-form.html",
-                errors = ex.errors(),
-                formData = emptyMap()
-            )
-
         } catch (ex: ApplicationException) {
             throw HtmxFormException(
-                templatePath = "pages/auth/fragments/change-password-form.html",
+                templatePath =
+                    "pages/auth/fragments/change-password-form.html",
                 errors = mapOf(
-                    "currentPassword" to (ex.message ?: "Password saat ini salah")
+                    "currentPassword" to (
+                            ex.message
+                                ?: "Password saat ini salah"
+                            )
                 ),
                 formData = emptyMap()
             )
         }
     }
-
 }

@@ -6,55 +6,73 @@ import id.darno.core.htmx.model.ToastType
 import id.darno.core.htmx.utility.hxTriggerWithToast
 import id.darno.core.http.mapper.toFormData
 import id.darno.core.session.helper.ensureCsrfToken
-import id.darno.core.validation.valiktor.helper.errors
-import id.darno.module.auth.dto.RegisterRequest
+import id.darno.core.validation.toErrorMap
+import id.darno.module.auth.mapper.toRegisterRequest
+import id.darno.module.auth.validator.RegisterValidator
+import id.darno.module.user.service.UserAuthService
 import id.darno.module.auth.mapper.toCreateUserParams
 import id.darno.module.auth.service.EmailVerificationService
-import id.darno.module.user.service.UserAuthService
-import io.ktor.server.application.*
-import io.ktor.server.pebble.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.pebble.PebbleContent
+import io.ktor.server.request.receiveParameters
+import io.ktor.server.response.respond
 import org.slf4j.LoggerFactory
-import org.valiktor.ConstraintViolationException
 
 class RegisterController(
     private val userAuthService: UserAuthService,
-    private val emailVerificationService: EmailVerificationService) {
+    private val emailVerificationService: EmailVerificationService
+) {
 
-    private val logger = LoggerFactory.getLogger(RegisterController::class.java)
+    private val logger =
+        LoggerFactory.getLogger(RegisterController::class.java)
 
     companion object {
-        private const val TEMPLATE_PAGE = "pages/auth/register.html"
-        private const val TEMPLATE_FORM = "pages/auth/fragments/register-form.html"
-        private const val PAGE_TITLE = "Register User"
+        private const val TEMPLATE_PAGE =
+            "pages/auth/register.html"
+
+        private const val TEMPLATE_FORM =
+            "pages/auth/fragments/register-form.html"
+
+        private const val PAGE_TITLE =
+            "Register User"
     }
 
-    suspend fun index(call: ApplicationCall){
+    suspend fun index(call: ApplicationCall) {
         val csrfToken = call.ensureCsrfToken()
-        call.respond(PebbleContent(
-            TEMPLATE_PAGE,
-            mapOf(
-                "title" to PAGE_TITLE,
-                "csrfToken" to csrfToken
+
+        call.respond(
+            PebbleContent(
+                TEMPLATE_PAGE,
+                mapOf(
+                    "title" to PAGE_TITLE,
+                    "csrfToken" to csrfToken
+                )
             )
-        ))
+        )
     }
 
-    suspend fun register(call: ApplicationCall){
+    suspend fun register(call: ApplicationCall) {
         val parameters = call.receiveParameters()
-        try {
-            val request = RegisterRequest(
-                nama = parameters["nama"].orEmpty(),
-                username = parameters["username"].orEmpty(),
-                password = parameters["password"].orEmpty(),
-                passwordConfirmation = parameters["passwordConfirmation"].orEmpty(),
-                email = parameters["email"].orEmpty(),
+
+        val request = parameters.toRegisterRequest()
+
+        val validationErrors =
+            RegisterValidator.validate(request)
+
+        if (validationErrors.isNotEmpty()) {
+            throw HtmxFormException(
+                templatePath = TEMPLATE_FORM,
+                errors = validationErrors.toErrorMap(),
+                formData = parameters.toFormData()
             )
+        }
 
-            val user = userAuthService.register(request.toCreateUserParams())
+        try {
+            val user =
+                userAuthService.register(
+                    request.toCreateUserParams()
+                )
 
-            // Kirim email verifikasi
             emailVerificationService.sendVerification(
                 userId = user.id,
                 email = user.email
@@ -64,35 +82,49 @@ class RegisterController(
                 "Alhamdulillah, ${user.nama}",
                 ToastType.SUCCESS
             )
+
             call.respond(
                 PebbleContent(
                     TEMPLATE_FORM,
                     mapOf(
-                        "errors" to emptyList<String>(),
+                        "errors" to emptyMap<String, String>(),
                         "formData" to emptyMap<String, String>()
                     )
                 )
             )
 
-        } catch (ex: ConstraintViolationException) {
-            throw HtmxFormException(
-                templatePath = TEMPLATE_FORM,
-                errors = ex.errors(),
-                formData = parameters.toFormData()
-            )
         } catch (ex: ApplicationException) {
-            // ERROR SERVICE/REPOSITORY
-            logger.error("Failed to register user: {}", parameters["nama"], ex)
+            logger.error(
+                "Failed to register user: {}",
+                request.nama,
+                ex
+            )
 
+            /*
+             * Sementara masih mempertahankan perilaku existing.
+             *
+             * Tahap berikutnya sebaiknya diganti dengan typed
+             * domain exception, bukan memeriksa ex.message.
+             */
             val key = when {
-                ex.message?.contains("username", ignoreCase = true) == true -> "username"
-                ex.message?.contains("email", ignoreCase = true) == true -> "email"
+                ex.message?.contains(
+                    "username",
+                    ignoreCase = true
+                ) == true -> "username"
+
+                ex.message?.contains(
+                    "email",
+                    ignoreCase = true
+                ) == true -> "email"
+
                 else -> "nama"
             }
 
             throw HtmxFormException(
                 templatePath = TEMPLATE_FORM,
-                errors = mapOf(key to (ex.message ?: "Ada kesalahan")),
+                errors = mapOf(
+                    key to (ex.message ?: "Ada kesalahan")
+                ),
                 formData = parameters.toFormData()
             )
         }
