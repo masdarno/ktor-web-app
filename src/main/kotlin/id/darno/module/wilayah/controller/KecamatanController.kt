@@ -8,13 +8,15 @@ import id.darno.core.http.mapper.toFormData
 import id.darno.core.pageddata.helper.pagedQueryParameters
 import id.darno.core.pebble.helper.respondPebblePage
 import id.darno.core.session.model.UserSession
-import id.darno.core.validation.valiktor.helper.errors
+import id.darno.core.validation.toErrorMap
 import id.darno.module.wilayah.helper.WilayahFormBuilder
 import id.darno.module.wilayah.mapper.toCreateKecamatanParams
 import id.darno.module.wilayah.mapper.toUpdateKecamatanParams
 import id.darno.module.wilayah.service.KabupatenService
 import id.darno.module.wilayah.service.KecamatanService
 import id.darno.module.wilayah.service.ProvinsiService
+import id.darno.module.wilayah.validator.CreateKecamatanValidator
+import id.darno.module.wilayah.validator.UpdateKecamatanValidator
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.pebble.PebbleContent
@@ -23,7 +25,6 @@ import io.ktor.server.response.respond
 import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions
 import org.slf4j.LoggerFactory
-import org.valiktor.ConstraintViolationException
 
 class KecamatanController(
     private val kecamatanService: KecamatanService,
@@ -65,7 +66,8 @@ class KecamatanController(
 
         val query = call.pagedQueryParameters()
 
-        val provinsiList = provinsiService.getAllActive()
+        val provinsiList =
+            provinsiService.getAllActive()
 
         val requestedProvinsiId =
             call.request.queryParameters["provinsiId"]
@@ -73,11 +75,15 @@ class KecamatanController(
 
         val selectedProvinsiId: Short =
             requestedProvinsiId
-                ?.takeIf { id -> provinsiList.any { it.id == id } }
+                ?.takeIf { id ->
+                    provinsiList.any { it.id == id }
+                }
                 ?: DEFAULT_PROVINSI_ID
 
         val kabupatenList =
-            kabupatenService.getAllActiveByProvinsi(selectedProvinsiId)
+            kabupatenService.getAllActiveByProvinsi(
+                selectedProvinsiId
+            )
 
         val requestedKabupatenId =
             call.request.queryParameters["kabupatenId"]
@@ -85,15 +91,25 @@ class KecamatanController(
 
         val selectedKabupatenId: Short =
             requestedKabupatenId
-                ?.takeIf { id -> kabupatenList.any { it.id == id } }
-                ?: kabupatenList.firstOrNull { it.id == DEFAULT_KABUPATEN_ID }?.id
-                ?: kabupatenList.firstOrNull()?.id
+                ?.takeIf { id ->
+                    kabupatenList.any { it.id == id }
+                }
+                ?: kabupatenList
+                    .firstOrNull {
+                        it.id == DEFAULT_KABUPATEN_ID
+                    }
+                    ?.id
+                ?: kabupatenList
+                    .firstOrNull()
+                    ?.id
                 ?: -1
 
         val result =
             kecamatanService.getTable(
                 query,
-                selectedKabupatenId.takeIf { it != NONE_KABUPATEN_ID }
+                selectedKabupatenId.takeIf {
+                    it != NONE_KABUPATEN_ID
+                }
             )
 
         call.respondPebblePage(
@@ -112,14 +128,18 @@ class KecamatanController(
 
     suspend fun table(call: ApplicationCall) {
 
-        val query = call.pagedQueryParameters()
+        val query =
+            call.pagedQueryParameters()
 
         val kabupatenId =
             call.request.queryParameters["kabupatenId"]
                 ?.toShortOrNull()
 
         val result =
-            kecamatanService.getTable(query, kabupatenId)
+            kecamatanService.getTable(
+                query,
+                kabupatenId
+            )
 
         call.respond(
             PebbleContent(
@@ -142,11 +162,16 @@ class KecamatanController(
 
         val kabupatenList =
             provinsiId
-                ?.let { kabupatenService.getAllActiveByProvinsi(it) }
+                ?.let {
+                    kabupatenService.getAllActiveByProvinsi(it)
+                }
                 ?: emptyList()
 
         val selectedKabupatenId: Short =
-            kabupatenList.firstOrNull()?.id ?: -1
+            kabupatenList
+                .firstOrNull()
+                ?.id
+                ?: -1
 
         call.respond(
             PebbleContent(
@@ -162,12 +187,20 @@ class KecamatanController(
 
     suspend fun form(call: ApplicationCall) {
 
-        val parameters = call.request.queryParameters
-        val id = parameters["id"]?.toShortOrNull()
-        val mode = parameters["mode"] ?: "add"
+        val parameters =
+            call.request.queryParameters
+
+        val id =
+            parameters["id"]
+                ?.toShortOrNull()
+
+        val mode =
+            parameters["mode"]
+                ?: "add"
 
         val filterKabupatenId =
-            parameters["kabupatenId"]?.toShortOrNull()
+            parameters["kabupatenId"]
+                ?.toShortOrNull()
                 ?: DEFAULT_KABUPATEN_ID
 
         val formProvinsiId: Short
@@ -175,29 +208,42 @@ class KecamatanController(
 
         if (id != null) {
 
-            val kecamatan = kecamatanService.getById(id)
-            val kabupaten = kabupatenService.getById(kecamatan.kabupatenId)
+            val kecamatan =
+                kecamatanService.getById(id)
 
-            formProvinsiId = kabupaten.provinsiId
+            val kabupaten =
+                kabupatenService.getById(
+                    kecamatan.kabupatenId
+                )
 
-            formData = mapOf(
-                "id" to kecamatan.id,
-                "provinsiId" to formProvinsiId,
-                "kabupatenId" to kecamatan.kabupatenId,
-                "kode" to kecamatan.kode,
-                "nama" to kecamatan.nama,
-                "isActive" to kecamatan.isActive
-            )
+            formProvinsiId =
+                kabupaten.provinsiId
+
+            formData =
+                mapOf(
+                    "id" to kecamatan.id,
+                    "provinsiId" to formProvinsiId,
+                    "kabupatenId" to kecamatan.kabupatenId,
+                    "kode" to kecamatan.kode,
+                    "nama" to kecamatan.nama,
+                    "isActive" to kecamatan.isActive
+                )
 
         } else {
 
-            val kabupaten = kabupatenService.getById(filterKabupatenId)
-            formProvinsiId = kabupaten.provinsiId
+            val kabupaten =
+                kabupatenService.getById(
+                    filterKabupatenId
+                )
 
-            formData = mapOf(
-                "provinsiId" to formProvinsiId,
-                "kabupatenId" to filterKabupatenId
-            )
+            formProvinsiId =
+                kabupaten.provinsiId
+
+            formData =
+                mapOf(
+                    "provinsiId" to formProvinsiId,
+                    "kabupatenId" to filterKabupatenId
+                )
         }
 
         call.respond(
@@ -215,20 +261,46 @@ class KecamatanController(
 
     suspend fun create(call: ApplicationCall) {
 
-        val parameters = call.receiveParameters()
+        val parameters =
+            call.receiveParameters()
 
         val session =
             call.sessions.get<UserSession>()
-                ?: throw ApplicationException("Session tidak ditemukan")
+                ?: throw ApplicationException(
+                    "Session tidak ditemukan"
+                )
+
+        val request =
+            WilayahFormBuilder.createKecamatan(
+                parameters
+            )
+
+        val validationErrors =
+            CreateKecamatanValidator.validate(
+                request
+            )
+
+        if (validationErrors.isNotEmpty()) {
+
+            throw HtmxFormException(
+                templatePath = TEMPLATE_FORM,
+                errors = validationErrors.toErrorMap(),
+                formData = parameters.toFormData(),
+                formElement =
+                    formContext(
+                        formProvinsiIdFrom(parameters)
+                    ),
+                mode = "add"
+            )
+        }
 
         try {
 
-            val request =
-                WilayahFormBuilder.createKecamatan(parameters)
-
             val kecamatan =
                 kecamatanService.create(
-                    request.toCreateKecamatanParams(session.userId)
+                    request.toCreateKecamatanParams(
+                        session.userId
+                    )
                 )
 
             call.hxTriggerWithToast(
@@ -237,51 +309,85 @@ class KecamatanController(
                 "kecamatan-saved"
             )
 
-            call.respond(HttpStatusCode.Created)
-
-        } catch (ex: ConstraintViolationException) {
-
-            throw HtmxFormException(
-                templatePath = TEMPLATE_FORM,
-                errors = ex.errors(),
-                formData = parameters.toFormData(),
-                formElement = formContext(formProvinsiIdFrom(parameters)),
-                mode = "add"
+            call.respond(
+                HttpStatusCode.Created
             )
 
         } catch (ex: ApplicationException) {
 
-            logger.error("Failed to create kecamatan", ex)
+            logger.error(
+                "Failed to create kecamatan",
+                ex
+            )
 
             throw HtmxFormException(
                 templatePath = TEMPLATE_FORM,
                 errors = mapOf(
-                    mapErrorKey(ex) to (ex.message ?: "Ada kesalahan")
+                    mapErrorKey(ex) to
+                            (
+                                    ex.message
+                                        ?: "Ada kesalahan"
+                                    )
                 ),
-                formData = parameters.toFormData(),
-                formElement = formContext(formProvinsiIdFrom(parameters)),
+                formData =
+                    parameters.toFormData(),
+                formElement =
+                    formContext(
+                        formProvinsiIdFrom(parameters)
+                    ),
                 mode = "add"
             )
         }
     }
 
-    suspend fun update(call: ApplicationCall, id: Short) {
+    suspend fun update(
+        call: ApplicationCall,
+        id: Short
+    ) {
 
         val session =
             call.sessions.get<UserSession>()
-                ?: throw ApplicationException("Session tidak ditemukan")
+                ?: throw ApplicationException(
+                    "Session tidak ditemukan"
+                )
 
-        val parameters = call.receiveParameters()
+        val parameters =
+            call.receiveParameters()
+
+        val request =
+            WilayahFormBuilder.updateKecamatan(
+                parameters
+            )
+
+        val validationErrors =
+            UpdateKecamatanValidator.validate(
+                request
+            )
+
+        if (validationErrors.isNotEmpty()) {
+
+            throw HtmxFormException(
+                templatePath = TEMPLATE_FORM,
+                errors = validationErrors.toErrorMap(),
+                formData =
+                    parameters.toFormData() +
+                            ("id" to id.toString()),
+                formElement =
+                    formContext(
+                        formProvinsiIdFrom(parameters)
+                    ),
+                mode = "edit"
+            )
+        }
 
         try {
-
-            val request =
-                WilayahFormBuilder.updateKecamatan(parameters)
 
             val kecamatan =
                 kecamatanService.update(
                     id,
-                    request.toUpdateKecamatanParams(session.userId)
+                    request.toUpdateKecamatanParams(
+                        session.userId
+                    )
                 )
 
             logger.info(
@@ -296,36 +402,45 @@ class KecamatanController(
                 "kecamatan-saved"
             )
 
-            call.respond(HttpStatusCode.OK)
-
-        } catch (ex: ConstraintViolationException) {
-
-            throw HtmxFormException(
-                templatePath = TEMPLATE_FORM,
-                errors = ex.errors(),
-                formData = parameters.toFormData() + ("id" to id.toString()),
-                formElement = formContext(formProvinsiIdFrom(parameters)),
-                mode = "edit"
+            call.respond(
+                HttpStatusCode.OK
             )
 
         } catch (ex: ApplicationException) {
 
-            logger.error("Failed to update kecamatan (id: $id)", ex)
+            logger.error(
+                "Failed to update kecamatan (id: $id)",
+                ex
+            )
 
             throw HtmxFormException(
                 templatePath = TEMPLATE_FORM,
                 errors = mapOf(
-                    mapErrorKey(ex) to (ex.message ?: "Ada kesalahan")
+                    mapErrorKey(ex) to
+                            (
+                                    ex.message
+                                        ?: "Ada kesalahan"
+                                    )
                 ),
-                formData = parameters.toFormData() + ("id" to id.toString()),
-                formElement = formContext(formProvinsiIdFrom(parameters)),
+                formData =
+                    parameters.toFormData() +
+                            ("id" to id.toString()),
+                formElement =
+                    formContext(
+                        formProvinsiIdFrom(parameters)
+                    ),
                 mode = "edit"
             )
         }
     }
 
-    suspend fun delete(call: ApplicationCall, id: Short) {
+    suspend fun delete(
+        call: ApplicationCall,
+        id: Short
+    ) {
+
         try {
+
             kecamatanService.delete(id)
 
             call.hxTriggerWithToast(
@@ -333,16 +448,28 @@ class KecamatanController(
                 ToastType.SUCCESS,
                 "kecamatan-deleted"
             )
-            call.respond(HttpStatusCode.NoContent)
+
+            call.respond(
+                HttpStatusCode.NoContent
+            )
 
         } catch (ex: ApplicationException) {
-            logger.error("Failed to delete kecamatan (id: {})", id, ex)
+
+            logger.error(
+                "Failed to delete kecamatan (id: {})",
+                id,
+                ex
+            )
 
             call.hxTriggerWithToast(
-                ex.message ?: "Kecamatan GAGAL dihapus.",
+                ex.message
+                    ?: "Kecamatan GAGAL dihapus.",
                 ToastType.ERROR
             )
-            call.respond(HttpStatusCode.NoContent)
+
+            call.respond(
+                HttpStatusCode.NoContent
+            )
         }
     }
 
@@ -360,7 +487,10 @@ class KecamatanController(
 
         val kecamatanList =
             kabupatenId
-                ?.let { kecamatanService.getAllActiveByKabupaten(it) }
+                ?.let {
+                    kecamatanService
+                        .getAllActiveByKabupaten(it)
+                }
                 ?: emptyList()
 
         call.respond(
@@ -376,20 +506,42 @@ class KecamatanController(
 
     // HELPER
 
-    private fun mapErrorKey(ex: ApplicationException): String {
-        val msg = ex.message?.lowercase().orEmpty()
+    private fun mapErrorKey(
+        ex: ApplicationException
+    ): String {
+
+        val msg =
+            ex.message
+                ?.lowercase()
+                .orEmpty()
+
         return when {
             "kabupaten" in msg -> "kabupatenId"
+
             "kode" in msg -> "kode"
+
             else -> "nama"
         }
     }
 
-    private fun formProvinsiIdFrom(parameters: io.ktor.http.Parameters): Short =
-        parameters["provinsiId"]?.toShortOrNull() ?: DEFAULT_PROVINSI_ID
+    private fun formProvinsiIdFrom(
+        parameters: io.ktor.http.Parameters
+    ): Short =
+        parameters["provinsiId"]
+            ?.toShortOrNull()
+            ?: DEFAULT_PROVINSI_ID
 
-    private suspend fun formContext(provinsiId: Short): Map<String, Any> = mapOf(
-        "provinsiList" to provinsiService.getAllActive(),
-        "kabupatenList" to kabupatenService.getAllActiveByProvinsi(provinsiId)
-    )
+    private suspend fun formContext(
+        provinsiId: Short
+    ): Map<String, Any> =
+        mapOf(
+            "provinsiList" to
+                    provinsiService.getAllActive(),
+
+            "kabupatenList" to
+                    kabupatenService
+                        .getAllActiveByProvinsi(
+                            provinsiId
+                        )
+        )
 }

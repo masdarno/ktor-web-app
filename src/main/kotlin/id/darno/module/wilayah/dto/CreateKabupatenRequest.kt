@@ -9,18 +9,4 @@ data class CreateKabupatenRequest(
     val provinsiId: Short,
     val kode: String,
     val nama: String
-) {
-    init {
-        validate(this) {
-            validate(CreateKabupatenRequest::provinsiId)
-                .isGreaterThan(0)
-
-            validate(CreateKabupatenRequest::kode)
-                .isNotEmpty()
-                .hasSize(4, 4)
-
-            validate(CreateKabupatenRequest::nama)
-                .isNotEmpty()
-        }
-    }
-}
+)

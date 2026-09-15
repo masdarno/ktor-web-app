@@ -30,6 +30,21 @@ fun FieldValidator.notEmpty(
     }
 }
 
+fun FieldValidator.length(
+    value: String,
+    field: String,
+    length: Int,
+    message: String = "harus $length karakter"
+) {
+    check(
+        value = value,
+        field = field,
+        message = message
+    ) {
+        it.length == length
+    }
+}
+
 fun FieldValidator.minLength(
     value: String,
     field: String,

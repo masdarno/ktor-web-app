@@ -8,11 +8,13 @@ import id.darno.core.http.mapper.toFormData
 import id.darno.core.pageddata.helper.pagedQueryParameters
 import id.darno.core.pebble.helper.respondPebblePage
 import id.darno.core.session.model.UserSession
-import id.darno.core.validation.valiktor.helper.errors
+import id.darno.core.validation.toErrorMap
 import id.darno.module.wilayah.helper.WilayahFormBuilder
 import id.darno.module.wilayah.mapper.toCreateProvinsiParams
 import id.darno.module.wilayah.mapper.toUpdateProvinsiParams
 import id.darno.module.wilayah.service.ProvinsiService
+import id.darno.module.wilayah.validator.CreateProvinsiValidator
+import id.darno.module.wilayah.validator.UpdateProvinsiValidator
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.pebble.PebbleContent
@@ -21,7 +23,6 @@ import io.ktor.server.response.respond
 import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions
 import org.slf4j.LoggerFactory
-import org.valiktor.ConstraintViolationException
 
 class ProvinsiController(
     private val provinsiService: ProvinsiService
@@ -46,7 +47,8 @@ class ProvinsiController(
 
     suspend fun index(call: ApplicationCall) {
 
-        val query = call.pagedQueryParameters()
+        val query =
+            call.pagedQueryParameters()
 
         val result =
             provinsiService.getTable(query)
@@ -63,7 +65,8 @@ class ProvinsiController(
 
     suspend fun table(call: ApplicationCall) {
 
-        val query = call.pagedQueryParameters()
+        val query =
+            call.pagedQueryParameters()
 
         val result =
             provinsiService.getTable(query)
@@ -81,11 +84,18 @@ class ProvinsiController(
 
     suspend fun form(call: ApplicationCall) {
 
-        val parameters = call.request.queryParameters
-        val id = parameters["id"]?.toShortOrNull()
-        val mode = parameters["mode"] ?: "add"
+        val parameters =
+            call.request.queryParameters
 
-        val formData = id?.let { loadFormData(it) } ?: emptyMap()
+        val id =
+            parameters["id"]?.toShortOrNull()
+
+        val mode =
+            parameters["mode"] ?: "add"
+
+        val formData =
+            id?.let { loadFormData(it) }
+                ?: emptyMap()
 
         call.respond(
             PebbleContent(
@@ -110,10 +120,22 @@ class ProvinsiController(
                     "Session tidak ditemukan"
                 )
 
-        try {
+        val request =
+            WilayahFormBuilder.createProvinsi(parameters)
 
-            val request =
-                WilayahFormBuilder.createProvinsi(parameters)
+        val validationErrors =
+            CreateProvinsiValidator.validate(request)
+
+        if (validationErrors.isNotEmpty()) {
+            throw HtmxFormException(
+                templatePath = TEMPLATE_FORM,
+                errors = validationErrors.toErrorMap(),
+                formData = parameters.toFormData(),
+                mode = "add"
+            )
+        }
+
+        try {
 
             val provinsi =
                 provinsiService.create(
@@ -129,15 +151,6 @@ class ProvinsiController(
             )
 
             call.respond(HttpStatusCode.Created)
-
-        } catch (ex: ConstraintViolationException) {
-
-            throw HtmxFormException(
-                templatePath = TEMPLATE_FORM,
-                errors = ex.errors(),
-                formData = parameters.toFormData(),
-                mode = "add"
-            )
 
         } catch (ex: ApplicationException) {
 
@@ -159,7 +172,13 @@ class ProvinsiController(
         }
     }
 
-    suspend fun update(call: ApplicationCall, id: Short) {
+    suspend fun update(
+        call: ApplicationCall,
+        id: Short
+    ) {
+
+        val parameters =
+            call.receiveParameters()
 
         val session =
             call.sessions.get<UserSession>()
@@ -167,13 +186,24 @@ class ProvinsiController(
                     "Session tidak ditemukan"
                 )
 
-        val parameters =
-            call.receiveParameters()
+        val request =
+            WilayahFormBuilder.updateProvinsi(parameters)
+
+        val validationErrors =
+            UpdateProvinsiValidator.validate(request)
+
+        if (validationErrors.isNotEmpty()) {
+            throw HtmxFormException(
+                templatePath = TEMPLATE_FORM,
+                errors = validationErrors.toErrorMap(),
+                formData =
+                    parameters.toFormData() +
+                            ("id" to id.toString()),
+                mode = "edit"
+            )
+        }
 
         try {
-
-            val request =
-                WilayahFormBuilder.updateProvinsi(parameters)
 
             val provinsi =
                 provinsiService.update(
@@ -197,15 +227,6 @@ class ProvinsiController(
 
             call.respond(HttpStatusCode.OK)
 
-        } catch (ex: ConstraintViolationException) {
-
-            throw HtmxFormException(
-                templatePath = TEMPLATE_FORM,
-                errors = ex.errors(),
-                formData = parameters.toFormData() + ("id" to id.toString()),
-                mode = "edit"
-            )
-
         } catch (ex: ApplicationException) {
 
             logger.error(
@@ -220,14 +241,21 @@ class ProvinsiController(
                             ex.message ?: "Ada kesalahan"
                             )
                 ),
-                formData = parameters.toFormData() + ("id" to id.toString()),
+                formData =
+                    parameters.toFormData() +
+                            ("id" to id.toString()),
                 mode = "edit"
             )
         }
     }
 
-    suspend fun delete(call: ApplicationCall, id: Short) {
+    suspend fun delete(
+        call: ApplicationCall,
+        id: Short
+    ) {
+
         try {
+
             provinsiService.delete(id)
 
             call.hxTriggerWithToast(
@@ -235,31 +263,46 @@ class ProvinsiController(
                 ToastType.SUCCESS,
                 "provinsi-deleted"
             )
+
             call.respond(HttpStatusCode.NoContent)
 
         } catch (ex: ApplicationException) {
-            logger.error("Failed to delete provinsi (id: {})", id, ex)
+
+            logger.error(
+                "Failed to delete provinsi (id: {})",
+                id,
+                ex
+            )
 
             call.hxTriggerWithToast(
-                ex.message ?: "Provinsi GAGAL dihapus.",
+                ex.message
+                    ?: "Provinsi GAGAL dihapus.",
                 ToastType.ERROR
             )
+
             call.respond(HttpStatusCode.NoContent)
         }
     }
 
-    // HELPER
+    private fun mapErrorKey(
+        ex: ApplicationException
+    ): String {
 
-    private fun mapErrorKey(ex: ApplicationException): String {
-        val msg = ex.message?.lowercase().orEmpty()
+        val msg =
+            ex.message?.lowercase().orEmpty()
+
         return when {
             "kode" in msg -> "kode"
             else -> "nama"
         }
     }
 
-    private suspend fun loadFormData(id: Short): Map<String, Any> {
-        val provinsi = provinsiService.getById(id)
+    private suspend fun loadFormData(
+        id: Short
+    ): Map<String, Any> {
+
+        val provinsi =
+            provinsiService.getById(id)
 
         return mapOf(
             "id" to provinsi.id,
