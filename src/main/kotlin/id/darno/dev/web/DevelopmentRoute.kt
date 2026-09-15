@@ -1,14 +1,19 @@
-package id.darno.module.auth.route
+package id.darno.dev.web
 
 import id.darno.core.mail.MockMailStore
 import id.darno.core.pebble.helper.respondPebblePage
 import id.darno.core.security.crypto.BCryptHasher
 import id.darno.core.session.helper.ensureCsrfToken
 import id.darno.module.user.database.table.UserTable
-import io.ktor.http.*
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.pebble.PebbleContent
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
+import io.ktor.server.response.respond
+import io.ktor.server.response.respondText
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.get
+import io.ktor.server.routing.post
+import io.ktor.server.routing.route
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -26,13 +31,15 @@ fun Route.configureDevelopmentRoute() {
     route("/dev/update-password") {
         get{
             val csrfToken = call.ensureCsrfToken()
-            call.respond(PebbleContent(
-                "pages/dev/update-password.html",
-                mapOf(
-                    "title" to "Update Password",
-                    "csrfToken" to csrfToken
+            call.respond(
+                PebbleContent(
+                    "pages/dev/update-password.html",
+                    mapOf(
+                        "title" to "Update Password",
+                        "csrfToken" to csrfToken
+                    )
                 )
-            ))
+            )
         }
         post {
             try {

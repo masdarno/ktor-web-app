@@ -33,7 +33,7 @@ import id.darno.core.storage.config.storageConfig
 import id.darno.core.storage.local.LocalFileStorageService
 import id.darno.module.auth.configureAuthDependencies
 import id.darno.module.auth.configureAuthModule
-import id.darno.module.auth.route.configureDevelopmentRoute
+import id.darno.dev.web.configureDevelopmentRoute
 import id.darno.module.auth.service.RememberMeService
 import id.darno.module.menu.configureMenuDependencies
 import id.darno.module.menu.service.MenuCacheService
