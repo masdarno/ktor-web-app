@@ -40,8 +40,6 @@ dependencies {
     implementation(libs.mariadb.java.client)
     // HikariCP - Database Pooling
     implementation(libs.hikari.cp)
-    // Valiktor - validasi
-    implementation(libs.valiktor.core)
     // BCrypt - hasing password
     implementation(libs.security.bcrypt)
     // Email

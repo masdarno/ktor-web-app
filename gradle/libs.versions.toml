@@ -5,7 +5,6 @@ logback = "1.5.37"
 
 mariadb = "3.5.10"
 hikari = "7.1.0"
-valiktor = "0.12.0"
 jbcrypt = "0.4"
 jakarta-mail = "2.0.5"
 dotenv = "6.5.1"
@@ -20,7 +19,6 @@ logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "lo
 
 mariadb-java-client = { group = "org.mariadb.jdbc", name = "mariadb-java-client", version.ref = "mariadb" }
 hikari-cp = { group = "com.zaxxer", name = "HikariCP", version.ref = "hikari" }
-valiktor-core = { module = "org.valiktor:valiktor-core", version.ref = "valiktor" }
 security-bcrypt = { module = "org.mindrot:jbcrypt", version.ref = "jbcrypt" }
 jakarta-mail = { group = "org.eclipse.angus", name = "jakarta.mail", version.ref = "jakarta-mail" }
 dotenv-kotlin = { module = "io.github.cdimascio:dotenv-kotlin", version.ref = "dotenv" }
