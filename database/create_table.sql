@@ -48,19 +48,22 @@ create table `users` (
   `id` tinyint unsigned auto_increment,
   `nama` varchar(60) not null,
   `alias` varchar(50) not null default '',
-  `username` varchar(10) not null unique,
+  `username` varchar(10) not null,
   `password` char(60) not null,
   `gender_id` tinyint unsigned not null default 2,
   `photo` varchar(100) not null default 'male.jpg',
   `role_id` tinyint unsigned not null,
-  `email` varchar(50),
+  `email` varchar(50) not null,
   `email_verified_at` timestamp,
-  `is_active` tinyint unsigned not null default 1 check (is_active in (0, 1)),
+  `is_active` tinyint unsigned not null default 1,
   `created_at` datetime default current_timestamp(),
   `updated_at` datetime default null on update current_timestamp(),
   primary key (`id`),
-  foreign key (`role_id`) references `roles` (`id`) on update cascade,
-  foreign key (`gender_id`) references `genders` (`id`) on update cascade
+  constraint `uq_users_username` unique (`username`),
+  constraint `uq_users_email` unique (`email`),
+  constraint `ck_users_is_active` check (`is_active` in (0, 1)),
+  constraint `fk_users_role_id` foreign key (`role_id`) references `roles` (`id`) on update cascade,
+  constraint `fk_users_gender_id` foreign key (`gender_id`) references `genders` (`id`) on update cascade
 );
 
 create table company_profiles (

@@ -10,9 +10,10 @@ import id.darno.core.multipart.mapper.extractContent
 import id.darno.core.pebble.helper.respondPebblePage
 import id.darno.core.session.model.UserSession
 import id.darno.core.validation.toErrorMap
+import id.darno.module.user.exception.UserException
+import id.darno.module.user.helper.UserFormBuilder
 import id.darno.module.user.model.DefaultValues
 import id.darno.module.user.model.UpdateUserParams
-import id.darno.module.user.helper.UserFormBuilder
 import id.darno.module.user.service.UserFileService
 import id.darno.module.user.service.UserService
 import id.darno.module.user.validator.UserProfileValidator
@@ -248,41 +249,38 @@ class UserProfileController(
                 )
             )
 
-        } catch (ex: ApplicationException) {
-
+        }
+        catch (ex: UserException) {
             logger.error(
-                "Failed to update user profile data for userId: {}",
-                userId,
-                ex
+                "Failed to update user profile data for userId: {}", userId, ex
             )
 
-            val key =
-                when {
+            val (field, message) = when (ex) {
+                is UserException.UsernameAlreadyExists -> "username" to ex.message
+                is UserException.EmailAlreadyExists    -> "email" to ex.message
+                is UserException.RoleNotFound          -> "roleId" to ex.message
+                is UserException.GenderNotFound        -> "gender" to ex.message
+            }
+            throw HtmxFormException(
+                templatePath = TEMPLATE_FORM,
+                errors = mapOf(
+                    field to message
+                ),
+                formData = parameters.toFormData()
+            )
+        }
+        catch (ex: ApplicationException) {
 
-                    ex.message?.contains(
-                        "email",
-                        ignoreCase = true
-                    ) == true ->
-                        "email"
-
-                    else ->
-                        "nama"
-                }
+            logger.error(
+                "Failed to update user profile data for userId: {}", userId, ex
+            )
 
             throw HtmxFormException(
-                templatePath =
-                    TEMPLATE_FORM,
-
-                errors =
-                    mapOf(
-                        key to (
-                                ex.message
-                                    ?: "Ada kesalahan"
-                                )
-                    ),
-
-                formData =
-                    parameters.toFormData()
+                templatePath = TEMPLATE_FORM,
+                errors = mapOf(
+                    "nama" to (ex.message ?: "Ada kesalahan")
+                ),
+                formData = parameters.toFormData()
             )
         }
     }

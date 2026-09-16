@@ -12,6 +12,7 @@ import id.darno.core.report.helper.respondReport
 import id.darno.core.session.model.UserSession
 import id.darno.core.validation.toErrorMap
 import id.darno.module.role.service.RoleService
+import id.darno.module.user.exception.UserException
 import id.darno.module.user.helper.UserFormBuilder
 import id.darno.module.user.mapper.toCreateUserParams
 import id.darno.module.user.mapper.toUpdateUserParams
@@ -179,8 +180,32 @@ class UserController(
                 HttpStatusCode.Created
             )
 
-        } catch (ex: ApplicationException) {
+        }
+        catch (ex: UserException) {
+            logger.error(
+                "Failed to create user: {}",
+                parameters["nama"],
+                ex
+            )
 
+            val (field, message) = when (ex) {
+                is UserException.UsernameAlreadyExists -> "username" to ex.message
+                is UserException.EmailAlreadyExists    -> "email" to ex.message
+                is UserException.RoleNotFound          -> "roleId" to ex.message
+                is UserException.GenderNotFound        -> "gender" to ex.message
+            }
+
+            throw HtmxFormException(
+                templatePath = TEMPLATE_FORM,
+                errors = mapOf(
+                    field to message
+                ),
+                formData = parameters.toFormData(),
+                formElement = formContext(),
+                mode = "add"
+            )
+        }
+        catch (ex: ApplicationException) {
             logger.error(
                 "Failed to create user: {}",
                 parameters["nama"],
@@ -190,8 +215,7 @@ class UserController(
             throw HtmxFormException(
                 templatePath = TEMPLATE_FORM,
                 errors = mapOf(
-                    mapErrorKey(ex) to
-                            (ex.message ?: "Ada kesalahan")
+                    "nama" to (ex.message ?: "Ada kesalahan")
                 ),
                 formData = parameters.toFormData(),
                 formElement = formContext(),
@@ -286,8 +310,34 @@ class UserController(
                 HttpStatusCode.OK
             )
 
-        } catch (ex: ApplicationException) {
+        }
+        catch (ex: UserException) {
+            logger.error(
+                "Failed to update user (id: $userId): ${parameters["nama"]}",
+                ex
+            )
 
+            val (field, message) = when (ex) {
+                is UserException.UsernameAlreadyExists -> "username" to ex.message
+                is UserException.EmailAlreadyExists    -> "email" to ex.message
+                is UserException.RoleNotFound          -> "roleId" to ex.message
+                is UserException.GenderNotFound        -> "gender" to ex.message
+            }
+
+            throw HtmxFormException(
+                templatePath = TEMPLATE_FORM,
+                errors = mapOf(
+                    field to message
+                ),
+                formData =
+                    parameters.toFormData(
+                        "id" to userId
+                    ),
+                formElement = formContext(),
+                mode = "edit"
+            )
+        }
+        catch (ex: ApplicationException) {
             logger.error(
                 "Failed to update user (id: $userId): ${parameters["nama"]}",
                 ex
@@ -296,8 +346,7 @@ class UserController(
             throw HtmxFormException(
                 templatePath = TEMPLATE_FORM,
                 errors = mapOf(
-                    mapErrorKey(ex) to
-                            (ex.message ?: "Ada kesalahan")
+                    "nama" to (ex.message ?: "Ada kesalahan")
                 ),
                 formData =
                     parameters.toFormData(
@@ -360,35 +409,6 @@ class UserController(
         mapOf(
             "roles" to roleService.getAll()
         )
-
-    // =========================================================
-    // ERROR MAPPING
-    // =========================================================
-
-    private fun mapErrorKey(
-        ex: ApplicationException
-    ): String {
-
-        val msg =
-            ex.message
-                ?.lowercase()
-                .orEmpty()
-
-        return when {
-
-            "username" in msg ->
-                "username"
-
-            "email" in msg ->
-                "email"
-
-            "role" in msg ->
-                "roleId"
-
-            else ->
-                "nama"
-        }
-    }
 
     // =========================================================
     // LOAD FORM DATA

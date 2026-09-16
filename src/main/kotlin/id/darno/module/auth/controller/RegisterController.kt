@@ -12,6 +12,7 @@ import id.darno.module.auth.validator.RegisterValidator
 import id.darno.module.user.service.UserAuthService
 import id.darno.module.auth.mapper.toCreateUserParams
 import id.darno.module.auth.service.EmailVerificationService
+import id.darno.module.user.exception.UserException
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.pebble.PebbleContent
 import io.ktor.server.request.receiveParameters
@@ -93,37 +94,31 @@ class RegisterController(
                 )
             )
 
-        } catch (ex: ApplicationException) {
-            logger.error(
-                "Failed to register user: {}",
-                request.nama,
-                ex
-            )
+        }
+        catch (ex: UserException) {
+            logger.error("Failed to register user: {}", request.nama, ex)
 
-            /*
-             * Sementara masih mempertahankan perilaku existing.
-             *
-             * Tahap berikutnya sebaiknya diganti dengan typed
-             * domain exception, bukan memeriksa ex.message.
-             */
-            val key = when {
-                ex.message?.contains(
-                    "username",
-                    ignoreCase = true
-                ) == true -> "username"
-
-                ex.message?.contains(
-                    "email",
-                    ignoreCase = true
-                ) == true -> "email"
-
-                else -> "nama"
+            val (field, message) = when (ex) {
+                is UserException.UsernameAlreadyExists -> "username" to ex.message
+                is UserException.EmailAlreadyExists    -> "email" to ex.message
+                is UserException.RoleNotFound          -> "roleId" to ex.message
+                is UserException.GenderNotFound        -> "gender" to ex.message
             }
+            throw HtmxFormException(
+                templatePath = TEMPLATE_FORM,
+                errors = mapOf(
+                    field to message
+                ),
+                formData = parameters.toFormData()
+            )
+        }
+        catch (ex: ApplicationException) {
+            logger.error("Failed to register user: {}", request.nama, ex)
 
             throw HtmxFormException(
                 templatePath = TEMPLATE_FORM,
                 errors = mapOf(
-                    key to (ex.message ?: "Ada kesalahan")
+                    "nama" to (ex.message ?: "Ada kesalahan")
                 ),
                 formData = parameters.toFormData()
             )

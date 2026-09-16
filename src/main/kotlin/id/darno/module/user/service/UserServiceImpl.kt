@@ -1,6 +1,7 @@
 package id.darno.module.user.service
 
-import id.darno.core.exceptions.service.ConflictException
+import id.darno.core.exceptions.repository.DuplicateKeyException
+import id.darno.core.exceptions.repository.ForeignKeyException
 import id.darno.core.exceptions.service.NotFoundException
 import id.darno.core.pageddata.model.PagedQuery
 import id.darno.core.report.JasperReportService
@@ -11,6 +12,8 @@ import id.darno.module.role.service.RoleService
 import id.darno.module.unit.domain.UnitDomain
 import id.darno.module.unit.repository.CompanyProfileRepository
 import id.darno.module.user.domain.UserDomain
+import id.darno.module.user.exception.UserException
+import id.darno.module.user.exception.toUserException
 import id.darno.module.user.model.CreateUserParams
 import id.darno.module.user.model.UpdateUserParams
 import id.darno.module.user.repository.UserRepository
@@ -31,13 +34,17 @@ class UserServiceImpl(
         logger.info("Create user with name: {}", params.nama)
 
         if (userRepository.existsByUsername(params.username))
-            throw ConflictException("Username ${params.username} sudah ada")
+            throw UserException.UsernameAlreadyExists(params.username)
 
-        if(userRepository.existsByEmail(params.email))
-            throw ConflictException("Email ${params.email} sudah ada")
+        if (userRepository.existsByEmail(params.email))
+            throw UserException.EmailAlreadyExists(params.email)
 
-        params.roleId?.let {
-            roleService.getById(it) // Validasi: akan throw NotFoundException jika role tidak ada
+        params.roleId.let {
+            try {
+                roleService.getById(it)
+            } catch (ex: NotFoundException) {
+                throw UserException.RoleNotFound(it)
+            }
         }
 
         val hashedPassword = hasher.hash(params.password)
@@ -46,7 +53,21 @@ class UserServiceImpl(
             password = hashedPassword
         )
 
-        return userRepository.create(secureParams)
+        return try {
+            userRepository.create(secureParams)
+        }
+        catch (e: ForeignKeyException) {
+            throw e.toUserException(
+                roleId = params.roleId,
+                genderId = params.genderId
+            )
+        }
+        catch (e: DuplicateKeyException) {
+            throw e.toUserException(
+                username = params.username,
+                email = params.email
+            )
+        }
     }
 
     // --- READ ---
@@ -64,24 +85,31 @@ class UserServiceImpl(
         // 1. Cek user exists
         val existingUser = userRepository.findById(id)
             ?: throw NotFoundException("User tidak ditemukan")
-        // 2. Validasi role jika ada
-        params.roleId?.let {
-            roleService.getById(it)// dari RoleService sudah ?: throw BadRequestException("Role not found")
-        }
-        // 3. Cek username duplikat (jika diubah)
+
+        // 2. Cek username duplikat (jika diubah)
         params.username?.let { newUsername ->
             if (newUsername != existingUser.username) {
                 if (userRepository.existsByUsername(newUsername))
-                    throw ConflictException("Username $newUsername sudah ada")
+                    throw UserException.UsernameAlreadyExists(newUsername)
             }
         }
-        // 4. Cek email duplikat (jika diubah)
+        // 3. Cek email duplikat (jika diubah)
         params.email?.let { newEmail ->
             if (newEmail != existingUser.email) {
                 if(userRepository.existsByEmail(newEmail))
-                    throw ConflictException("Email $newEmail sudah ada")
+                    throw UserException.EmailAlreadyExists(newEmail)
             }
         }
+
+        // 4. Validasi ada tidaknya role
+        params.roleId?.let {
+            try {
+                roleService.getById(it)
+            } catch (ex: NotFoundException) {
+                throw UserException.RoleNotFound(it)
+            }
+        }
+
         // 5. Password
         val hashedPassword = params.password?.let{
             hasher.hash(it)
@@ -91,7 +119,21 @@ class UserServiceImpl(
             password = hashedPassword
         )
         // 6. Update User setelah dipastikan user exists
-        return userRepository.update(id, secureParams)
+        return try {
+            userRepository.update(id, secureParams)
+        }
+        catch (e: ForeignKeyException) {
+            throw e.toUserException(
+                roleId = params.roleId,
+                genderId = params.genderId
+            )
+        }
+        catch (e: DuplicateKeyException) {
+            throw e.toUserException(
+                username = params.username,
+                email = params.email
+            )
+        }
     }
 
     // --- DELETE ---
