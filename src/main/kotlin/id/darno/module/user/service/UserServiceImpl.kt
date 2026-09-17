@@ -143,7 +143,11 @@ class UserServiceImpl(
             ?: throw NotFoundException("User tidak ditemukan")
 
         // Baru dihapus
-        return userRepository.delete(id)
+        return try {
+            userRepository.delete(id)
+        } catch (e: ForeignKeyException) {
+            throw UserException.UserInUse(cause = e)
+        }
     }
 
     // --- USER_UNIT ---

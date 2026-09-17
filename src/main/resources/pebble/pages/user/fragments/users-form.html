@@ -90,8 +90,10 @@ PURE HTML BELOW
         <select name="roleId" class="form-select {% if errors.roleId %}is-invalid{% endif %}" {{ disabledAttr }}>
 
             {% for role in formElement.roles %}
+            {% set currentRoleId = '' ~ role.id %}
+            {% set selectedRoleId = '' ~ formData.roleId %}
 
-            {% set selectedAttr = (formData is not null and formData.roleId == role.id ) ? 'selected="selected"' : '' %}
+            {% set selectedAttr = (formData is not null and currentRoleId == selectedRoleId ) ? 'selected="selected"' : '' %}
             <option value="{{ role.id }}" {{ selectedAttr }}>
                 {{ role.nama }}
             </option>

@@ -8,28 +8,34 @@ import id.darno.module.user.database.table.UserTable
 
 sealed class UserException(
     override val message: String,
+    open val field: String = "general",
     cause: Throwable? = null
 ) : ServiceException(message, cause) {
 
     class UsernameAlreadyExists(
         val username: String,
         cause: Throwable? = null
-    ) : UserException("Username $username sudah ada", cause)
+    ) : UserException("Username $username sudah ada", field = "username", cause)
 
     class EmailAlreadyExists(
         val email: String,
         cause: Throwable? = null
-    ) : UserException("Email $email sudah ada", cause)
+    ) : UserException("Email $email sudah ada", field = "email", cause)
 
     class RoleNotFound(
         val roleId: Short,
         cause: Throwable? = null
-    ) : UserException("Role tidak ditemukan", cause)
+    ) : UserException("Role tidak ditemukan", field = "roleId", cause)
 
     class GenderNotFound(
         val genderId: Short,
         cause: Throwable? = null
-    ) : UserException("Gender tidak ditemukan", cause)
+    ) : UserException("Gender tidak ditemukan", field = "genderId", cause)
+
+    class UserInUse(
+        cause: Throwable? = null
+    ) : UserException("User tidak dapat dihapus karena masih memiliki data terkait di sistem", cause = cause)
+
 }
 
 /**

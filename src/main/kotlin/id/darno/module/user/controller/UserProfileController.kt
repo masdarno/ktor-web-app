@@ -255,16 +255,10 @@ class UserProfileController(
                 "Failed to update user profile data for userId: {}", userId, ex
             )
 
-            val (field, message) = when (ex) {
-                is UserException.UsernameAlreadyExists -> "username" to ex.message
-                is UserException.EmailAlreadyExists    -> "email" to ex.message
-                is UserException.RoleNotFound          -> "roleId" to ex.message
-                is UserException.GenderNotFound        -> "gender" to ex.message
-            }
             throw HtmxFormException(
                 templatePath = TEMPLATE_FORM,
                 errors = mapOf(
-                    field to message
+                    ex.field to ex.message
                 ),
                 formData = parameters.toFormData()
             )
