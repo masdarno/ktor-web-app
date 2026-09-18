@@ -63,6 +63,10 @@ PURE HTML BELOW
             class="form-select {% if errors.kabupatenId %}is-invalid{% endif %}"
             {{ disabledAttr }}
     >
+      {% if formElement.kabupatenList is empty %}
+      <option value="-1">-- Tidak ada kabupaten --</option>
+      {% endif %}
+
       {% for kabupaten in formElement.kabupatenList %}
       {% set currentKabupatenId = '' ~ kabupaten.id %}
       {% set selectedKabupatenId = '' ~ formData.kabupatenId %}

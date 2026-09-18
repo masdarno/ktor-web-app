@@ -69,6 +69,10 @@ PURE HTML BELOW
             hx-trigger="change"
             {{ disabledAttr }}
     >
+      {% if formElement.kabupatenList is empty %}
+      <option value="-1">-- Tidak ada kabupaten --</option>
+      {% endif %}
+
       {% for kabupaten in formElement.kabupatenList %}
       {% set currentKabupatenId = '' ~ kabupaten.id %}
       {% set selectedKabupatenId = '' ~ formData.kabupatenId %}
@@ -90,6 +94,10 @@ PURE HTML BELOW
             class="form-select {% if errors.kecamatanId %}is-invalid{% endif %}"
             {{ disabledAttr }}
     >
+      {% if formElement.kecamatanList is empty %}
+      <option value="-1">-- Tidak ada kecamatan --</option>
+      {% endif %}
+
       {% for kecamatan in formElement.kecamatanList %}
       {% set currentKecamatanId = '' ~ kecamatan.id %}
       {% set selectedKecamatanId = '' ~ formData.kecamatanId %}

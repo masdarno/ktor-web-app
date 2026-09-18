@@ -624,14 +624,14 @@ class KelurahanController(
     }
 
     private fun formProvinsiIdFrom(
-        parameters: io.ktor.http.Parameters
+        parameters: Parameters
     ): Short =
         parameters["provinsiId"]
             ?.toShortOrNull()
             ?: DEFAULT_PROVINSI_ID
 
     private fun formKabupatenIdFrom(
-        parameters: io.ktor.http.Parameters
+        parameters: Parameters
     ): Short =
         parameters["kabupatenId"]
             ?.toShortOrNull()

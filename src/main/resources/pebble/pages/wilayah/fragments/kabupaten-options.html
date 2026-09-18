@@ -1,5 +1,5 @@
 {% if kabupatenList is empty %}
-<option value="">-- Tidak ada kabupaten --</option>
+<option value="-1">-- Tidak ada kabupaten --</option>
 {% endif %}
 {% for kabupaten in kabupatenList %}
 <option value="{{ kabupaten.id }}" {% if selectedId == kabupaten.id %}selected{% endif %}>
