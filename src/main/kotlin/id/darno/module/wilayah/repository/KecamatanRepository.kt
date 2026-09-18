@@ -30,7 +30,7 @@ interface KecamatanRepository {
     ): Boolean
 
     suspend fun findAll(
-        kabupatenId: Short?,
+        kabupatenId: Short,
         search: String?,
         page: Int,
         pageSize: Int,

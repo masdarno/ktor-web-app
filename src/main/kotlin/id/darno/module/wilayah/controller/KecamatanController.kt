@@ -103,7 +103,7 @@ class KecamatanController(
                 ?: kabupatenList
                     .firstOrNull()
                     ?.id
-                ?: -1
+                ?: NONE_KABUPATEN_ID
 
         val result =
             kecamatanService.getTable(
@@ -135,6 +135,9 @@ class KecamatanController(
         val kabupatenId =
             call.request.queryParameters["kabupatenId"]
                 ?.toShortOrNull()
+                ?.takeIf {
+                    it != NONE_KABUPATEN_ID
+                }
 
         val result =
             kecamatanService.getTable(

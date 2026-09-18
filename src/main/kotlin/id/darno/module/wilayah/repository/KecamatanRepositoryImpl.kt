@@ -89,7 +89,7 @@ class KecamatanRepositoryImpl(
     }
 
     override suspend fun findAll(
-        kabupatenId: Short?,
+        kabupatenId: Short,
         search: String?,
         page: Int,
         pageSize: Int,
@@ -117,27 +117,17 @@ class KecamatanRepositoryImpl(
                         (KecamatanTable.nama like "%$it%")
             }
 
-        val parentFilter = kabupatenId?.let {
-            KecamatanTable.kabupatenId eq it
-        }
+        val parentFilter =
+            KecamatanTable.kabupatenId eq kabupatenId
 
-        val filter = listOfNotNull(
-            searchFilter,
-            parentFilter
-        ).reduceOrNull { acc, condition ->
-            acc and condition
-        }
+        val filter = searchFilter?.let {
+            it and parentFilter
+        } ?: parentFilter
 
         val baseQuery = KecamatanTable
             .innerJoin(KabupatenTable)
             .selectAll()
-            .let {
-                if (filter != null) {
-                    it.where { filter }
-                } else {
-                    it
-                }
-            }
+            .where { filter }
 
         val total = baseQuery.count()
 

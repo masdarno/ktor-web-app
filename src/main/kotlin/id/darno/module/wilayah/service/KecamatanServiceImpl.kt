@@ -4,6 +4,7 @@ import id.darno.core.exceptions.repository.DuplicateKeyException
 import id.darno.core.exceptions.repository.ForeignKeyException
 import id.darno.core.exceptions.service.NotFoundException
 import id.darno.core.pageddata.model.PagedQuery
+import id.darno.core.pageddata.model.PagedResult
 import id.darno.module.wilayah.domain.KecamatanDomain
 import id.darno.module.wilayah.exception.KecamatanException
 import id.darno.module.wilayah.exception.toKecamatanException
@@ -25,7 +26,7 @@ class KecamatanServiceImpl(
             try {
                 kabupatenRepository.findById(it)
             }
-            catch (e: NotFoundException) {
+            catch (_: NotFoundException) {
                 throw KecamatanException.KabupatenNotFound(it)
             }
         }
@@ -102,14 +103,24 @@ class KecamatanServiceImpl(
     override suspend fun getTable(
         query: PagedQuery,
         kabupatenId: Short?
-    ) = kecamatanRepository.findAll(
-        kabupatenId = kabupatenId,
-        search = query.search,
-        page = query.page,
-        pageSize = query.pageSize,
-        sortBy = query.sortBy,
-        sortDir = query.sortDir
-    )
+    ) =
+        kabupatenId?.let {
+            kecamatanRepository.findAll(
+                kabupatenId = it,
+                search = query.search,
+                page = query.page,
+                pageSize = query.pageSize,
+                sortBy = query.sortBy,
+                sortDir = query.sortDir
+            )
+        } ?:
+        PagedResult(
+            data = emptyList(),
+            page = query.page,
+            pageSize = query.pageSize,
+            total = 0,
+            totalPages = 1
+        )
 
     override suspend fun getAllActiveByKabupaten(kabupatenId: Short) =
         kecamatanRepository.findAllActiveByKabupaten(kabupatenId)
