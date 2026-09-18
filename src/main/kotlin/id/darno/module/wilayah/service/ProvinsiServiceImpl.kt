@@ -1,9 +1,12 @@
 package id.darno.module.wilayah.service
 
-import id.darno.core.exceptions.service.ConflictException
+import id.darno.core.exceptions.repository.DuplicateKeyException
+import id.darno.core.exceptions.repository.ForeignKeyException
 import id.darno.core.exceptions.service.NotFoundException
 import id.darno.core.pageddata.model.PagedQuery
 import id.darno.module.wilayah.domain.ProvinsiDomain
+import id.darno.module.wilayah.exception.ProvinsiException
+import id.darno.module.wilayah.exception.toProvinsiException
 import id.darno.module.wilayah.model.CreateProvinsiParams
 import id.darno.module.wilayah.model.UpdateProvinsiParams
 import id.darno.module.wilayah.repository.ProvinsiRepository
@@ -16,19 +19,21 @@ class ProvinsiServiceImpl(
         params: CreateProvinsiParams
     ): ProvinsiDomain {
 
-        if (provinsiRepository.existsByKode(params.kode)) {
-            throw ConflictException(
-                "Kode provinsi ${params.kode} sudah ada"
+        if (provinsiRepository.existsByKode(params.kode))
+            throw ProvinsiException.KodeAlreadyExists(params.kode)
+
+        if (provinsiRepository.existsByNama(params.nama))
+            throw ProvinsiException.NamaAlreadyExists(params.nama)
+
+        return try {
+            provinsiRepository.create(params)
+        }
+        catch (e: DuplicateKeyException) {
+            throw e.toProvinsiException(
+                kode = params.kode,
+                nama = params.nama
             )
         }
-
-        if (provinsiRepository.existsByNama(params.nama)) {
-            throw ConflictException(
-                "Nama provinsi ${params.nama} sudah ada"
-            )
-        }
-
-        return provinsiRepository.create(params)
     }
 
     override suspend fun getById(
@@ -49,26 +54,28 @@ class ProvinsiServiceImpl(
         val existing = getById(id)
 
         params.kode?.let { kode ->
-            if (kode != existing.kode &&
-                provinsiRepository.existsByKode(kode)
-            ) {
-                throw ConflictException(
-                    "Kode provinsi $kode sudah ada"
-                )
+            if (kode != existing.kode) {
+                if (provinsiRepository.existsByKode(kode))
+                    throw ProvinsiException.KodeAlreadyExists(kode)
             }
         }
 
         params.nama?.let { nama ->
-            if (nama != existing.nama &&
-                provinsiRepository.existsByNama(nama)
-            ) {
-                throw ConflictException(
-                    "Nama provinsi $nama sudah ada"
-                )
+            if (nama != existing.nama) {
+                if (provinsiRepository.existsByNama(nama))
+                    throw ProvinsiException.NamaAlreadyExists(nama)
             }
         }
 
-        return provinsiRepository.update(id, params)
+        return try {
+            provinsiRepository.update(id, params)
+        }
+        catch (e: DuplicateKeyException) {
+            throw e.toProvinsiException(
+                kode = params.kode,
+                nama = params.nama
+            )
+        }
     }
 
     override suspend fun delete(
@@ -77,7 +84,12 @@ class ProvinsiServiceImpl(
 
         getById(id)
 
-        return provinsiRepository.delete(id)
+        return try {
+            provinsiRepository.delete(id)
+        }
+        catch (e: ForeignKeyException) {
+            throw ProvinsiException.ProvinsiInUse(e)
+        }
     }
 
     override suspend fun getTable(

@@ -9,6 +9,7 @@ import id.darno.core.pageddata.helper.pagedQueryParameters
 import id.darno.core.pebble.helper.respondPebblePage
 import id.darno.core.session.model.UserSession
 import id.darno.core.validation.toErrorMap
+import id.darno.module.wilayah.exception.KabupatenException
 import id.darno.module.wilayah.helper.WilayahFormBuilder
 import id.darno.module.wilayah.mapper.toCreateKabupatenParams
 import id.darno.module.wilayah.mapper.toUpdateKabupatenParams
@@ -194,7 +195,8 @@ class KabupatenController(
 
             call.respond(HttpStatusCode.Created)
 
-        } catch (ex: ApplicationException) {
+        }
+        catch (ex: KabupatenException) {
 
             logger.error(
                 "Failed to create kabupaten",
@@ -204,9 +206,24 @@ class KabupatenController(
             throw HtmxFormException(
                 templatePath = TEMPLATE_FORM,
                 errors = mapOf(
-                    mapErrorKey(ex) to (
-                            ex.message ?: "Ada kesalahan"
-                            )
+                    ex.field to ex.message
+                ),
+                formData = parameters.toFormData(),
+                formElement = formContext(),
+                mode = "add"
+            )
+        }
+        catch (ex: ApplicationException) {
+
+            logger.error(
+                "Failed to create kabupaten",
+                ex
+            )
+
+            throw HtmxFormException(
+                templatePath = TEMPLATE_FORM,
+                errors = mapOf(
+                    "nama" to (ex.message ?: "Ada kesalahan")
                 ),
                 formData = parameters.toFormData(),
                 formElement = formContext(),
@@ -240,8 +257,9 @@ class KabupatenController(
                 templatePath = TEMPLATE_FORM,
                 errors = validationErrors.toErrorMap(),
                 formData =
-                    parameters.toFormData() +
-                            ("id" to id.toString()),
+                    parameters.toFormData(
+                        "id" to id
+                    ),
                 formElement = formContext(),
                 mode = "edit"
             )
@@ -271,7 +289,8 @@ class KabupatenController(
 
             call.respond(HttpStatusCode.OK)
 
-        } catch (ex: ApplicationException) {
+        }
+        catch (ex: KabupatenException) {
 
             logger.error(
                 "Failed to update kabupaten (id: $id)",
@@ -281,13 +300,32 @@ class KabupatenController(
             throw HtmxFormException(
                 templatePath = TEMPLATE_FORM,
                 errors = mapOf(
-                    mapErrorKey(ex) to (
-                            ex.message ?: "Ada kesalahan"
-                            )
+                    ex.field to ex.message
                 ),
                 formData =
-                    parameters.toFormData() +
-                            ("id" to id.toString()),
+                    parameters.toFormData(
+                        "id" to id
+                    ),
+                formElement = formContext(),
+                mode = "edit"
+            )
+        }
+        catch (ex: ApplicationException) {
+
+            logger.error(
+                "Failed to update kabupaten (id: $id)",
+                ex
+            )
+
+            throw HtmxFormException(
+                templatePath = TEMPLATE_FORM,
+                errors = mapOf(
+                    "nama" to (ex.message ?: "Ada kesalahan")
+                ),
+                formData =
+                    parameters.toFormData(
+                        "id" to id
+                    ),
                 formElement = formContext(),
                 mode = "edit"
             )
@@ -356,20 +394,6 @@ class KabupatenController(
                 )
             )
         )
-    }
-
-    private fun mapErrorKey(
-        ex: ApplicationException
-    ): String {
-
-        val msg =
-            ex.message?.lowercase().orEmpty()
-
-        return when {
-            "provinsi" in msg -> "provinsiId"
-            "kode" in msg -> "kode"
-            else -> "nama"
-        }
     }
 
     private suspend fun formContext(): Map<String, Any> =

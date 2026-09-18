@@ -9,6 +9,7 @@ import id.darno.core.pageddata.helper.pagedQueryParameters
 import id.darno.core.pebble.helper.respondPebblePage
 import id.darno.core.session.model.UserSession
 import id.darno.core.validation.toErrorMap
+import id.darno.module.wilayah.exception.KecamatanException
 import id.darno.module.wilayah.helper.WilayahFormBuilder
 import id.darno.module.wilayah.mapper.toCreateKecamatanParams
 import id.darno.module.wilayah.mapper.toUpdateKecamatanParams
@@ -313,7 +314,8 @@ class KecamatanController(
                 HttpStatusCode.Created
             )
 
-        } catch (ex: ApplicationException) {
+        }
+        catch (ex: KecamatanException) {
 
             logger.error(
                 "Failed to create kecamatan",
@@ -323,11 +325,28 @@ class KecamatanController(
             throw HtmxFormException(
                 templatePath = TEMPLATE_FORM,
                 errors = mapOf(
-                    mapErrorKey(ex) to
-                            (
-                                    ex.message
-                                        ?: "Ada kesalahan"
-                                    )
+                    ex.field to ex.message
+                ),
+                formData =
+                    parameters.toFormData(),
+                formElement =
+                    formContext(
+                        formProvinsiIdFrom(parameters)
+                    ),
+                mode = "add"
+            )
+        }
+        catch (ex: ApplicationException) {
+
+            logger.error(
+                "Failed to create kecamatan",
+                ex
+            )
+
+            throw HtmxFormException(
+                templatePath = TEMPLATE_FORM,
+                errors = mapOf(
+                    "nama" to (ex.message ?: "Ada kesalahan")
                 ),
                 formData =
                     parameters.toFormData(),
@@ -370,8 +389,9 @@ class KecamatanController(
                 templatePath = TEMPLATE_FORM,
                 errors = validationErrors.toErrorMap(),
                 formData =
-                    parameters.toFormData() +
-                            ("id" to id.toString()),
+                    parameters.toFormData(
+                        "id" to id
+                    ),
                 formElement =
                     formContext(
                         formProvinsiIdFrom(parameters)
@@ -406,7 +426,8 @@ class KecamatanController(
                 HttpStatusCode.OK
             )
 
-        } catch (ex: ApplicationException) {
+        }
+        catch (ex: KecamatanException) {
 
             logger.error(
                 "Failed to update kecamatan (id: $id)",
@@ -416,15 +437,35 @@ class KecamatanController(
             throw HtmxFormException(
                 templatePath = TEMPLATE_FORM,
                 errors = mapOf(
-                    mapErrorKey(ex) to
-                            (
-                                    ex.message
-                                        ?: "Ada kesalahan"
-                                    )
+                    ex.field to ex.message
                 ),
                 formData =
-                    parameters.toFormData() +
-                            ("id" to id.toString()),
+                    parameters.toFormData(
+                        "id" to id
+                    ),
+                formElement =
+                    formContext(
+                        formProvinsiIdFrom(parameters)
+                    ),
+                mode = "edit"
+            )
+        }
+        catch (ex: ApplicationException) {
+
+            logger.error(
+                "Failed to update kecamatan (id: $id)",
+                ex
+            )
+
+            throw HtmxFormException(
+                templatePath = TEMPLATE_FORM,
+                errors = mapOf(
+                    "nama" to (ex.message ?: "Ada kesalahan")
+                ),
+                formData =
+                    parameters.toFormData(
+                        "id" to id
+                    ),
                 formElement =
                     formContext(
                         formProvinsiIdFrom(parameters)
@@ -505,24 +546,6 @@ class KecamatanController(
     }
 
     // HELPER
-
-    private fun mapErrorKey(
-        ex: ApplicationException
-    ): String {
-
-        val msg =
-            ex.message
-                ?.lowercase()
-                .orEmpty()
-
-        return when {
-            "kabupaten" in msg -> "kabupatenId"
-
-            "kode" in msg -> "kode"
-
-            else -> "nama"
-        }
-    }
 
     private fun formProvinsiIdFrom(
         parameters: io.ktor.http.Parameters

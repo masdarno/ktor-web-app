@@ -134,14 +134,16 @@ create table `remember_me_tokens` (
 -- ==========================================================================================
 create table `provinsi` (
   `id` tinyint unsigned auto_increment,
-  `kode` char(2) not null unique,
-  `nama` varchar(50) not null default '' unique,
+  `kode` char(2) not null,
+  `nama` varchar(50) not null default '',
   `is_active` tinyint unsigned not null default 1 check (is_active in (0, 1)),
   `created_at` datetime default current_timestamp(),
   `created_by` tinyint unsigned not null default 1,
   `updated_at` datetime default null on update current_timestamp(),
   `updated_by` tinyint unsigned,
   primary key (`id`),
+  constraint `uq_provinsi_kode` unique (`kode`),
+  constraint `uq_provinsi_nama` unique (`nama`),
   foreign key (`created_by`) references `users` (`id`) on update cascade,
   foreign key (`updated_by`) references `users` (`id`) on update cascade
 );
@@ -157,8 +159,8 @@ create table `kabupaten` (
   `updated_at` datetime default null on update current_timestamp(),
   `updated_by` tinyint unsigned,
   primary key (`id`),
-  unique key `kabupaten-kode-unique` (`provinsi_id`,`kode`),
-  foreign key (`provinsi_id`) references `provinsi` (`id`) on update cascade,
+  constraint `uq_kabupaten_kode` unique (`kode`),
+  constraint `fk_kabupaten_provinsi_id` foreign key (`provinsi_id`) references `provinsi` (`id`) on update cascade,
   foreign key (`created_by`) references `users` (`id`) on update cascade,
   foreign key (`updated_by`) references `users` (`id`) on update cascade
 );
@@ -174,8 +176,8 @@ create table `kecamatan` (
   `updated_at` datetime default null on update current_timestamp(),
   `updated_by` tinyint unsigned,
   primary key (`id`),
-  unique key `kecamatan-kode-unique` (`kabupaten_id`,`kode`),
-  foreign key (`kabupaten_id`) references `kabupaten` (`id`) on update cascade,
+  constraint `uq_kecamatan_kode` unique (`kode`),
+  constraint `fk_kecamatan_kabupaten_id` foreign key (`kabupaten_id`) references `kabupaten` (`id`) on update cascade,
   foreign key (`created_by`) references `users` (`id`) on update cascade,
   foreign key (`updated_by`) references `users` (`id`) on update cascade
 );
@@ -191,8 +193,8 @@ create table `kelurahan` (
   `updated_at` datetime default null on update current_timestamp(),
   `updated_by` tinyint unsigned,
   primary key (`id`),
-  unique key `kelurahan-kode-unique` (`kecamatan_id`,`kode`),
-  foreign key (`kecamatan_id`) references `kecamatan` (`id`) on update cascade,
+  constraint `uq_kelurahan_kode` unique (`kode`),
+  constraint `fk_kelurahan_kecamatan_id` foreign key (`kecamatan_id`) references `kecamatan` (`id`) on update cascade,
   foreign key (`created_by`) references `users` (`id`) on update cascade,
   foreign key (`updated_by`) references `users` (`id`) on update cascade
 );

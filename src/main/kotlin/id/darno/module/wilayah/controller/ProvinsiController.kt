@@ -9,19 +9,19 @@ import id.darno.core.pageddata.helper.pagedQueryParameters
 import id.darno.core.pebble.helper.respondPebblePage
 import id.darno.core.session.model.UserSession
 import id.darno.core.validation.toErrorMap
+import id.darno.module.wilayah.exception.ProvinsiException
 import id.darno.module.wilayah.helper.WilayahFormBuilder
 import id.darno.module.wilayah.mapper.toCreateProvinsiParams
 import id.darno.module.wilayah.mapper.toUpdateProvinsiParams
 import id.darno.module.wilayah.service.ProvinsiService
 import id.darno.module.wilayah.validator.CreateProvinsiValidator
 import id.darno.module.wilayah.validator.UpdateProvinsiValidator
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.ApplicationCall
-import io.ktor.server.pebble.PebbleContent
-import io.ktor.server.request.receiveParameters
-import io.ktor.server.response.respond
-import io.ktor.server.sessions.get
-import io.ktor.server.sessions.sessions
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.pebble.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.sessions.*
 import org.slf4j.LoggerFactory
 
 class ProvinsiController(
@@ -152,7 +152,23 @@ class ProvinsiController(
 
             call.respond(HttpStatusCode.Created)
 
-        } catch (ex: ApplicationException) {
+        }
+        catch (ex: ProvinsiException) {
+            logger.error(
+                "Failed to create provinsi",
+                ex
+            )
+
+            throw HtmxFormException(
+                templatePath = TEMPLATE_FORM,
+                errors = mapOf(
+                    ex.field to ex.message
+                ),
+                formData = parameters.toFormData(),
+                mode = "add"
+            )
+        }
+        catch (ex: ApplicationException) {
 
             logger.error(
                 "Failed to create provinsi",
@@ -162,9 +178,7 @@ class ProvinsiController(
             throw HtmxFormException(
                 templatePath = TEMPLATE_FORM,
                 errors = mapOf(
-                    mapErrorKey(ex) to (
-                            ex.message ?: "Ada kesalahan"
-                            )
+                    "nama" to (ex.message ?: "Ada kesalahan")
                 ),
                 formData = parameters.toFormData(),
                 mode = "add"
@@ -197,8 +211,9 @@ class ProvinsiController(
                 templatePath = TEMPLATE_FORM,
                 errors = validationErrors.toErrorMap(),
                 formData =
-                    parameters.toFormData() +
-                            ("id" to id.toString()),
+                    parameters.toFormData(
+                        "id" to id
+                    ),
                 mode = "edit"
             )
         }
@@ -227,7 +242,8 @@ class ProvinsiController(
 
             call.respond(HttpStatusCode.OK)
 
-        } catch (ex: ApplicationException) {
+        }
+        catch (ex: ProvinsiException) {
 
             logger.error(
                 "Failed to update provinsi (id: $id)",
@@ -237,13 +253,31 @@ class ProvinsiController(
             throw HtmxFormException(
                 templatePath = TEMPLATE_FORM,
                 errors = mapOf(
-                    mapErrorKey(ex) to (
-                            ex.message ?: "Ada kesalahan"
-                            )
+                    ex.field to ex.message
                 ),
                 formData =
-                    parameters.toFormData() +
-                            ("id" to id.toString()),
+                    parameters.toFormData(
+                        "id" to id
+                    ),
+                mode = "edit"
+            )
+        }
+        catch (ex: ApplicationException) {
+
+            logger.error(
+                "Failed to update provinsi (id: $id)",
+                ex
+            )
+
+            throw HtmxFormException(
+                templatePath = TEMPLATE_FORM,
+                errors = mapOf(
+                    "nama" to (ex.message ?: "Ada kesalahan")
+                ),
+                formData =
+                    parameters.toFormData(
+                        "id" to id
+                    ),
                 mode = "edit"
             )
         }
@@ -281,19 +315,6 @@ class ProvinsiController(
             )
 
             call.respond(HttpStatusCode.NoContent)
-        }
-    }
-
-    private fun mapErrorKey(
-        ex: ApplicationException
-    ): String {
-
-        val msg =
-            ex.message?.lowercase().orEmpty()
-
-        return when {
-            "kode" in msg -> "kode"
-            else -> "nama"
         }
     }
 

@@ -1,9 +1,12 @@
 package id.darno.module.wilayah.service
 
-import id.darno.core.exceptions.service.ConflictException
+import id.darno.core.exceptions.repository.DuplicateKeyException
+import id.darno.core.exceptions.repository.ForeignKeyException
 import id.darno.core.exceptions.service.NotFoundException
 import id.darno.core.pageddata.model.PagedQuery
 import id.darno.module.wilayah.domain.KecamatanDomain
+import id.darno.module.wilayah.exception.KecamatanException
+import id.darno.module.wilayah.exception.toKecamatanException
 import id.darno.module.wilayah.model.CreateKecamatanParams
 import id.darno.module.wilayah.model.UpdateKecamatanParams
 import id.darno.module.wilayah.repository.KabupatenRepository
@@ -18,22 +21,26 @@ class KecamatanServiceImpl(
         params: CreateKecamatanParams
     ): KecamatanDomain {
 
-        kabupatenRepository.findById(params.kabupatenId)
-            ?: throw NotFoundException(
-                "Kabupaten tidak ditemukan"
-            )
-
-        if (kecamatanRepository.existsByKode(
-                params.kabupatenId,
-                params.kode
-            )
-        ) {
-            throw ConflictException(
-                "Kode kecamatan ${params.kode} sudah ada pada kabupaten tersebut"
-            )
+        params.kabupatenId.let {
+            try {
+                kabupatenRepository.findById(it)
+            }
+            catch (e: NotFoundException) {
+                throw KecamatanException.KabupatenNotFound(it)
+            }
         }
 
-        return kecamatanRepository.create(params)
+        if (kecamatanRepository.existsByKode(params.kode))
+            throw KecamatanException.KodeAlreadyExists(params.kode)
+
+        return try {
+            kecamatanRepository.create(params)
+        }
+        catch (e: DuplicateKeyException) {
+            throw e.toKecamatanException(
+                kode = params.kode
+            )
+        }
     }
 
     override suspend fun getById(
@@ -53,33 +60,29 @@ class KecamatanServiceImpl(
 
         val existing = getById(id)
 
-        val kabupatenId =
-            params.kabupatenId ?: existing.kabupatenId
-
-        kabupatenRepository.findById(kabupatenId)
-            ?: throw NotFoundException(
-                "Kabupaten tidak ditemukan"
-            )
-
-        params.kode?.let { kode ->
-
-            val changed =
-                kode != existing.kode ||
-                        kabupatenId != existing.kabupatenId
-
-            if (changed &&
-                kecamatanRepository.existsByKode(
-                    kabupatenId,
-                    kode
-                )
-            ) {
-                throw ConflictException(
-                    "Kode kecamatan $kode sudah ada pada kabupaten tersebut"
-                )
+        params.kabupatenId?.let { kabupatenId ->
+            if (kabupatenId != existing.kabupatenId){
+                if (kabupatenRepository.findById(kabupatenId) == null)
+                    throw KecamatanException.KabupatenNotFound(kabupatenId)
             }
         }
 
-        return kecamatanRepository.update(id, params)
+        params.kode?.let { kode ->
+            if (kode != existing.kode){
+                if (kecamatanRepository.existsByKode(kode))
+                    throw KecamatanException.KodeAlreadyExists(kode)
+            }
+
+        }
+
+        return try {
+            kecamatanRepository.update(id, params)
+        }
+        catch (e: DuplicateKeyException) {
+            throw e.toKecamatanException(
+                kode = params.kode
+            )
+        }
     }
 
     override suspend fun delete(
@@ -88,7 +91,12 @@ class KecamatanServiceImpl(
 
         getById(id)
 
-        return kecamatanRepository.delete(id)
+        return try {
+            kecamatanRepository.delete(id)
+        }
+        catch (e: ForeignKeyException) {
+            throw KecamatanException.KecamatanInUse(e)
+        }
     }
 
     override suspend fun getTable(

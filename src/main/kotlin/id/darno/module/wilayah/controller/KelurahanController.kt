@@ -4,13 +4,12 @@ import id.darno.core.exceptions.ApplicationException
 import id.darno.core.htmx.exception.HtmxFormException
 import id.darno.core.htmx.model.ToastType
 import id.darno.core.htmx.utility.hxTriggerWithToast
-import id.darno.core.htmx.utility.respondUniversalRedirect
-import id.darno.core.htmx.utility.hxTriggerWithToast
 import id.darno.core.http.mapper.toFormData
 import id.darno.core.pageddata.helper.pagedQueryParameters
 import id.darno.core.pebble.helper.respondPebblePage
 import id.darno.core.session.model.UserSession
 import id.darno.core.validation.toErrorMap
+import id.darno.module.wilayah.exception.KelurahanException
 import id.darno.module.wilayah.helper.WilayahFormBuilder
 import id.darno.module.wilayah.mapper.toCreateKelurahanParams
 import id.darno.module.wilayah.mapper.toUpdateKelurahanParams
@@ -20,13 +19,12 @@ import id.darno.module.wilayah.service.KelurahanService
 import id.darno.module.wilayah.service.ProvinsiService
 import id.darno.module.wilayah.validator.CreateKelurahanValidator
 import id.darno.module.wilayah.validator.UpdateKelurahanValidator
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.ApplicationCall
-import io.ktor.server.pebble.PebbleContent
-import io.ktor.server.request.receiveParameters
-import io.ktor.server.response.respond
-import io.ktor.server.sessions.get
-import io.ktor.server.sessions.sessions
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.pebble.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.sessions.*
 import org.slf4j.LoggerFactory
 
 class KelurahanController(
@@ -425,7 +423,8 @@ class KelurahanController(
                 HttpStatusCode.Created
             )
 
-        } catch (ex: ApplicationException) {
+        }
+        catch (ex: KelurahanException) {
 
             logger.error(
                 "Failed to create kelurahan",
@@ -435,9 +434,27 @@ class KelurahanController(
             throw HtmxFormException(
                 templatePath = TEMPLATE_FORM,
                 errors = mapOf(
-                    mapErrorKey(ex) to (
-                            ex.message ?: "Ada kesalahan"
-                            )
+                    ex.field to ex.message
+                ),
+                formData = parameters.toFormData(),
+                formElement = formContext(
+                    formProvinsiIdFrom(parameters),
+                    formKabupatenIdFrom(parameters)
+                ),
+                mode = "add"
+            )
+        }
+        catch (ex: ApplicationException) {
+
+            logger.error(
+                "Failed to create kelurahan",
+                ex
+            )
+
+            throw HtmxFormException(
+                templatePath = TEMPLATE_FORM,
+                errors = mapOf(
+                    "nama" to (ex.message ?: "Ada kesalahan")
                 ),
                 formData = parameters.toFormData(),
                 formElement = formContext(
@@ -478,8 +495,9 @@ class KelurahanController(
                 templatePath = TEMPLATE_FORM,
                 errors = validationErrors.toErrorMap(),
                 formData =
-                    parameters.toFormData() +
-                            ("id" to id.toString()),
+                    parameters.toFormData(
+                        "id" to id
+                    ),
                 formElement = formContext(
                     formProvinsiIdFrom(parameters),
                     formKabupatenIdFrom(parameters)
@@ -514,7 +532,8 @@ class KelurahanController(
                 HttpStatusCode.OK
             )
 
-        } catch (ex: ApplicationException) {
+        }
+        catch (ex: KelurahanException) {
 
             logger.error(
                 "Failed to update kelurahan (id: $id)",
@@ -524,13 +543,35 @@ class KelurahanController(
             throw HtmxFormException(
                 templatePath = TEMPLATE_FORM,
                 errors = mapOf(
-                    mapErrorKey(ex) to (
-                            ex.message ?: "Ada kesalahan"
-                            )
+                    ex.field to ex.message
                 ),
                 formData =
-                    parameters.toFormData() +
-                            ("id" to id.toString()),
+                    parameters.toFormData(
+                        "id" to id
+                    ),
+                formElement = formContext(
+                    formProvinsiIdFrom(parameters),
+                    formKabupatenIdFrom(parameters)
+                ),
+                mode = "edit"
+            )
+        }
+        catch (ex: ApplicationException) {
+
+            logger.error(
+                "Failed to update kelurahan (id: $id)",
+                ex
+            )
+
+            throw HtmxFormException(
+                templatePath = TEMPLATE_FORM,
+                errors = mapOf(
+                    "nama" to (ex.message ?: "Ada kesalahan")
+                ),
+                formData =
+                    parameters.toFormData(
+                        "id" to id
+                    ),
                 formElement = formContext(
                     formProvinsiIdFrom(parameters),
                     formKabupatenIdFrom(parameters)
@@ -576,25 +617,6 @@ class KelurahanController(
             call.respond(
                 HttpStatusCode.NoContent
             )
-        }
-    }
-
-    private fun mapErrorKey(
-        ex: ApplicationException
-    ): String {
-
-        val msg =
-            ex.message?.lowercase().orEmpty()
-
-        return when {
-            "kecamatan" in msg ->
-                "kecamatanId"
-
-            "kode" in msg ->
-                "kode"
-
-            else ->
-                "nama"
         }
     }
 

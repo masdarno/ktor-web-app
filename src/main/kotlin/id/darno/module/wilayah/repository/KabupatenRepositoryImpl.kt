@@ -46,14 +46,12 @@ class KabupatenRepositoryImpl(
     }
 
     override suspend fun existsByKode(
-        provinsiId: Short,
         kode: String
     ): Boolean = databaseQuery {
 
         KabupatenEntity
             .find {
-                (KabupatenTable.provinsiId eq provinsiId) and
-                        (KabupatenTable.kode eq kode)
+                (KabupatenTable.kode eq kode)
             }
             .any()
     }

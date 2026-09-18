@@ -46,14 +46,12 @@ class KelurahanRepositoryImpl(
     }
 
     override suspend fun existsByKode(
-        kecamatanId: Short,
         kode: String
     ): Boolean = databaseQuery {
 
         KelurahanEntity
             .find {
-                (KelurahanTable.kecamatanId eq kecamatanId) and
-                        (KelurahanTable.kode eq kode)
+                (KelurahanTable.kode eq kode)
             }
             .any()
     }

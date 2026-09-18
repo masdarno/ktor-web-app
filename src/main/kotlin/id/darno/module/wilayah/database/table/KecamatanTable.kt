@@ -9,16 +9,24 @@ import org.jetbrains.exposed.v1.datetime.datetime
 
 object KecamatanTable : IdTable<Short>("kecamatan") {
 
+    const val KODE_UNIQUE_CONSTRAINT = "uq_kecamatan_kode"
+    const val KABUPATEN_FK_CONSTRAINT = "fk_kecamatan_kabupaten_id"
+
     override val id: Column<EntityID<Short>> =
         short("id")
             .autoIncrement()
             .entityId()
 
     val kabupatenId =
-        reference("kabupaten_id", KabupatenTable)
+        reference(
+            "kabupaten_id",
+            KabupatenTable,
+            fkName = KABUPATEN_FK_CONSTRAINT
+        )
 
     val kode =
         char("kode", 6)
+            .uniqueIndex(KODE_UNIQUE_CONSTRAINT)
 
     val nama =
         varchar("nama", 50).default("")

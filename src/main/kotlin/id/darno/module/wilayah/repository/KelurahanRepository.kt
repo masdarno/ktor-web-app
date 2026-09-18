@@ -17,7 +17,6 @@ interface KelurahanRepository {
     ): KelurahanDomain?
 
     suspend fun existsByKode(
-        kecamatanId: Short,
         kode: String
     ): Boolean
 

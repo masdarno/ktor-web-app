@@ -17,7 +17,6 @@ interface KabupatenRepository {
     ): KabupatenDomain?
 
     suspend fun existsByKode(
-        provinsiId: Short,
         kode: String
     ): Boolean
 
