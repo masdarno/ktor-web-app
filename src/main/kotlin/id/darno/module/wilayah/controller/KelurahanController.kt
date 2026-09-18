@@ -180,6 +180,9 @@ class KelurahanController(
         val kecamatanId =
             call.request.queryParameters["kecamatanId"]
                 ?.toShortOrNull()
+                ?.takeIf {
+                    it != NONE_KECAMATAN_ID
+                }
 
         val result =
             kelurahanService.getTable(

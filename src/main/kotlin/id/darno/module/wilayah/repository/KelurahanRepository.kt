@@ -30,7 +30,7 @@ interface KelurahanRepository {
     ): Boolean
 
     suspend fun findAll(
-        kecamatanId: Short?,
+        kecamatanId: Short,
         search: String?,
         page: Int,
         pageSize: Int,
