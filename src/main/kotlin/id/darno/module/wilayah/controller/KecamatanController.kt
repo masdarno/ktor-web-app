@@ -205,10 +205,15 @@ class KecamatanController(
         val filterKabupatenId =
             parameters["kabupatenId"]
                 ?.toShortOrNull()
-                ?: DEFAULT_KABUPATEN_ID
+
+        val filterProvinsiId =
+            parameters["provinsiId"]
+                ?.toShortOrNull()
 
         val formProvinsiId: Short
+        val formKabupatenId: Short
         val formData: Map<String, Any>
+        val formElement: Map<String, Any>
 
         if (id != null) {
 
@@ -232,21 +237,49 @@ class KecamatanController(
                     "nama" to kecamatan.nama,
                     "isActive" to kecamatan.isActive
                 )
+            formElement =
+                formContext(formProvinsiId)
+        }
+        else {
 
-        } else {
-
-            val kabupaten =
-                kabupatenService.getById(
-                    filterKabupatenId
-                )
+            // ADD: seperti index()
+            val provinsiList =
+                provinsiService.getAllActive()
 
             formProvinsiId =
-                kabupaten.provinsiId
+                filterProvinsiId
+                    ?.takeIf { pid ->
+                        provinsiList.any { it.id == pid }
+                    }
+                    ?: DEFAULT_PROVINSI_ID
+
+            val kabupatenList =
+                kabupatenService.getAllActiveByProvinsi(
+                    formProvinsiId
+                )
+
+            formKabupatenId =
+                filterKabupatenId
+                    ?.takeIf { kid ->
+                        kabupatenList.any { it.id == kid }
+                    }
+                    ?: kabupatenList
+                        .firstOrNull { it.id == DEFAULT_KABUPATEN_ID }
+                        ?.id
+                    ?: kabupatenList
+                        .firstOrNull()
+                        ?.id
+                    ?: NONE_KABUPATEN_ID
 
             formData =
                 mapOf(
                     "provinsiId" to formProvinsiId,
-                    "kabupatenId" to filterKabupatenId
+                    "kabupatenId" to formKabupatenId
+                )
+            formElement =
+                mapOf(
+                    "provinsiList" to provinsiList,
+                    "kabupatenList" to kabupatenList
                 )
         }
 
@@ -257,7 +290,7 @@ class KecamatanController(
                     "mode" to mode,
                     "errors" to emptyMap<String, String>(),
                     "formData" to formData,
-                    "formElement" to formContext(formProvinsiId)
+                    "formElement" to formElement
                 )
             )
         )

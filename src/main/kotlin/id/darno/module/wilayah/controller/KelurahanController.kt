@@ -284,19 +284,16 @@ class KelurahanController(
         val mode =
             parameters["mode"] ?: "add"
 
-        val filterKecamatanId =
-            parameters["kecamatanId"]
-                ?.toShortOrNull()
-                ?: DEFAULT_KECAMATAN_ID
-
         val formProvinsiId: Short
         val formKabupatenId: Short
+        val formKecamatanId: Short
         val formData: Map<String, Any>
+        val formElement: Map<String, Any>
 
         if (id != null) {
+            // EDIT
 
-            val kelurahan =
-                kelurahanService.getById(id)
+            val kelurahan = kelurahanService.getById(id)
 
             val kecamatan =
                 kecamatanService.getById(
@@ -308,51 +305,66 @@ class KelurahanController(
                     kecamatan.kabupatenId
                 )
 
-            formKabupatenId =
-                kabupaten.id
+            formKabupatenId = kabupaten.id
 
-            formProvinsiId =
-                kabupaten.provinsiId
+            formProvinsiId = kabupaten.provinsiId
 
             formData =
                 mapOf(
                     "id" to kelurahan.id,
                     "provinsiId" to formProvinsiId,
                     "kabupatenId" to formKabupatenId,
-                    "kecamatanId" to
-                            kelurahan.kecamatanId,
+                    "kecamatanId" to kelurahan.kecamatanId,
                     "kode" to kelurahan.kode,
                     "nama" to kelurahan.nama,
                     "isActive" to kelurahan.isActive
                 )
 
+            formElement = formContext(formProvinsiId, formKabupatenId)
+
         } else {
+            // ADD
 
-            val kecamatan =
-                kecamatanService.getById(
-                    filterKecamatanId
-                )
-
-            val kabupaten =
-                kabupatenService.getById(
-                    kecamatan.kabupatenId
-                )
-
-            formKabupatenId =
-                kabupaten.id
+            val provinsiList = provinsiService.getAllActive()
 
             formProvinsiId =
-                kabupaten.provinsiId
+                parameters["provinsiId"]?.toShortOrNull()
+                    ?.takeIf { pid -> provinsiList.any { it.id == pid } }
+                    ?: DEFAULT_PROVINSI_ID
 
-            formData =
-                mapOf(
-                    "provinsiId" to
-                            formProvinsiId,
-                    "kabupatenId" to
-                            formKabupatenId,
-                    "kecamatanId" to
-                            filterKecamatanId
-                )
+            val kabupatenList =
+                kabupatenService.getAllActiveByProvinsi(formProvinsiId)
+
+            formKabupatenId =
+                parameters["kabupatenId"]?.toShortOrNull()
+                    ?.takeIf { kid -> kabupatenList.any { it.id == kid } }
+                    ?: kabupatenList.firstOrNull { it.id == DEFAULT_KABUPATEN_ID }?.id
+                    ?: kabupatenList.firstOrNull()?.id
+                    ?: NONE_KABUPATEN_ID
+
+            val kecamatanList =
+                if (formKabupatenId != NONE_KABUPATEN_ID)
+                    kecamatanService.getAllActiveByKabupaten(formKabupatenId)
+                else emptyList()
+
+            formKecamatanId =
+                parameters["kecamatanId"]?.toShortOrNull()
+                    ?.takeIf { kid -> kecamatanList.any { it.id == kid } }
+                    ?: kecamatanList.firstOrNull { it.id == DEFAULT_KECAMATAN_ID }?.id
+                    ?: kecamatanList.firstOrNull()?.id
+                    ?: NONE_KECAMATAN_ID
+
+            formData = mapOf(
+                "provinsiId" to formProvinsiId,
+                "kabupatenId" to formKabupatenId,
+                "kecamatanId" to formKecamatanId
+            )
+
+            formElement = mapOf(
+                "provinsiList" to provinsiList,
+                "kabupatenList" to kabupatenList,
+                "kecamatanList" to kecamatanList
+            )
         }
 
         call.respond(
@@ -360,14 +372,9 @@ class KelurahanController(
                 TEMPLATE_FORM,
                 mapOf(
                     "mode" to mode,
-                    "errors" to
-                            emptyMap<String, String>(),
+                    "errors" to emptyMap<String, String>(),
                     "formData" to formData,
-                    "formElement" to
-                            formContext(
-                                formProvinsiId,
-                                formKabupatenId
-                            )
+                    "formElement" to formElement
                 )
             )
         )
