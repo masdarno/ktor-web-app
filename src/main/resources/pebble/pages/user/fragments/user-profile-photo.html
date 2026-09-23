@@ -1,0 +1,71 @@
+<div class="mb-3">
+
+  <label
+          for="photoFile"
+          class="form-label">
+
+    Foto Profil
+
+  </label>
+
+
+  <!-- Preview -->
+  <div class="mb-3">
+
+    <img
+            id="preview"
+            src="{{ formData.photoUrl }}"
+            class="img-thumbnail rounded"
+            style="
+                    width: 150px;
+                    height: 150px;
+                    object-fit: cover;
+                ">
+
+  </div>
+
+
+  <!-- Upload Form -->
+  <form
+          hx-post="/user-profile/{{ formData.id }}/photo"
+          hx-target="#photo-container"
+          hx-swap="innerHTML"
+          hx-encoding="multipart/form-data"
+          id="photo-form">
+
+
+    <div class="input-group">
+
+      <input
+              type="file"
+              id="photoFile"
+              name="photoFile"
+              class="form-control {% if errors.photoFile %}is-invalid{% endif %}"
+              accept="image/*"
+              onchange="previewImage(event)">
+
+
+      <button
+              type="submit"
+              class="btn btn-primary">
+
+        Upload Foto
+
+      </button>
+
+    </div>
+
+
+    {% if errors.photoFile %}
+
+    <div class="invalid-feedback d-block">
+
+      {{ errors.photoFile }}
+
+    </div>
+
+    {% endif %}
+
+  </form>
+
+</div>

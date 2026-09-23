@@ -1,0 +1,232 @@
+{% extends "layouts/app.html" %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+
+        <div class="card mb-4">
+
+            <div class="card-header">
+                Daftar Pengguna Unit
+            </div>
+
+            <div class="card-body position-relative p-4">
+
+                <!-- =====================================================
+                     TOOLBAR
+                     ===================================================== -->
+
+                <div class="row align-items-center mb-3 gx-2">
+
+                    <!-- Search -->
+                    <div class="col-md-4 col-lg-4 mb-2 mb-md-0">
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <svg class="icon">
+                                    <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-search"></use>
+                                </svg>
+                            </span>
+                            <input
+                                    class="form-control table-params"
+                                    type="text"
+                                    name="search"
+                                    placeholder="Search"
+                                    value="{{ params.search | default('') }}"
+                                    hx-get="/user-unit/table"
+                                    hx-target="#table-container"
+                                    hx-trigger="keyup changed delay:400ms"
+                                    hx-push-url="false"
+                                    hx-include=".table-params, .table-sort"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Unit -->
+                    <div class="col-md-4 col-lg-3 mb-2 mb-md-0">
+                        <select
+                                class="form-select table-params"
+                                name="unitId"
+                                hx-get="/user-unit/table"
+                                hx-target="#table-container"
+                                hx-trigger="change"
+                                hx-push-url="false"
+                                hx-include=".table-params, .table-sort"
+                        >
+                            {% for unit in units %}
+                            <option
+                                    value="{{ unit.id }}"
+                                    {% if selectedUnitId == unit.id %}selected{% endif %}
+                            >
+                                {{ unit.nama }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Tombol -->
+                    <div class="col-md-12 col-lg-4 text-lg-end">
+                        <!-- Tambah -->
+                        <button
+                                type="button"
+                                class="btn btn-primary"
+                                hx-get="/user-unit/form"
+                                hx-include=".table-params"
+                                hx-target="#form-container"
+                                hx-trigger="click"
+                                data-coreui-toggle="modal"
+                                data-coreui-target="#userModal"
+                        >
+                            <svg class="icon me-2">
+                                <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-plus"></use>
+                            </svg>
+                            Tambah
+                        </button>
+                        <!-- Tombol PDF -->
+                        <button
+                                type="button"
+                                class="btn btn-primary ms-2"
+                                data-pdf-report-url="/user-unit/report/pdf"
+                                data-pdf-params="search:input[name=search],unitId:select[name=unitId]">
+                            <svg class="icon me-2">
+                                <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-file"></use>
+                            </svg>
+                            PDF
+                        </button>
+                    </div>
+
+                    <!-- Page Size -->
+                    <div class="col-md-4 col-lg-1 mb-2 mb-md-0">
+                        <select class="form-select table-params"
+                                name="pageSize"
+                                hx-get="/user-unit/table"
+                                hx-target="#table-container"
+                                hx-trigger="change"
+                                hx-push-url="false"
+                                hx-include=".table-params, .table-sort">
+                            <option value="5"  {% if params.pageSize == 5 %}selected{% endif %}>5</option>
+                            <option value="10" {% if params.pageSize == 10 %}selected{% endif %}>10</option>
+                            <option value="25" {% if params.pageSize == 25 %}selected{% endif %}>25</option>
+                        </select>
+                    </div>
+
+                </div>
+
+
+                <!-- =====================================================
+                     TABLE
+                     ===================================================== -->
+
+                <div
+                        id="table-container"
+
+                        hx-get="/user-unit/table"
+
+                        hx-trigger="user-saved from:body, user-unit-deleted from:body"
+
+                        hx-swap="innerHTML"
+
+                        hx-include=".table-params, .table-sort"
+                >
+
+                    {% include "pages/user/fragments/user-unit-table.html" %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+
+<!-- =========================================================
+     MODAL
+     ========================================================= -->
+
+<div
+        class="modal fade"
+        id="userModal"
+        tabindex="-1"
+>
+
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+                    Form User
+                </h5>
+
+                <button
+                        class="btn-close"
+                        type="button"
+                        data-coreui-dismiss="modal"
+                ></button>
+
+            </div>
+
+            <div
+                    class="modal-body"
+                    id="form-container"
+            >
+                <!-- HTMX load form here -->
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    document.body.addEventListener("user-saved", (e) => {
+
+        coreui.Modal
+            .getInstance(
+                document.getElementById("userModal")
+            )
+            .hide();
+
+        showToast(
+            e.detail.message,
+            e.detail.type
+        );
+    });
+
+
+    document
+        .getElementById("userModal")
+        .addEventListener(
+            "hidden.coreui.modal",
+            () => {
+
+                document
+                    .getElementById("form-container")
+                    .innerHTML = "";
+
+            }
+        );
+
+
+    document.body.addEventListener("user-unit-deleted", (e) => {
+
+        showToast(
+            e.detail.message,
+            e.detail.type
+        );
+
+    });
+
+</script>
+
+<!-- Modal PDF Report -->
+{% include "shared/pdf-report-modal.html" with {
+"pdfModalTitle": "Laporan PDF - Daftar Pengguna Unit"
+} %}
+{% endblock %}

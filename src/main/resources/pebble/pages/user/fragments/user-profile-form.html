@@ -1,0 +1,106 @@
+<!-- Nama -->
+<div class="row mb-3">
+
+    <label
+            for="my-name"
+            class="col-sm-4 col-form-label">
+
+        Nama
+
+    </label>
+
+    <div class="col-sm-8">
+
+        <input
+                type="text"
+                id="my-name"
+                name="nama"
+                class="form-control {% if errors.nama %}is-invalid{% endif %}"
+                value="{{ formData.nama | default('') }}"
+                placeholder="Nama">
+
+        {% if errors.nama %}
+
+        <div class="invalid-feedback">
+
+            {{ errors.nama }}
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+<!-- Alias -->
+<div class="row mb-3">
+
+    <label
+            for="my-alias"
+            class="col-sm-4 col-form-label">
+
+        Alias
+
+    </label>
+
+    <div class="col-sm-8">
+
+        <input
+                type="text"
+                id="my-alias"
+                name="alias"
+                class="form-control {% if errors.alias %}is-invalid{% endif %}"
+                value="{{ formData.alias | default('') }}"
+                placeholder="Alias">
+
+        {% if errors.alias %}
+
+        <div class="invalid-feedback">
+
+            {{ errors.alias }}
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+<!-- Email -->
+<div class="row mb-3">
+
+    <label
+            for="email"
+            class="col-sm-4 col-form-label">
+
+        Email
+
+    </label>
+
+    <div class="col-sm-8">
+
+        <input
+                type="email"
+                id="email"
+                name="email"
+                class="form-control {% if errors.email %}is-invalid{% endif %}"
+                value="{{ formData.email | default('') }}"
+                placeholder="Email">
+
+        {% if errors.email %}
+
+        <div class="invalid-feedback">
+
+            {{ errors.email }}
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>

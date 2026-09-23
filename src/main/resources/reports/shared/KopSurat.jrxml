@@ -1,0 +1,68 @@
+<!-- Created with Jaspersoft Studio version 7.0.8.final using JasperReports Library version 7.0.8-6f896111  -->
+<jasperReport name="KopSurat" language="java" pageWidth="550" pageHeight="66" whenNoDataType="AllSectionsNoDetail" columnWidth="550" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="fbb7cfb2-99e6-4d46-ad43-f781c09009ab">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="NO_DATA_ADAPTER"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<parameter name="DATA" forPrompting="false" class="id.darno.core.report.dto.shared.KopSuratReportDto">
+		<defaultValueExpression><![CDATA[new id.darno.core.report.dto.shared.KopSuratReportDto(
+    "PEMERINTAH KERAJAAN MADHANGKARA",
+    "RAJA AGUNG MADHANGKARA",
+    "BRAMA KUMBARA",
+    "Jl. Istana Madhangkara No. 1",
+    "logo-pemkab-boyolali.jpg",
+    "logo-perumda-boyolali.png"
+)]]></defaultValueExpression>
+	</parameter>
+	<query language="sql"><![CDATA[]]></query>
+	<background splitType="Stretch"/>
+	<title height="66" splitType="Stretch">
+		<element kind="image" uuid="6b1fd175-5b4e-4ed9-ad37-71db06b4071d" x="0" y="0" width="60" height="60">
+			<property name="com.jaspersoft.studio.unit.x" value="px"/>
+			<property name="com.jaspersoft.studio.unit.y" value="px"/>
+			<property name="com.jaspersoft.studio.unit.width" value="px"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<expression><![CDATA["images/" + $P{DATA}.getLogoKiri()]]></expression>
+		</element>
+		<element kind="image" uuid="884c071a-140e-4a0f-9e4b-110c388bf1ed" x="490" y="0" width="60" height="60" hImageAlign="Right">
+			<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+			<property name="com.jaspersoft.studio.unit.y" value="px"/>
+			<property name="com.jaspersoft.studio.unit.width" value="px"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<expression><![CDATA["images/" + $P{DATA}.getLogoKanan()]]></expression>
+		</element>
+		<element kind="textField" uuid="10ccd96a-f511-439d-87ae-be68505dd429" x="50" y="0" width="450" height="15" fontName="Times New Roman" bold="false" hTextAlign="Center" vTextAlign="Middle">
+			<property name="com.jaspersoft.studio.unit.x" value="px"/>
+			<property name="com.jaspersoft.studio.unit.width" value="px"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<expression><![CDATA[$P{DATA}.getNamaPemerintah()]]></expression>
+		</element>
+		<element kind="textField" uuid="2f076ce2-6187-4a12-862d-66ea30ec1d92" x="50" y="15" width="450" height="15" fontName="Times New Roman" bold="false" hTextAlign="Center" vTextAlign="Middle">
+			<property name="com.jaspersoft.studio.unit.x" value="px"/>
+			<property name="com.jaspersoft.studio.unit.width" value="px"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<property name="com.jaspersoft.studio.unit.y" value="px"/>
+			<expression><![CDATA[$P{DATA}.getNamaPerusahaan()]]></expression>
+		</element>
+		<element kind="textField" uuid="e86b01fd-ab7a-4824-9934-51899e0b11f8" x="50" y="30" width="450" height="20" fontName="Times New Roman" fontSize="16.0" bold="false" hTextAlign="Center" vTextAlign="Middle">
+			<property name="com.jaspersoft.studio.unit.x" value="px"/>
+			<property name="com.jaspersoft.studio.unit.width" value="px"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<property name="com.jaspersoft.studio.unit.y" value="px"/>
+			<expression><![CDATA[$P{DATA}.getNamaSingkat()]]></expression>
+		</element>
+		<element kind="textField" uuid="6f96ecfa-dfb0-425b-b431-4913d071e54e" x="50" y="50" width="450" height="15" fontName="Times New Roman" bold="false" hTextAlign="Center" vTextAlign="Middle">
+			<property name="com.jaspersoft.studio.unit.x" value="px"/>
+			<property name="com.jaspersoft.studio.unit.width" value="px"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<property name="com.jaspersoft.studio.unit.y" value="px"/>
+			<expression><![CDATA[$P{DATA}.getAlamat()]]></expression>
+		</element>
+		<element kind="line" uuid="939e7945-831f-4132-b368-2a35343e8a93" x="0" y="65" width="550" height="1">
+			<property name="com.jaspersoft.studio.unit.x" value="px"/>
+			<property name="com.jaspersoft.studio.unit.y" value="px"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<property name="com.jaspersoft.studio.unit.width" value="px"/>
+			<pen lineWidth="2.0"/>
+		</element>
+		<property name="com.jaspersoft.studio.unit.height" value="px"/>
+	</title>
+</jasperReport>

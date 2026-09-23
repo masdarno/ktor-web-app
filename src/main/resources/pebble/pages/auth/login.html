@@ -1,0 +1,95 @@
+{% extends "layouts/auth.html" %}
+
+{% block content %}
+<!-- dummy field untuk menipu autofill -->
+<input type="text" style="display:none">
+<input type="password" style="display:none">
+<div class="col-lg-8">
+    <div class="card-group d-block d-md-flex row">
+        <div class="card col-md-7 p-4 mb-0">
+            <div class="card-body">
+                <h1>Login</h1>
+                <p class="text-body-secondary">Sign In to your account</p>
+                <div id="form-container">
+                    {% include "pages/auth/fragments/login-form.html" %}
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <button class="btn btn-primary px-4" type="submit" form="login-form">Login</button>
+                    </div>
+                    <div class="col-6 text-end">
+                        <a class="link-primary" href="/forgot-password">Forgot Password?</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card col-md-5 text-white bg-primary py-5">
+            <div class="card-body text-center">
+                <div>
+                    <h2>Sign up</h2>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                    <a class="btn btn-lg btn-outline-light mt-3" href="/register" role="button">Register Now!</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.body.addEventListener("htmx:afterSwap", function (evt) {console.log("htmx:afterSwap terpanggil")
+        if (evt.target.id !== "form-container") return;
+
+        const xhr = evt.detail.xhr;
+        const retryAfter = xhr.getResponseHeader("Retry-After");
+
+        if (retryAfter) {console.log("retryAfter terpanggil")
+            startLoginCooldown(parseInt(retryAfter));
+        }
+    });
+</script>
+<script>
+    function startLoginCooldown(seconds) {
+        const form = document.getElementById("login-form");
+        const button = document.querySelector('button[type="submit"][form="login-form"]');
+        const username = form.querySelector("input[name=username]");
+        const password = form.querySelector("input[name=password]");
+        const feedback = form.querySelector(".invalid-feedback");
+
+        // disable
+        button.disabled = true;
+        username.disabled = true;
+        password.disabled = true;
+
+        let remaining = seconds;
+        const originalText = feedback.textContent;
+
+        const timer = setInterval(() => {
+            feedback.textContent = `Too many requests. Try again in ${remaining}s`;
+            remaining--;
+
+            if (remaining < 0) {
+                clearInterval(timer);
+                resetLoginForm(form, feedback, originalText);
+            }
+        }, 1000);
+    }
+
+    function resetLoginForm(form, feedback, originalText) {
+        // reset state
+        form.reset();
+
+        // enable kembali
+        form.querySelectorAll("input, button").forEach(el => {
+            el.disabled = false;
+            el.classList.remove("is-invalid");
+        });
+
+        // enable button
+        const button = document.querySelector('button[type="submit"][form="login-form"]');
+        button.disabled = false
+
+        // hapus pesan error
+        feedback.remove();
+    }
+</script>
+
+{% endblock %}

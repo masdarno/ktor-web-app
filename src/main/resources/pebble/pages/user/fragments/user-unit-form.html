@@ -1,0 +1,91 @@
+{# ===============================
+FORM: Tambah User ke Unit
+=============================== #}
+
+<form
+        hx-post="/user-unit"
+        hx-target="#form-container"
+        hx-swap="innerHTML"
+        hx-include="[name]"
+>
+
+    <input type="hidden" name="unitId" value="{{ unit.id }}">
+
+    <p class="mb-3">
+        Pilih user yang akan ditambahkan ke unit
+        <strong>{{ unit.nama }}</strong>:
+    </p>
+
+    {% if errors.userIds %}
+    <div class="alert alert-danger py-2">
+        {{ errors.userIds }}
+    </div>
+    {% endif %}
+
+    <div class="mb-2">
+        <input
+                type="text"
+                class="form-control"
+                placeholder="Cari nama / username..."
+                oninput="filterUserOptions(this.value)"
+        >
+    </div>
+
+    {% if users is empty %}
+
+    <div class="text-muted mb-3">
+        Semua user sudah terdaftar pada unit ini.
+    </div>
+
+    {% else %}
+
+    <div class="mb-2">
+        <div class="form-check">
+            <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="checkAll"
+                    onclick="document.querySelectorAll('.user-checkbox').forEach(cb => cb.checked = this.checked)"
+            >
+            <label class="form-check-label fw-bold" for="checkAll">
+                Pilih Semua
+            </label>
+        </div>
+    </div>
+
+    <div id="userOptionList" style="max-height: 320px; overflow-y: auto;" class="border rounded p-2 mb-3">
+
+        {% for user in users %}
+        <div class="form-check">
+            <input
+                    class="form-check-input user-checkbox"
+                    type="checkbox"
+                    name="userIds"
+                    id="user-{{ user.id }}"
+                    value="{{ user.id }}"
+            >
+            <label class="form-check-label" for="user-{{ user.id }}">
+                {{ user.nama }} <span class="text-muted">({{ user.username }})</span>
+            </label>
+        </div>
+        {% endfor %}
+
+    </div>
+
+    <div class="text-end">
+        <button class="btn btn-primary" type="submit">Simpan</button>
+    </div>
+
+    {% endif %}
+
+</form>
+
+<script>
+    function filterUserOptions(keyword) {
+        const kw = keyword.toLowerCase();
+        document.querySelectorAll('#userOptionList .form-check').forEach(function (el) {
+            const text = el.textContent.toLowerCase();
+            el.style.display = text.includes(kw) ? '' : 'none';
+        });
+    }
+</script>

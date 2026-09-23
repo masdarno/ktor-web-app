@@ -1,0 +1,30 @@
+{% extends "layouts/auth.html" %}
+
+{% block content %}
+<div class="container mt-5 text-center">
+    {% if success %}
+    <div class="alert alert-success">
+        <h4 class="alert-heading">Berhasil!</h4>
+        <p>Email Anda telah berhasil diverifikasi.</p>
+    </div>
+
+    {% if isLoggedIn %}
+    {# Kondisi: User sedang login saat klik link #}
+    <p>Sesi Anda telah diperbarui secara otomatis.</p>
+    <a href="/" class="btn btn-primary">Lanjut ke Aplikasi</a>
+    {% else %}
+    {# Kondisi: User tidak login (misal klik di HP, login di Laptop) #}
+    <p>Silakan login untuk melanjutkan ke aplikasi.</p>
+    <a href="/login" class="btn btn-primary">Login Sekarang</a>
+    {% endif %}
+
+    {% else %}
+    <div class="alert alert-danger">
+        <h4 class="alert-heading">Gagal</h4>
+        <p>Token verifikasi tidak valid atau sudah kadaluarsa.</p>
+        <hr>
+        <a href="/login" class="btn btn-outline-danger btn-sm">Kembali ke Login</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

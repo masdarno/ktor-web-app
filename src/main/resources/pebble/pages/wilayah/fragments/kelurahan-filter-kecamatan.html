@@ -1,0 +1,19 @@
+<select
+        class="form-select table-params"
+        name="kecamatanId"
+        id="filterKecamatanId"
+        hx-get="/wilayah/kelurahan/table"
+        hx-target="#table-container"
+        hx-trigger="{% if autoLoad %}load, {% endif %}change"
+        hx-push-url="false"
+        hx-include=".table-params, .table-sort"
+>
+  {% if kecamatanList is empty %}
+  <option value="">-- Tidak ada kecamatan --</option>
+  {% endif %}
+  {% for kecamatan in kecamatanList %}
+  <option value="{{ kecamatan.id }}" {% if selectedKecamatanId == kecamatan.id %}selected{% endif %}>
+    {{ kecamatan.nama }}
+  </option>
+  {% endfor %}
+</select>

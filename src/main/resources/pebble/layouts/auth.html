@@ -1,0 +1,15 @@
+{% extends "layouts/base.html" %}
+
+{% block body %}
+<div class="min-vh-100 d-flex flex-row align-items-center">
+    <div class="container">
+        <div class="row justify-content-center">
+
+            {# AREA KONTEN DINAMIS #}
+            {% block content %}
+            {% endblock %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}

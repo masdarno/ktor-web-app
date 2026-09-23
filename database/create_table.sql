@@ -1,0 +1,200 @@
+use `ktor-web-app`;
+
+-- ==========================================================================================
+-- AUTH
+-- ==========================================================================================
+create table `roles` (
+  `id` tinyint unsigned auto_increment,
+  `nama` varchar(14) not null,
+  `is_active` tinyint unsigned not null default 1 check (is_active in (0, 1)),
+  `created_at` datetime default current_timestamp(),
+  `updated_at` datetime default null on update current_timestamp(),
+  primary key (`id`)
+);
+
+create table `menus` (
+  `id` smallint unsigned auto_increment,
+  `parent_id` smallint unsigned comment 'ID menu induk',
+  `type` enum('item','title','group','divider') not null default 'item' comment 'Tipe menu: item, title, group, atau divider',
+  `nama` varchar(255) comment 'Nama menu',
+  `url` varchar(255) comment 'URL untuk tautan',
+  `icon` varchar(255) comment 'Nama ikon (misal: cil-speedometer)',
+  `badge_text` varchar(255) comment 'Teks badge (misal: PRO, New)',
+  `badge_color` varchar(255) comment 'Kelas warna badge (misal: bg-danger-gradient)',
+  `urut` int(11) NOT NULL DEFAULT 0 COMMENT 'Urutan menu',
+  `permission_name` varchar(255) comment 'Nama permission untuk role-based access control',
+  primary key (`id`),
+  foreign key (`parent_id`) references `menus` (`id`) on delete set null on update cascade
+);
+
+create table `role_menus` (
+  `role_id` tinyint unsigned not null,
+  `menu_id` smallint unsigned not null,
+  primary key (`menu_id`,`role_id`),
+  foreign key (`role_id`) references `roles` (`id`) on update cascade,
+  foreign key (`menu_id`) references `menus` (`id`) on update cascade
+);
+
+create table `genders` (
+  `id` tinyint unsigned auto_increment,
+  `nama` varchar(50) not null default '' unique,
+  `is_active` tinyint unsigned not null default 1 check (is_active in (0, 1)),
+  `created_at` datetime default current_timestamp(),
+  `updated_at` datetime default null on update current_timestamp(),
+  primary key (`id`)
+);
+
+create table `users` (
+  `id` tinyint unsigned auto_increment,
+  `nama` varchar(60) not null,
+  `alias` varchar(50) not null default '',
+  `username` varchar(10) not null,
+  `password` char(60) not null,
+  `gender_id` tinyint unsigned not null default 2,
+  `photo` varchar(100) not null default 'male.jpg',
+  `role_id` tinyint unsigned not null,
+  `email` varchar(50) not null,
+  `email_verified_at` timestamp,
+  `is_active` tinyint unsigned not null default 1,
+  `created_at` datetime default current_timestamp(),
+  `updated_at` datetime default null on update current_timestamp(),
+  primary key (`id`),
+  constraint `uq_users_username` unique (`username`),
+  constraint `uq_users_email` unique (`email`),
+  constraint `ck_users_is_active` check (`is_active` in (0, 1)),
+  constraint `fk_users_role_id` foreign key (`role_id`) references `roles` (`id`) on update cascade,
+  constraint `fk_users_gender_id` foreign key (`gender_id`) references `genders` (`id`) on update cascade
+);
+
+create table company_profiles (
+    `id` tinyint unsigned auto_increment,
+    `nama_pemerintah` varchar(150) not null,
+    `nama_perusahaan` varchar(150) not null,
+    `nama_singkat` varchar(100) not null,
+    `alamat` varchar(255),
+    `telepon` varchar(50),
+    `email` varchar(150),
+    `website` varchar(150),
+    `logo_kiri` varchar(255),
+    `logo_kanan` varchar(255),
+    `created_at` datetime default current_timestamp(),
+    `updated_at` datetime default null on update current_timestamp()
+        on update current_timestamp,
+    primary key (`id`)
+);
+
+create table `units` (
+  `id` tinyint unsigned auto_increment,
+  `nama` varchar(50) not null default '',
+  `company_profile_id` tinyint unsigned not null default 1,
+  `is_active` tinyint unsigned not null default 1 check (is_active in (0, 1)),
+  `created_at` datetime default current_timestamp(),
+  `updated_at` datetime default null on update current_timestamp(),
+  primary key (`id`),
+  foreign key (`company_profile_id`) references `company_profiles` (`id`)
+);
+
+create table `user_units` (
+  `user_id` tinyint unsigned not null,
+  `unit_id` tinyint unsigned not null,
+  primary key (`user_id`,`unit_id`),
+  foreign key (`user_id`) references `users` (`id`),
+  foreign key (`unit_id`) references `units` (`id`)
+);
+
+create table `email_verification_tokens` (
+  `token` varchar(255) not null,
+  `user_id` tinyint(3) unsigned not null,
+  `expires_at` datetime not null,
+  primary key (`token`),
+  foreign key (`user_id`) references `users` (`id`) on delete cascade
+);
+
+create table `password_reset_tokens` (
+  `token` varchar(64) not null,
+  `user_id` tinyint(3) unsigned not null,
+  `expires_at` datetime not null,
+  `used_at` datetime,
+  primary key (`token`),
+  foreign key (`user_id`) references `users` (`id`) on delete cascade
+);
+
+create table `remember_me_tokens` (
+  `selector` varchar(64) not null,
+  `user_id` tinyint(3) unsigned not null,
+  `unit_id` tinyint(3) unsigned not null,
+  `validator_hash` varchar(255) not null,
+  `expires_at` datetime not null,
+  primary key (`selector`),
+  foreign key (`user_id`) references `users` (`id`) on delete cascade,
+  foreign key (`unit_id`) references `units` (`id`) on delete cascade
+);
+-- ==========================================================================================
+-- WILAYAH
+-- ==========================================================================================
+create table `provinsi` (
+  `id` tinyint unsigned auto_increment,
+  `kode` char(2) not null,
+  `nama` varchar(50) not null default '',
+  `is_active` tinyint unsigned not null default 1 check (is_active in (0, 1)),
+  `created_at` datetime default current_timestamp(),
+  `created_by` tinyint unsigned not null default 1,
+  `updated_at` datetime default null on update current_timestamp(),
+  `updated_by` tinyint unsigned,
+  primary key (`id`),
+  constraint `uq_provinsi_kode` unique (`kode`),
+  constraint `uq_provinsi_nama` unique (`nama`),
+  foreign key (`created_by`) references `users` (`id`) on update cascade,
+  foreign key (`updated_by`) references `users` (`id`) on update cascade
+);
+
+create table `kabupaten` (
+  `id` smallint unsigned auto_increment,
+  `provinsi_id` tinyint unsigned not null,
+  `kode` char(4) not null,
+  `nama` varchar(50) not null default '',
+  `is_active` tinyint unsigned not null default 1 check (is_active in (0, 1)),
+  `created_at` datetime default current_timestamp(),
+  `created_by` tinyint unsigned not null default 1,
+  `updated_at` datetime default null on update current_timestamp(),
+  `updated_by` tinyint unsigned,
+  primary key (`id`),
+  constraint `uq_kabupaten_kode` unique (`kode`),
+  constraint `fk_kabupaten_provinsi_id` foreign key (`provinsi_id`) references `provinsi` (`id`) on update cascade,
+  foreign key (`created_by`) references `users` (`id`) on update cascade,
+  foreign key (`updated_by`) references `users` (`id`) on update cascade
+);
+
+create table `kecamatan` (
+  `id` smallint unsigned auto_increment,
+  `kabupaten_id` smallint unsigned not null,
+  `kode` char(6) not null,
+  `nama` varchar(50) not null default '',
+  `is_active` tinyint unsigned not null default 1 check (is_active in (0, 1)),
+  `created_at` datetime default current_timestamp(),
+  `created_by` tinyint unsigned not null default 1,
+  `updated_at` datetime default null on update current_timestamp(),
+  `updated_by` tinyint unsigned,
+  primary key (`id`),
+  constraint `uq_kecamatan_kode` unique (`kode`),
+  constraint `fk_kecamatan_kabupaten_id` foreign key (`kabupaten_id`) references `kabupaten` (`id`) on update cascade,
+  foreign key (`created_by`) references `users` (`id`) on update cascade,
+  foreign key (`updated_by`) references `users` (`id`) on update cascade
+);
+
+create table `kelurahan` (
+  `id` mediumint(8) unsigned auto_increment,
+  `kecamatan_id` smallint unsigned not null,
+  `kode` char(10) not null,
+  `nama` varchar(50) not null default '',
+  `is_active` tinyint unsigned not null default 1 check (is_active in (0, 1)),
+  `created_at` datetime default current_timestamp(),
+  `created_by` tinyint unsigned not null default 1,
+  `updated_at` datetime default null on update current_timestamp(),
+  `updated_by` tinyint unsigned,
+  primary key (`id`),
+  constraint `uq_kelurahan_kode` unique (`kode`),
+  constraint `fk_kelurahan_kecamatan_id` foreign key (`kecamatan_id`) references `kecamatan` (`id`) on update cascade,
+  foreign key (`created_by`) references `users` (`id`) on update cascade,
+  foreign key (`updated_by`) references `users` (`id`) on update cascade
+);
